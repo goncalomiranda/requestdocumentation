@@ -1,0 +1,10 @@
+root
+├─ src
+│  ├─ request-documentation
+│  │ ├─ api
+│  │ | ├─ routes.ts
+│  │ ├─ domain
+│  │ ├─ data-access
+├─ libraries
+│  ├─ logger
+package.json
