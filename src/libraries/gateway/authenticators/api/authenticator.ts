@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from "express";
-import prisma from "./data-access/prismaClient"; 
+const TenantApikey = require('../data-access/TenantApiKey'); // Adjust path as needed
 
 export async function validateApiKey(apiKey: string): Promise<boolean> {
-  const foundKey = await prisma.tenantApiKey.findFirst({
+  const foundKey = await TenantApikey.findOne({
     where: { apiKey },
   });
   return !!foundKey;
 }
+
 
 export function apiKeyMiddleware() {
   return (req: Request, res: Response, next: NextFunction): void => {

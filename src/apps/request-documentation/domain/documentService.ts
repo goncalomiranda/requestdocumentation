@@ -1,25 +1,27 @@
-import prisma from "../../../libraries/data-access/prismaClient"; 
+const Document = require('../data-access/Document'); // Adjust to your Sequelize instance
+const Translation = require('../data-access/DocumentTranslation'); // Adjust to your Sequelize instance
 
 export async function getDocumentsByLanguage(lang: string = "en") {
-  const documents = await prisma.document.findMany({
-    select: {
-      doc_key: true,
-      translations: {
-        where: {
-          language: lang,
-        },
-        select: {
-          value: true,
-        },
+  const documents = await Document.findAll({
+    include: [
+      {
+        model: Translation,
+        as: "translations", // Ensure alias matches association
+        where: { language: lang },
+        attributes: ["value"],
       },
-    },
+    ],
+    attributes: ["doc_key"],
   });
+
+  console.log("Raw Documents:", JSON.stringify(documents, null, 2)); // Debugging
 
   return {
     language: lang,
-    documents: documents.map((doc) => ({
-      key: doc.doc_key,
-      value: doc.translations[0]?.value || "", // Fallback to empty string if no translation exists
+    documents: documents.map((doc : any) => ({
+      key: doc.dataValues.doc_key,
+      value:
+        doc.dataValues.translations?.[0]?.dataValues?.value || "", // Safely access nested fields
     })),
   };
 }

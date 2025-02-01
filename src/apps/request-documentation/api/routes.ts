@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import { getDocumentsByLanguage } from "../domain/documentService";
-import { apiKeyMiddleware } from "../../../libraries/authenticator";
+import { apiKeyMiddleware } from "../../../libraries/gateway/authenticators/api/authenticator";
 import apiRateLimiter from "../../../libraries/gateway/rate-limiter"; // Import rate limiter
 
 

@@ -6,5 +6,9 @@ root
 │  │ ├─ domain
 │  │ ├─ data-access
 ├─ libraries
-│  ├─ logger
+│  ├─ data-access
+│  │ ├─ prismaClient.ts
+│  ├─ gateway
+│  │ ├─ rate-limiter.ts
+│  ├─ authenticator.ts
 package.json

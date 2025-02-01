@@ -6,19 +6,6 @@ import { exec } from 'child_process';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Function to run `prisma db push` to sync the schema
-const runPrismaDbPush = () => {
-  exec('npx prisma db push', (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error pushing Prisma schema: ${stderr}`);
-    } else {
-      console.log(`Prisma schema pushed: ${stdout}`);
-    }
-  });
-};
-
-// Run the Prisma schema sync before starting the app
-runPrismaDbPush();
 
 // Middleware
 app.use(bodyParser.json());
