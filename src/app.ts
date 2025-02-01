@@ -10,18 +10,22 @@ import applySecurityMiddleware from './libraries/gateway/security';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.set('trust proxy', 1); // Trust the first proxy
+
 // Apply security middleware (CORS & Helmet)
 applySecurityMiddleware(app);
 
 
-// Serve Swagger UI globally at /docs
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Middleware
 app.use(bodyParser.json());
 
 // Routes
 app.use('/document-requests', myRoute);
+
+// Serve Swagger UI globally at /docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 
 // Define a simple route
 app.get('/', (req: Request, res: Response) => {

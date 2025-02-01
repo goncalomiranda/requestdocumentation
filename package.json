@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
+     "postbuild": "cp src/apps/request-documentation/api/swagger.yaml dist/apps/request-documentation/api/swagger.yaml",
     "dev": "nodemon --ext ts --exec ts-node src/app.ts",
     "serve": "node dist/app.js"
   },
