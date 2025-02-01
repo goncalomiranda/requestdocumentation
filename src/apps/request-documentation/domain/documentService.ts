@@ -1,5 +1,6 @@
 const Document = require('../data-access/Document'); // Adjust to your Sequelize instance
 const Translation = require('../data-access/DocumentTranslation'); // Adjust to your Sequelize instance
+import logger from '../../../libraries/loggers/logger';
 
 export async function getDocumentsByLanguage(lang: string = "en") {
   const documents = await Document.findAll({
@@ -14,7 +15,6 @@ export async function getDocumentsByLanguage(lang: string = "en") {
     attributes: ["doc_key"],
   });
 
-  console.log("Raw Documents:", JSON.stringify(documents, null, 2)); // Debugging
 
   return {
     language: lang,

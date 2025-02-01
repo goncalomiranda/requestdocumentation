@@ -1,11 +1,14 @@
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import myRoute from './apps/request-documentation/api/routes';
-import { exec } from 'child_process';
+import applySecurityMiddleware from './libraries/gateway/security';
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Apply security middleware (CORS & Helmet)
+applySecurityMiddleware(app);
 
 // Middleware
 app.use(bodyParser.json());

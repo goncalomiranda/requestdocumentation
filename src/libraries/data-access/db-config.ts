@@ -10,6 +10,7 @@ const sequelize = new Sequelize(
   process.env.DB_PASSWORD as string,
   {
     dialect: "mysql",
+    logging: false, // 🔥 Disable SQL query logging
     host: process.env.DB_HOST,
   }
 );
