@@ -13,6 +13,40 @@ router.use(apiKeyMiddleware());
 // Apply rate limiter to all routes
 router.use(apiRateLimiter);
 
+
+/**
+ * @swagger
+ * /document-requests/documents:
+ *   get:
+ *     summary: Retrieve a list of documents by language
+ *     description: Fetch all documents that have translations in the specified language.
+ *     parameters:
+ *       - in: query
+ *         name: lang
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Language code (e.g., "en", "pt").
+ *     responses:
+ *       200:
+ *         description: A list of documents
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 language:
+ *                   type: string
+ *                 documents:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       key:
+ *                         type: string
+ *                       value:
+ *                         type: string
+ */
 // Route to fetch documents by language (optional)
 router.get("/documents", async (req: Request, res: Response) => {
   logger.info('Fetching documents...');

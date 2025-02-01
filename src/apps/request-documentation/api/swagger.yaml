@@ -1,0 +1,39 @@
+openapi: 3.0.0
+info:
+  title: Request Documentation API
+  version: 1.0.0
+  description: API for handling document requests.
+servers:
+  - url: "http://localhost:3000"
+    description: Local server
+paths:
+  /document-requests/documents:
+    get:
+      summary: Retrieve all documents
+      description: Fetches a list of documents by language.
+      parameters:
+        - in: query
+          name: lang
+          required: false
+          schema:
+            type: string
+          description: The language of the documents (default is "en")
+      responses:
+        200:
+          description: A list of documents
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  language:
+                    type: string
+                  documents:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        doc_key:
+                          type: string
+                        value:
+                          type: string
