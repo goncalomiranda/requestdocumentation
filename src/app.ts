@@ -1,6 +1,9 @@
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import myRoute from './apps/request-documentation/api/routes';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './libraries/gateway/swagger'; // Path to your swagger specification
+
 import applySecurityMiddleware from './libraries/gateway/security';
 
 
@@ -9,6 +12,10 @@ const PORT = process.env.PORT || 3000;
 
 // Apply security middleware (CORS & Helmet)
 applySecurityMiddleware(app);
+
+
+// Serve Swagger UI globally at /docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Middleware
 app.use(bodyParser.json());
