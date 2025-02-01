@@ -1,0 +1,14 @@
+root
+├─ src
+│  ├─ request-documentation
+│  │ ├─ api
+│  │ | ├─ routes.ts
+│  │ ├─ domain
+│  │ ├─ data-access
+├─ libraries
+│  ├─ data-access
+│  │ ├─ prismaClient.ts
+│  ├─ gateway
+│  │ ├─ rate-limiter.ts
+│  ├─ authenticator.ts
+package.json
