@@ -7,8 +7,14 @@ root
 │  │ ├─ data-access
 ├─ libraries
 │  ├─ data-access
-│  │ ├─ prismaClient.ts
+│  │ ├─ db-config.ts
 │  ├─ gateway
+│  │ ├─ authenticators
+│ │  │ ├─ api
+│ │  │ │ ├─ authenticator.ts
+│ │  │ ├─ data-access
+│ │  │ │ ├─ Tenant.ts
+│ │  │ │ ├─ TenantApiKey.ts
 │  │ ├─ rate-limiter.ts
 │  ├─ authenticator.ts
 package.json
