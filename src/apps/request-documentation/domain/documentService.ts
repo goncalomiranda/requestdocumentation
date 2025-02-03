@@ -1,5 +1,5 @@
-const Document = require('../data-access/Document'); // Adjust to your Sequelize instance
-const Translation = require('../data-access/DocumentTranslation'); // Adjust to your Sequelize instance
+import Document from '../data-access/Document';
+import Translation  from '../data-access/DocumentTranslation';
 import logger from '../../../libraries/loggers/logger';
 
 export async function getDocumentsByLanguage(lang: string = "en") {

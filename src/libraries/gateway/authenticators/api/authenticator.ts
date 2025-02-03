@@ -1,19 +1,23 @@
 import { Request, Response, NextFunction } from "express";
-const TenantApikey = require('../data-access/TenantApiKey'); // Adjust path as needed
+import TenantApikey from '../data-access/TenantApiKey';
 
-export async function validateApiKey(apiKey: string): Promise<boolean> {
+export async function validateApiKey(apiKey: string): Promise<{ isValid: boolean; tenantId?: string }> {
   const foundKey = await TenantApikey.findOne({
     where: { apiKey },
+    attributes: ["tenantId"], // Fetch only tenantId to optimize query
   });
-  return !!foundKey;
+
+  if (!foundKey) {
+    return { isValid: false };
+  }
+
+  return { isValid: true, tenantId: foundKey.getDataValue("tenantId") };
 }
 
 
 export function apiKeyMiddleware() {
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (req: Request & { tenantId?: string }, res: Response, next: NextFunction): void => {
     const apiKey = req.headers["x-api-key"] as string;
-
-    //console.log("API key:", apiKey);
 
     if (!apiKey) {
       res.status(401).json({ error: "API key is required" });
@@ -21,12 +25,16 @@ export function apiKeyMiddleware() {
     }
 
     validateApiKey(apiKey)
-      .then((isValid) => {
+      .then(({ isValid, tenantId }) => {
         if (!isValid) {
           res.status(403).json({ error: "Invalid API key" });
           return;
         }
-        next(); // Only call `next()` if everything is valid
+
+        // Attach tenantId to request for later use
+        req.tenantId = tenantId;
+
+        next(); // Proceed to the next middleware/route
       })
       .catch((error) => {
         console.error("Error in API key validation:", error);

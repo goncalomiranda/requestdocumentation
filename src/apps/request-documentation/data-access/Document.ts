@@ -16,4 +16,4 @@ const DocumentModel = dbaccess.define('Document', {
   timestamps: false,
 });
 
-module.exports = DocumentModel;
+export default DocumentModel;

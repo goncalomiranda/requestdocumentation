@@ -3,8 +3,8 @@ import bodyParser from 'body-parser';
 import myRoute from './apps/request-documentation/api/routes';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './libraries/gateway/swagger'; // Path to your swagger specification
-
 import applySecurityMiddleware from './libraries/gateway/security';
+import sequelize from "./libraries/data-access/db-config"; // Sequelize instance
 
 
 const app = express();
@@ -32,7 +32,15 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Hello, World!');
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+// 🔹 Sync DB before starting the server
+sequelize
+  .sync()
+  .then(() => {
+    console.log("Database synchronized successfully!");
+    app.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Error syncing database:", err);
+  });

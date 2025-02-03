@@ -26,4 +26,4 @@ const TenantModel = database.define('Tenant', {
   timestamps: false, // If you don't want timestamps
 });
 
-module.exports = TenantModel;
+export default TenantModel;
