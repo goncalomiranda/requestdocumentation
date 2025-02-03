@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import db from '../../../data-access/db-config';
-const Tenant = require('./Tenant'); // Adjust path as needed
+import Tenant from './Tenant'; // Adjust path as needed
 
 const TenantApiKey = db.define('TenantApiKey', {
   id: {
@@ -30,4 +30,4 @@ const TenantApiKey = db.define('TenantApiKey', {
 TenantApiKey.belongsTo(Tenant, { foreignKey: 'tenantId' });
 Tenant.hasMany(TenantApiKey, { foreignKey: 'tenantId' });
 
-module.exports = TenantApiKey;
+export default  TenantApiKey;

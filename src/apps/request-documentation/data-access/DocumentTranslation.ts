@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import dbaccess from '../../../libraries/data-access/db-config';
-const Document = require('./Document'); // Adjust path as needed
+import Document from './Document';
 
 const DocumentTranslation = dbaccess.define('DocumentTranslation', {
   id: {
@@ -31,4 +31,4 @@ DocumentTranslation.belongsTo(Document, { foreignKey: 'documentId', as: 'documen
 Document.hasMany(DocumentTranslation, { foreignKey: 'documentId', as: 'translations' });
 
 
-module.exports = DocumentTranslation;
+export default DocumentTranslation;
