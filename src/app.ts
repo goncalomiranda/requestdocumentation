@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
+import path from "path";
 import myRoute from './apps/request-documentation/api/routes';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './libraries/gateway/swagger'; // Path to your swagger specification
@@ -15,8 +16,6 @@ app.set('trust proxy', 1); // Trust the first proxy
 // Apply security middleware (CORS & Helmet)
 applySecurityMiddleware(app);
 
-
-
 // Middleware
 app.use(bodyParser.json());
 
@@ -27,9 +26,11 @@ app.use('/document-requests', myRoute);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
-// Define a simple route
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello, World!');
+app.use(express.static(path.join(__dirname, "public")));
+
+// ✅ Handle all other routes and serve frontend "index.html"
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // 🔹 Sync DB before starting the server

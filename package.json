@@ -14,6 +14,7 @@
   "description": "",
   "dependencies": {
     "@sendgrid/mail": "^8.1.4",
+    "@testing-library/react": "^16.2.0",
     "@types/body-parser": "^1.19.5",
     "@types/cors": "^2.8.17",
     "@types/sendgrid": "^2.0.31",
@@ -27,6 +28,8 @@
     "express-winston": "^4.2.0",
     "helmet": "^8.0.0",
     "mysql2": "^3.12.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "sendgrid": "^5.2.3",
     "sequelize": "^6.37.5",
     "swagger-jsdoc": "^6.2.8",

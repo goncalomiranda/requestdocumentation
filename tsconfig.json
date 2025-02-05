@@ -7,5 +7,7 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true
-  }
+  },
+  "exclude": ["upload-documents"]
+
 }

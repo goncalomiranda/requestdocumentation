@@ -3,18 +3,20 @@ root
 │  ├─ request-documentation
 │  │ ├─ api
 │  │ | ├─ routes.ts
+│  │ | ├─ swagger.yaml
 │  │ ├─ domain
 │  │ ├─ data-access
+│  │ │ │ ├─ RequestedDocumentation.ts
 ├─ libraries
 │  ├─ data-access
 │  │ ├─ db-config.ts
 │  ├─ gateway
 │  │ ├─ authenticators
-│ │  │ ├─ api
-│ │  │ │ ├─ authenticator.ts
-│ │  │ ├─ data-access
-│ │  │ │ ├─ Tenant.ts
-│ │  │ │ ├─ TenantApiKey.ts
+│  │ │ ├─ api
+│  │ │ │ ├─ authenticator.ts
+│  │ │ ├─ data-access
+│  │ │ │ ├─ Tenant.ts
+│  │ │ │ ├─ TenantApiKey.ts
 │  │ ├─ rate-limiter.ts
-│  ├─ authenticator.ts
+│  ├─ app.ts
 package.json
