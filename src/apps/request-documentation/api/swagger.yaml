@@ -114,3 +114,49 @@ paths:
                   error:
                     type: string
                     example: "Invalid request format"
+  /document/upload:
+    get:
+      summary: Retrieve document upload details
+      description: Fetches details for document upload using a token.
+      parameters:
+        - in: query
+          name: token
+          required: true
+          schema:
+            type: string
+          description: Unique token identifying the document upload request
+      responses:
+        200:
+          description: Details of the document upload request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                  box_key:
+                    type: string
+                  unique_link:
+                    type: string
+                  created_at:
+                    type: string
+                    format: date-time
+                  expiry_date:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                  language:
+                    type: string
+                  documents:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                        quantity:
+                          type: integer
