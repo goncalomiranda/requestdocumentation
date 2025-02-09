@@ -1,7 +1,8 @@
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import path from "path";
-import myRoute from './apps/request-documentation/api/routes';
+import documentation from './apps/request-documentation/api/routes';
+import uploadDocuments from './apps/request-documentation/api/getdocumentuploadroute';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './libraries/gateway/swagger'; // Path to your swagger specification
 import applySecurityMiddleware from './libraries/gateway/security';
@@ -20,7 +21,8 @@ applySecurityMiddleware(app);
 app.use(bodyParser.json());
 
 // Routes
-app.use('/document-requests', myRoute);
+app.use('/document-requests', documentation);
+app.use('/request-documentation', uploadDocuments);
 
 // Serve Swagger UI globally at /docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

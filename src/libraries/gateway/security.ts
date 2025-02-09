@@ -9,7 +9,7 @@ export default function applySecurityMiddleware(app: Express) {
     app.use(
       cors({
         origin: (origin, callback) => {
-          const allowedOrigins = ['https://ts.goncalomiranda.dev', 'http://localhost:3000'];
+          const allowedOrigins = ['https://ts.goncalomiranda.dev', 'http://localhost:3000','http://localhost:5173'];
   
           if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
@@ -19,7 +19,7 @@ export default function applySecurityMiddleware(app: Express) {
           }
         },
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
-        allowedHeaders: ['Content-Type', 'Authorization'], // Fix: Added 'Authorization'
+        allowedHeaders: ['Content-Type', 'Authorization','x-api-key'], // Fix: Added 'Authorization'
         credentials: true, // Ensure cookies & auth headers work
       })
     );
