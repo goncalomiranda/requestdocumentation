@@ -2,8 +2,28 @@ import Document from '../data-access/Document';
 import Translation  from '../data-access/DocumentTranslation';
 import RequestedDocumentation from '../data-access/RequestDocumentation';
 import logger from '../../../libraries/loggers/logger';
+import fs from 'fs';
 import { AppError }  from '../../../libraries/appError';
 import { getDocumentsByLanguage } from "./documentService";
+
+export async function uploadDocuments(token: string, files: Express.Multer.File[]) {
+
+  if (!token) {
+    logger.error("Request ID is missing");
+    deleteFiles(files); // Ensure files are deleted
+    throw new AppError("U1", "Bad Request", true);
+  }
+
+  const requestedDocumentation = await RequestedDocumentation.findOne({
+    where: {
+      request_id: token,
+    },
+    //attributes: ["request_id", "lang"], // Explicitly select 'lang'
+  });
+
+  console.log("requestedDocumentation", requestedDocumentation);
+  
+}
 
 export async function getDocumentsToUpload(token: string = "") {
 
@@ -87,3 +107,15 @@ function isRequestExpired(expiry_date: string) {
   const now = new Date();
   return newExpiryDate < now;
 }
+
+const deleteFiles = (files : any) => {
+  files.forEach((file : any) => {
+    fs.unlink(file.path, (err) => {
+      if (err) {
+        logger.error(`Error deleting file ${file.path}:`, err);
+      } else {
+        logger.info(`Successfully deleted file ${file.path}`);
+      }
+    });
+  });
+};

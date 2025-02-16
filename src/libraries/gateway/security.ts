@@ -11,7 +11,8 @@ export default function applySecurityMiddleware(app: Express) {
         origin: (origin, callback) => {
           const allowedOrigins = ['https://ts.goncalomiranda.dev', 'http://localhost:3000','http://localhost:5173'];
   
-          if (!origin || allowedOrigins.includes(origin)) {
+          
+          if (!origin || allowedOrigins.includes(origin) || origin === "null") {
             callback(null, true);
           } else {
             console.log(`🚫 Blocked origin: ${origin}`);
@@ -23,6 +24,9 @@ export default function applySecurityMiddleware(app: Express) {
         credentials: true, // Ensure cookies & auth headers work
       })
     );
+
+    // Explicitly handle preflight requests
+    app.options('*', cors());
   
     app.use(helmet());
   
