@@ -22,13 +22,10 @@ router.post("/upload", upload.any(), async (req: Request, res: Response) => {
   // Extract uploaded files
   const files: Express.Multer.File[] = req.files as Express.Multer.File[];
 
-  // Call uploadDocuments with extracted values
-  const response = await uploadDocuments(token, files);
-
   try {
     await uploadDocuments(token, files);
     res.status(200).json({ message: "Your documents have been uploaded successfully" });
-  } catch (error) {
+  } catch (error:any) {
     res.status(500).json({ message: "Internal server error", error });
   }
 

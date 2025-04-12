@@ -1,18 +1,22 @@
-import Document from '../data-access/Document';
-import Translation  from '../data-access/DocumentTranslation';
 import RequestedDocumentation from '../data-access/RequestDocumentation';
 import logger from '../../../libraries/loggers/logger';
 import fs from 'fs';
 import { AppError }  from '../../../libraries/appError';
 import { getDocumentsByLanguage } from "./documentService";
 
+import  { createFile }   from '../../../libraries/googledrive/driveapi';
+import streakFiles from '../../../libraries/streak/files';
+
 export async function uploadDocuments(token: string, files: Express.Multer.File[]) {
 
+  console.log("uploading...."); 
   if (!token) {
     logger.error("Request ID is missing");
     deleteFiles(files); // Ensure files are deleted
     throw new AppError("U1", "Bad Request", true);
   }
+
+  logger.info("token: " + token);
 
   const requestedDocumentation = await RequestedDocumentation.findOne({
     where: {
@@ -21,7 +25,63 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
     //attributes: ["request_id", "lang"], // Explicitly select 'lang'
   });
 
-  console.log("requestedDocumentation", requestedDocumentation);
+  if (requestedDocumentation) {
+
+    if (isRequestExpired(requestedDocumentation.dataValues.expiry_date)) {
+      logger.error("Request has 111");
+      await RequestedDocumentation.update(
+        { status: "EXPIRED" },
+        { where: { request_id: token } }
+      );
+      deleteFiles(files); // Ensure files are deleted
+      logger.error("Request has expired");
+      throw new AppError("U2", "Bad Request", true);
+    }
+
+    // Save documents to Google Drive
+    const docIds = [];
+    for (const file of files) {
+      const matches = file.fieldname.match(/documents\[([^\]]+)\]/);
+      const documentType = matches ? matches[1] : null;
+
+      if (!documentType) {
+        logger.error(
+          `Document type could not be extracted from fieldname: ${file.fieldname}`
+        );
+        continue; // Skip this file
+      }
+
+      const customMetadata = { documentType: documentType };
+      const fileStream = fs.createReadStream(file.path);
+      const driveDoc = await createFile(
+        file.originalname,
+        null,
+        file.mimetype,
+        fileStream,
+        customMetadata
+      );
+
+      docIds.push({
+        driveBoxKey: requestedDocumentation.dataValues.customer_id,
+        driveFileId: driveDoc.fileId,
+      });
+
+      //console.log("File uploaded to Google Drive: ", requestedDocumentation.dataValues.customer_id);
+      
+      streakFiles.addFilesToBox(docIds);
+
+      await RequestedDocumentation.update(
+        { status: "DONE" },
+        { where: { request_id: token } }
+      );
+
+    }
+
+  }
+
+  console.log("deleting....");
+  deleteFiles(files); // Ensure files are deleted
+
   
 }
 
@@ -36,15 +96,18 @@ export async function getDocumentsToUpload(token: string = "") {
 
   if (requestedDocumentation) {
     logger.info("Requested documentation found.");
+    logger.debug("Requested documentation found: "  +JSON.stringify(requestedDocumentation));
     const documentTypes = await getDocumentsByLanguage(requestedDocumentation.get("lang") as string);
+    logger.info("Requested documentation documentTypes: "  +JSON.stringify(documentTypes));
 
     //check if documentation request is expired
     if (isRequestExpired(requestedDocumentation.dataValues.expiry_date)) {
+      logger.info("expiring documentation");
       RequestedDocumentation.update(
         { status: "EXPIRED" },
         {
           where: {
-            request_id: token+"merda",
+            request_id: token,
           },
         }
       ).then((result) => {
@@ -110,6 +173,7 @@ function isRequestExpired(expiry_date: string) {
 
 const deleteFiles = (files : any) => {
   files.forEach((file : any) => {
+    console.log(file.path);
     fs.unlink(file.path, (err) => {
       if (err) {
         logger.error(`Error deleting file ${file.path}:`, err);
