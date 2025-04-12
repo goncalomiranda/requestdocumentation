@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "postbuild": "cp -r dist/* ../src/public && cp -r dist/* ../dist/public",
     "lint": "eslint .",
     "preview": "vite preview"
   },

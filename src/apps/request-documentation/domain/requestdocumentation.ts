@@ -23,7 +23,7 @@ export async function requestDocumentation(DocumentationRequest: DocumentationRe
     // Construct the unique link, conditionally adding the port in development
     const uniqueLink =
       process.env.NODE_ENV === "production"
-        ? `https://${baseUrl}/document/upload?token=${token}`
+        ? `https://${baseUrl}/upload?token=${token}`
         : `http://${baseUrl}:3001/document/upload?token=${token}`;
 
     // Prepare data to be saved
