@@ -1,5 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useTranslation } from "./TranslationProvider";
 
 interface Document {
   key: string;
@@ -15,6 +16,7 @@ interface Documentation {
 function UploadPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
+  const t = useTranslation();
 
   const [documentation, setDocumentation] = useState<Documentation | null>(null);
   const [isValid, setIsValid] = useState<boolean | null>(null);
@@ -91,12 +93,10 @@ function UploadPage() {
     return (
       <div className="bg-dark text-secondary px-4 py-5 text-center" id="mainDivDocumentation">
         <div className="py-5">
-          <h1 className="display-5 fw-bold text-white">Upload Documents</h1>
+          <h1 className="display-5 fw-bold text-white">{t.uploadDocuments}</h1>
           <div className="col-lg-6 mx-auto">
-            <p className="fs-5 mb-4">
-              Upload required documents securely and efficiently. Select files, provide optional details, and submit them for processing—all in a user-friendly interface.
-            </p>
-            <p className="text-info" style={{display: "none"}}>{error || "Documentation Unavailable"}</p>
+            <p className="fs-5 mb-4">{t.uploadDescription}</p>
+            <p className="text-info" style={{display: "none"}}>{error || t.documentationUnavailable}</p>
           </div>
         </div>
       </div>
@@ -111,17 +111,15 @@ function UploadPage() {
     <main>
       <div className="bg-dark text-secondary px-4 py-5 text-center" id="mainDivDocumentation">
         <div className="py-5">
-          <h1 className="display-5 fw-bold text-white">Upload Documents</h1>
+          <h1 className="display-5 fw-bold text-white">{t.uploadDocuments}</h1>
           <div className="col-lg-6 mx-auto">
-            <p className="fs-5 mb-4">
-              Upload required documents securely and efficiently. Select files, provide optional details, and submit them for processing—all in a user-friendly interface.
-            </p>
+            <p className="fs-5 mb-4">{t.uploadDescription}</p>
           </div>
 
           {/* Hide this section if token is missing or after successful submission */}
           {token && !uploadSuccess && (
             <div id="requiredDocumentsDiv">
-              <h2 className="mb-4">Required Documents</h2>
+              <h2 className="mb-4">{t.requiredDocuments}</h2>
               <form onSubmit={handleUpload} encType="multipart/form-data">
                 <input type="hidden" name="request_id" value={documentation.request_id} />
                 <div className="row justify-content-center bg-dark text-light py-4" id="documentationList">
@@ -136,7 +134,7 @@ function UploadPage() {
                           {[...Array(doc.quantity)].map((_, i) => (
                             <div className="mb-3" key={i}>
                               <label htmlFor={`upload_${index}_${i}`} className="form-label">
-                                Upload File {i + 1}
+                                {t.uploadFile} {i + 1}
                               </label>
                               <input
                                 type="file"
@@ -158,10 +156,10 @@ function UploadPage() {
                     {loading ? (
                       <>
                         <span className="spinner-grow spinner-grow-sm me-2" role="status" />
-                        Uploading...
+                        {t.uploading}
                       </>
                     ) : (
-                      "Submit Documents"
+                      t.submitDocuments
                     )}
                   </button>
                 </div>
@@ -177,13 +175,13 @@ function UploadPage() {
           <div className="modal-dialog">
             <div className="modal-content bg-dark text-light">
               <div className="modal-header">
-                <h5 className="modal-title">Success</h5>
+                <h5 className="modal-title">{t.success}</h5>
                 <button type="button" className="btn-close" onClick={handleSuccessClose}></button>
               </div>
               <div className="modal-body">{uploadSuccess}</div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-outline-light" onClick={handleSuccessClose}>
-                  Close
+                  {t.close}
                 </button>
               </div>
             </div>
@@ -197,13 +195,13 @@ function UploadPage() {
           <div className="modal-dialog">
             <div className="modal-content bg-dark text-light">
               <div className="modal-header">
-                <h5 className="modal-title">Error</h5>
+                <h5 className="modal-title">{t.error}</h5>
                 <button type="button" className="btn-close" onClick={() => setUploadError(null)}></button>
               </div>
               <div className="modal-body">{uploadError}</div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-outline-light" onClick={() => setUploadError(null)}>
-                  Close
+                  {t.close}
                 </button>
               </div>
             </div>

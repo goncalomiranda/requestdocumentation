@@ -4,7 +4,7 @@ import translations from '../assets/translations.json';
 const TranslationContext = createContext(translations.en);
 
 export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const userLang = navigator.language || navigator.userLanguage;
+  const userLang = navigator.language;
   const selectedLanguage = userLang.startsWith("pt") ? translations.pt : translations.en;
 
   return (

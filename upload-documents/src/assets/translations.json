@@ -1,10 +1,28 @@
 {
   "en": {
     "uploadDocuments": "Upload Documents",
+    "uploadDescription": "Upload required documents securely and efficiently. Select files, provide optional details, and submit them for processing—all in a user-friendly interface.",
+    "documentationUnavailable": "Documentation upload is currently unavailable",
+    "requiredDocuments": "Required Documents",
+    "uploadFile": "Upload File",
+    "uploading": "Uploading...",
+    "submitDocuments": "Submit Documents",
+    "success": "Success",
+    "error": "Error",
+    "close": "Close",
     "learnMore": "Click on the Vite and React logos to learn more"
   },
   "pt": {
     "uploadDocuments": "Carregar Documentos",
+    "uploadDescription": "Submeta os documentos necessários de forma segura e eficiente. Seleccione os ficheiros, introduza informações adicionais, se necessário, e envie-os para processamento através de uma interface profissional e intuitiva.",
+    "documentationUnavailable": "O carregamento de documentação não está disponível no momento",
+    "requiredDocuments": "Documentos Necessários",
+    "uploadFile": "Carregar Arquivo",
+    "uploading": "Carregando...",
+    "submitDocuments": "Enviar Documentos",
+    "success": "Sucesso",
+    "error": "Erro",
+    "close": "Fechar",
     "learnMore": "Clique nos logotipos do Vite e do React para saber mais"
   }
 }
