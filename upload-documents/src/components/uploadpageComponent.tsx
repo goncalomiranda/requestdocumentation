@@ -1,6 +1,7 @@
 import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useTranslation } from "./TranslationProvider";
+import LogoSection from "./LogoSection";
 
 interface Document {
   key: string;
@@ -91,15 +92,23 @@ function UploadPage() {
 
   if (isValid === false) {
     return (
-      <div className="bg-dark text-secondary px-4 py-5 text-center" id="mainDivDocumentation">
-        <div className="py-5">
-          <h1 className="display-5 fw-bold text-white">{t.uploadDocuments}</h1>
-          <div className="col-lg-6 mx-auto">
-            <p className="fs-5 mb-4">{t.uploadDescription}</p>
-            <p className="text-info" style={{display: "none"}}>{error || t.documentationUnavailable}</p>
+      <>
+        <LogoSection />
+        <div className="bg-dark text-secondary px-4 pt-2 pb-5 text-center" id="mainDivDocumentation">
+          <div className="py-4">
+            <h1 className="display-5 fw-bold text-white">{t.uploadDocuments}</h1>
+            <div className="col-lg-6 mx-auto">
+              <p className="fs-5 mb-4">{t.uploadDescription}</p>
+              <p className="text-info" style={{display: "none"}}>{error || t.documentationUnavailable}</p>
+            </div>
           </div>
         </div>
-      </div>
+        <footer className="fixed-bottom bg-dark text-center py-3">
+          <span className="text-secondary">
+            made by <a href="https://goncalomiranda.dev" className="text-info text-decoration-none" target="_blank" rel="noopener noreferrer">goncalomiranda.dev</a>
+          </span>
+        </footer>
+      </>
     );
   }
 
@@ -109,8 +118,9 @@ function UploadPage() {
 
   return (
     <main>
-      <div className="bg-dark text-secondary px-4 py-5 text-center" id="mainDivDocumentation">
-        <div className="py-5">
+      <LogoSection />
+      <div className="bg-dark text-secondary px-4 pt-2 pb-5 text-center" id="mainDivDocumentation">
+        <div className="py-4">
           <h1 className="display-5 fw-bold text-white">{t.uploadDocuments}</h1>
           <div className="col-lg-6 mx-auto">
             <p className="fs-5 mb-4">{t.uploadDescription}</p>
@@ -208,6 +218,12 @@ function UploadPage() {
           </div>
         </div>
       )}
+
+      <footer className="fixed-bottom bg-dark text-center py-3">
+        <span className="text-secondary">
+          made by <a href="https://goncalomiranda.dev" className="text-info text-decoration-none" target="_blank" rel="noopener noreferrer">goncalomiranda.dev</a>
+        </span>
+      </footer>
     </main>
   );
 }
