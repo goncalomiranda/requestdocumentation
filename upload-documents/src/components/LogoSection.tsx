@@ -1,16 +1,17 @@
-import reactLogo from '../assets/react.svg';
-import viteLogo from '/vite.svg';
-
 function LogoSection() {
   return (
-    <div>
-      <a href="https://vite.dev" target="_blank">
-        <img src={viteLogo} className="logo" alt="Vite logo" />
-      </a>
-      <a href="https://react.dev" target="_blank">
-        <img src={reactLogo} className="logo react" alt="React logo" />
-      </a>
-    </div>
+    <header className="container mb-0">
+      <div className="row justify-content-center align-items-center my-2">
+        <div className="col-auto">
+          <img 
+            src="/lvf_requestdocumentation.png" 
+            className="img-fluid" 
+            alt="Company logo" 
+            style={{ maxHeight: '320px' }} 
+          />
+        </div>
+      </div>
+    </header>
   );
 }
 
