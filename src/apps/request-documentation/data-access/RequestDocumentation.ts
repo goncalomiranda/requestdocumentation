@@ -36,9 +36,13 @@ const RequestedDocumentation = dbaccess.define(
       allowNull: false,
     },
     lang: {
-        type: DataTypes.STRING(100),
-        allowNull: false,
-      },    
+      type: DataTypes.STRING(100),
+      allowNull: false,
+    },
+    folder: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+    },
     tenant_id: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -60,4 +64,4 @@ const RequestedDocumentation = dbaccess.define(
 TenantModel.hasMany(RequestedDocumentation, { foreignKey: "tenant_id" });
 RequestedDocumentation.belongsTo(TenantModel, { foreignKey: "tenant_id" });
 
-export default  RequestedDocumentation;
+export default RequestedDocumentation;

@@ -1,15 +1,15 @@
 import RequestedDocumentation from '../data-access/RequestDocumentation';
 import logger from '../../../libraries/loggers/logger';
 import fs from 'fs';
-import { AppError }  from '../../../libraries/appError';
+import { AppError } from '../../../libraries/appError';
 import { getDocumentsByLanguage } from "./documentService";
 
-import  { createFile }   from '../../../libraries/googledrive/driveapi';
+import { createFile } from '../../../libraries/googledrive/driveapi';
 import streakFiles from '../../../libraries/streak/files';
 
 export async function uploadDocuments(token: string, files: Express.Multer.File[]) {
 
-  console.log("uploading...."); 
+  console.log("uploading....");
   if (!token) {
     logger.error("Request ID is missing");
     deleteFiles(files); // Ensure files are deleted
@@ -55,7 +55,7 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
       const fileStream = fs.createReadStream(file.path);
       const driveDoc = await createFile(
         file.originalname,
-        null,
+        requestedDocumentation.dataValues.folder, // Use folder from requestedDocumentation
         file.mimetype,
         fileStream,
         customMetadata
@@ -67,7 +67,7 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
       });
 
       //console.log("File uploaded to Google Drive: ", requestedDocumentation.dataValues.customer_id);
-      
+
       streakFiles.addFilesToBox(docIds);
 
       await RequestedDocumentation.update(
@@ -82,7 +82,7 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
   console.log("deleting....");
   deleteFiles(files); // Ensure files are deleted
 
-  
+
 }
 
 export async function getDocumentsToUpload(token: string = "") {
@@ -96,9 +96,9 @@ export async function getDocumentsToUpload(token: string = "") {
 
   if (requestedDocumentation) {
     logger.info("Requested documentation found.");
-    logger.debug("Requested documentation found: "  +JSON.stringify(requestedDocumentation));
+    logger.debug("Requested documentation found: " + JSON.stringify(requestedDocumentation));
     const documentTypes = await getDocumentsByLanguage(requestedDocumentation.get("lang") as string);
-    logger.info("Requested documentation documentTypes: "  +JSON.stringify(documentTypes));
+    logger.info("Requested documentation documentTypes: " + JSON.stringify(documentTypes));
 
     //check if documentation request is expired
     if (isRequestExpired(requestedDocumentation.dataValues.expiry_date)) {
@@ -111,15 +111,15 @@ export async function getDocumentsToUpload(token: string = "") {
           },
         }
       ).then((result) => {
-          console.log("fetching documentation");
-        })
+        console.log("fetching documentation");
+      })
         .catch((err) => {
           logger.error("Error updating documentation status to EXPIRED");
           logger.error(err);
           throw new AppError("G1", "Error updating documentation status to EXPIRED", true);
         });
 
-        throw new AppError("G1", "Error", true);
+      throw new AppError("G1", "Error", true);
     }
 
 
@@ -134,7 +134,7 @@ export async function getDocumentsToUpload(token: string = "") {
 
     const parsedDocuments = JSON.parse(requestedDocumentation.dataValues.requested_documents.trim());
 
-    const finalDocuments = parsedDocuments.map((doc : any) => {
+    const finalDocuments = parsedDocuments.map((doc: any) => {
       const description = documentTypes.documents.find(d => d.key === doc.key);
       return {
         key: doc.key,
@@ -151,12 +151,12 @@ export async function getDocumentsToUpload(token: string = "") {
       ...rest, // Includes all other fields except requested_documents
       documents: finalDocuments // Parse and add as "documents"
     };
-    
+
     //throw new AppError("G12", "Error", true);
-  
+
     return transformedDocumentation;
-  
-  
+
+
   } else {
     console.log("Requested documentation not found.");
     throw new AppError("G3", "Requested documentation not found.", true);
@@ -171,8 +171,8 @@ function isRequestExpired(expiry_date: string) {
   return newExpiryDate < now;
 }
 
-const deleteFiles = (files : any) => {
-  files.forEach((file : any) => {
+const deleteFiles = (files: any) => {
+  files.forEach((file: any) => {
     console.log(file.path);
     fs.unlink(file.path, (err) => {
       if (err) {
