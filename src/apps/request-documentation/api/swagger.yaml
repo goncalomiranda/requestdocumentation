@@ -78,6 +78,9 @@ paths:
                     languagePreference:
                       type: string
                       description: Preferred language of the customer (e.g., "en", "pt")
+                    folder:
+                      type: string
+                      description: Folder Id where all documents should be stored
                 documents:
                   type: array
                   items:
@@ -90,6 +93,7 @@ paths:
                       quantity:
                         type: integer
                         description: Number of copies required
+
       responses:
         201:
           description: Document request created successfully
