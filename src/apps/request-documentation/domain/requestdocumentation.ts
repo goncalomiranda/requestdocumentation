@@ -3,7 +3,9 @@ import logger from '../../../libraries/loggers/logger';
 import { DocumentationRequest } from './models/RequestDocumentationModel';
 import crypto from 'crypto';
 import dotenv from "dotenv";
-import { sendEmailWithTemplate } from '../../../libraries/email/email'; // Adjust path 
+import { sendWelcomeEmail } from '../../../libraries/email/nodemail'; // Use nodemailer version
+import fs from "fs";
+import path from "path";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -43,30 +45,64 @@ export async function requestDocumentation(DocumentationRequest: DocumentationRe
   // Save to the database
   await RequestedDocumentation.create(requestData);
 
-  //send email to customer with generated link
+
+  // Prepare email template data
   try {
-    // Call the sendEmailWithTemplate method
-    await sendEmailWithTemplate({
+    // Determine language and load template data
+    const lang = (DocumentationRequest.customer.languagePreference || "EN").toUpperCase();
+    const templateDataPath = path.join(
+      __dirname,
+      "../../../libraries/email/templates/documentation_requested/documentation_requested_data.json"
+    );
+
+    const templateDataRaw = fs.readFileSync(templateDataPath, "utf8");
+    const templateDataJson = JSON.parse(templateDataRaw);
+    const templateData = templateDataJson[lang];
+
+    // Replace {{name}} in the title with the customer's name
+    const processedTitle = templateData.title.replace(/{{name}}/g, DocumentationRequest.customer.name);
+    // Replace {{expiryDate}} in the body with the formatted expiry date
+    const processedBody = templateData.body.replace(/{{expiryDate}}/g, formatDate(expiryDate));
+
+    // Load HTML template
+    const templateHtmlPath = path.join(
+      __dirname,
+      "../../../libraries/email/templates/documentation_requested/documentation_requested_template.html"
+    );
+
+    let emailHtml = fs.readFileSync(templateHtmlPath, "utf8");
+
+
+    // Replace placeholders in HTML 
+    emailHtml = emailHtml
+      .replace(/{{subject}}/g, templateData.subject)
+      .replace(/{{title}}/g, processedTitle)
+      .replace(/{{greeting}}/g, templateData.greeting)
+      .replace(/{{customerName}}/g, DocumentationRequest.customer.name)
+      .replace(/{{body}}/g, processedBody)
+      .replace(/{{expiryDate}}/g, formatDate(expiryDate))
+      .replace(/{{uniquelink}}/g, uniqueLink)
+      .replace(/{{buttonLabel}}/g, templateData.buttonLabel)
+      .replace(/{{footer}}/g, templateData.footer);
+
+    // Send email
+    await sendWelcomeEmail({
       to: DocumentationRequest.customer.email,
-      from: process.env.SENDGRID_SENDER || '',
-      templateId: process.env.SENDGRID_REQUESTDOCUMENTATION_TEMPLATE_ID || '',
-      dynamicTemplateData: {
-        name: DocumentationRequest.customer.name, // Template variable: {{firstName}}
-        expiryDate: formatDate(expiryDate), // Template variable: {{appName}}
-        uniquelink: uniqueLink, // Template variable: {{appUrl}}
-      },
+      from: process.env.SMTP_USER || '',
+      subject: templateData.subject,
+      emailHtml: emailHtml,
     });
 
     // Respond with success
   } catch (error) {
     // Handle errors
-    console.error(error);
+    logger.error(error);
   }
 
   return {
     id: token,
     expiry_date: formatDate(expiryDate),
-
+    unique_link: uniqueLink
   };
 }
 
