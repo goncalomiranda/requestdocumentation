@@ -1,0 +1,20 @@
+{
+  "EN": {
+    "subject": "LVF - Request Documentation",
+    "title": "Request for Documents, {{name}}!",
+    "greeting": "Dear Customer,",
+    "body": "We require some documents to complete your application. Please click the link below to upload the requested documents for your application.\n\nThis link will expire on {{expiryDate}}. Please ensure you complete the upload before this date.",
+    "preheader": "We’ve received your details — here’s what to expect next in your mortgage journey.",
+    "footer": "You received this email because you initiated a process with LVF.<br />If this was not supposed to happen, please contact us.",
+    "buttonLabel": "Upload Documents"
+  },
+  "PT": {
+    "subject": "LVF - Pedido de Documentação",
+    "title": "Pedido de Documentos, {{name}}!",
+    "greeting": "Caro Cliente,",
+    "body": "Para concluir a sua candidatura, necessitamos de alguns documentos. Por favor, clique no link abaixo para carregar os documentos solicitados para a sua aplicação.\n\nEste link irá expirar em {{expiryDate}}. Por favor, assegure-se de concluir o carregamento antes desta data.",
+    "preheader": "Recebemos os seus dados — saiba o que esperar nas próximas etapas do processo.",
+    "footer": "Recebeu este email porque iniciou um processo com a LVF.<br />Se não era suposto, por favor contacte-nos.",
+    "buttonLabel": "Carregar Documentos"
+  }
+}
