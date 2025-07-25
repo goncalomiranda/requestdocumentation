@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "postbuild": "cp src/apps/request-documentation/api/swagger.yaml dist/apps/request-documentation/api/swagger.yaml",
+    "postbuild": "cp src/apps/request-documentation/api/swagger.yaml dist/apps/request-documentation/api/swagger.yaml && mkdir -p dist/libraries/email/templates/documentation_requested && cp src/libraries/email/templates/documentation_requested/*.json dist/libraries/email/templates/documentation_requested/ && cp src/libraries/email/templates/documentation_requested/*.html dist/libraries/email/templates/documentation_requested/",
     "dev": "nodemon --ext ts --exec ts-node src/app.ts",
     "serve": "node dist/app.js"
   },
