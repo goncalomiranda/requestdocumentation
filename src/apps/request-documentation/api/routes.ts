@@ -7,6 +7,7 @@ import { DocumentationRequest } from '../domain/models/RequestDocumentationModel
 import { apiKeyMiddleware } from "../../../libraries/gateway/authenticators/api/authenticator";
 import apiRateLimiter from "../../../libraries/gateway/rate-limiter"; // Import rate limiter
 import logger from '../../../libraries/loggers/logger';
+import SchedulerManager from '../../schedulers/schedulerManager';
 
 
 const router = express.Router();
@@ -83,7 +84,27 @@ router.get("/", async (req: Request & { tenantId?: string }, res: Response) => {
   }
 });
 
+// Manual trigger endpoint for scheduler testing
+router.post("/trigger-expire-scheduler", async (req: Request & { tenantId?: string }, res: Response) => {
+  logger.info('Manually triggering expire documentation scheduler...');
 
+  try {
+    const schedulerManager = SchedulerManager.getInstance();
+    const scheduler = schedulerManager.getScheduler('expireDocumentation');
 
+    // Get current configuration
+    const config = scheduler?.getConfig ? scheduler.getConfig() : null;
+
+    await schedulerManager.triggerScheduler('expireDocumentation');
+
+    res.status(200).json({
+      message: "Documentation expiration scheduler triggered successfully",
+      configuration: config
+    });
+  } catch (error: any) {
+    logger.error('Error triggering scheduler: ' + error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 export default router;
