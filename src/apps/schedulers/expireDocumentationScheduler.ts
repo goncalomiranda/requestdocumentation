@@ -19,8 +19,44 @@ export class ExpireDocumentationScheduler {
 
     private constructor() {
         // Get schedule and timezone from environment variables with defaults
-        this.schedule = process.env.EXPIRE_DOCS_SCHEDULE || '0 0 * * *'; // Default: midnight daily
-        this.timezone = process.env.EXPIRE_DOCS_TIMEZONE || 'Europe/Lisbon'; // Default: Lisbon timezone
+        const rawSchedule = process.env.EXPIRE_DOCS_SCHEDULE || 'MCAwICogKiAq';
+        const rawTimezone = process.env.EXPIRE_DOCS_TIMEZONE || 'Europe/Lisbon';
+
+        // Log the raw values for debugging
+        logger.info(`Raw EXPIRE_DOCS_SCHEDULE: "${rawSchedule}"`);
+        logger.info(`Raw EXPIRE_DOCS_TIMEZONE: "${rawTimezone}"`);
+
+        // Try to decode if it looks like base64, otherwise use as-is
+        this.schedule = this.decodeCronExpression(rawSchedule);
+        this.timezone = rawTimezone.trim();
+
+        logger.info(`Final schedule: "${this.schedule}"`);
+        logger.info(`Timezone: "${this.timezone}"`);
+    }
+
+    /**
+     * Decode Base64 encoded cron expression or use regular expression
+     */
+    private decodeCronExpression(rawSchedule: string): string {
+        const cleaned = rawSchedule.replace(/['"]/g, '').trim();
+
+        // Check if it looks like Base64 (no spaces, typical base64 characters)
+        const base64Pattern = /^[A-Za-z0-9+/]+=*$/;
+
+        if (base64Pattern.test(cleaned) && cleaned.length > 10) {
+            try {
+                // Try to decode as Base64
+                const decoded = Buffer.from(cleaned, 'base64').toString('utf-8');
+                logger.info(`Decoded Base64 cron expression: "${decoded}"`);
+                return decoded;
+            } catch (error) {
+                logger.warn(`Failed to decode Base64: ${error}. Treating as regular expression.`);
+                // Fall through to return regular expression
+            }
+        }
+
+        // Not Base64 or decoding failed, return as-is
+        return cleaned;
     }
 
     public static getInstance(): ExpireDocumentationScheduler {
@@ -34,18 +70,33 @@ export class ExpireDocumentationScheduler {
      * Start the scheduler
      */
     public start(): void {
-        // Validate cron expressionTIVE 
+        // Validate cron expression
         if (!cron.validate(this.schedule)) {
             logger.error(`❌ Invalid cron expression: ${this.schedule}`);
             throw new Error(`Invalid cron expression: ${this.schedule}`);
         }
 
-        // Create scheduled task with environment variables
-        this.task = cron.schedule(this.schedule, this.expireDocumentationTask, {
+        // Stop any existing task first
+        if (this.task) {
+            this.task.stop();
+            this.task.destroy();
+        }
+
+        // Create scheduled task with environment variables - bind the method to preserve 'this' context
+        this.task = cron.schedule(this.schedule, () => {
+            logger.info(`🕐 Cron trigger fired at ${new Date().toISOString()}`);
+            this.expireDocumentationTask().catch(error => {
+                logger.error('❌ Error in scheduled task:', error);
+            });
+        }, {
             timezone: this.timezone
         });
 
+        // Start the task explicitly
+        this.task.start();
+
         logger.info(`📅 ExpireDocumentationScheduler started - Schedule: ${this.schedule}, Timezone: ${this.timezone}`);
+        logger.info(`📅 Task scheduled: ${this.task.getStatus()}, Next execution should be within 30 seconds`);
     }
 
     /**
