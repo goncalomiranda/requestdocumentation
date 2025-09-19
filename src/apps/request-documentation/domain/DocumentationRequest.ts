@@ -21,7 +21,7 @@ export async function getRequestedDocumentation(tenantId: string, customerId: st
     raw: true, // Ensure Sequelize returns plain objects
   });
 
-  logger.info(`Requested documentation for tenant ${tenantId} and customer ${customerId}:`);
+  logger.debug(`Requested documentation for tenant ${tenantId} and customer ${customerId}:`);
 
   const result = requestedDocumentation.map((doc: any) => {
     return {

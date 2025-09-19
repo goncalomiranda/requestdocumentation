@@ -96,7 +96,6 @@ export class ExpireDocumentationScheduler {
         this.task.start();
 
         logger.info(`📅 ExpireDocumentationScheduler started - Schedule: ${this.schedule}, Timezone: ${this.timezone}`);
-        logger.info(`📅 Task scheduled: ${this.task.getStatus()}, Next execution should be within 30 seconds`);
     }
 
     /**

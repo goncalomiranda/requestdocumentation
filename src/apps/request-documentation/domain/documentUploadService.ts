@@ -28,7 +28,6 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
   if (requestedDocumentation) {
 
     if (isRequestExpired(requestedDocumentation.dataValues.expiry_date)) {
-      logger.error("Request has 111");
       await RequestedDocumentation.update(
         { status: "EXPIRED" },
         { where: { request_id: token } }
@@ -68,6 +67,9 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
 
       //console.log("File uploaded to Google Drive: ", requestedDocumentation.dataValues.customer_id);
 
+      logger.info("files to be added in streak: " + JSON.stringify(docIds));
+
+
       streakFiles.addFilesToBox(docIds);
 
       await RequestedDocumentation.update(
@@ -79,7 +81,7 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
 
   }
 
-  console.log("deleting....");
+  logger.info("deleting....");
   deleteFiles(files); // Ensure files are deleted
 
 

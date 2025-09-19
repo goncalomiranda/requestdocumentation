@@ -60,13 +60,13 @@ router.get("/", async (req: Request & { tenantId?: string }, res: Response) => {
   const tenantId = req.tenantId as string;
 
   // Log the full request
-  logger.info(`Full Request:
-    Method: ${req.method}
-    URL: ${req.originalUrl}
-    Headers: ${JSON.stringify(req.headers, null, 2)}
-    Query: ${JSON.stringify(req.query, null, 2)}
-    Body: ${JSON.stringify(req.body, null, 2)}
-  `);
+  // logger.info(`Full Request:
+  //   Method: ${req.method}
+  //   URL: ${req.originalUrl}
+  //   Headers: ${JSON.stringify(req.headers, null, 2)}
+  //   Query: ${JSON.stringify(req.query, null, 2)}
+  //   Body: ${JSON.stringify(req.body, null, 2)}
+  // `);
 
 
   try {

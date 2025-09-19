@@ -82,9 +82,13 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
     }
   }, [documentation]);
 
+  // Exclude 'rgpd' from the upload list
+  const uploadDocuments = documentation ? documentation.documents.filter(doc => doc.key !== 'rgpd') : [];
+
+  // Only count non-rgpd documents for required file count
   const requiredFileCount = useMemo(() => {
-    return documentation ? documentation.documents.reduce((sum, d) => sum + d.quantity, 0) : 0;
-  }, [documentation]);
+    return uploadDocuments.reduce((sum, d) => sum + d.quantity, 0);
+  }, [uploadDocuments]);
 
   const allFilesSelected = useMemo(() => {
     const filled = Object.values(selectedFiles).filter(Boolean).length;
@@ -112,10 +116,12 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
     setUploadError(null);
 
     const formData = new FormData(e.currentTarget);
-    // Append consent metadata
-    formData.append("consentGiven", "true");
-    formData.append("consentVersion", "GDPR_v1.0");
-    formData.append("givenAt", new Date().toISOString());
+    // Append consent metadata only if RGPD is requested
+    if (hasRgpdDocument) {
+      formData.append("consentGiven", "true");
+      formData.append("consentVersion", "GDPR_v1.0");
+      formData.append("givenAt", new Date().toISOString());
+    }
     formData.append("customerId", customerId);
 
     try {
@@ -144,6 +150,9 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
     //fetchDocumentation("abc"); // Refresh the page data after closing the modal
     setIsValid(false);
   };
+
+  // Check if any document with key 'rgpd' is present
+  const hasRgpdDocument = documentation?.documents.some(doc => doc.key === 'rgpd');
 
   if (isValid === false) {
     return (
@@ -188,7 +197,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
               <form onSubmit={handleUpload} encType="multipart/form-data">
                 <input type="hidden" name="request_id" value={documentation.request_id} />
                 <div className="row justify-content-center bg-dark text-light py-4" id="documentationList">
-                  {documentation.documents.map((doc, index) => (
+                  {uploadDocuments.map((doc, index) => (
                     <div className="col-md-8" key={doc.key}>
                       <div className="card border-info mb-3 bg-dark text-light">
                         <div className="card-header bg-dark text-info">
@@ -218,37 +227,39 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                 </div>
 
                 {/* GDPR Consent Section */}
-                <div style={{ maxWidth: 800, margin: '0 auto' }} className="text-start mt-4 mb-4">
-                  <h3 style={{ fontSize: '1.25rem' }}>Customer Privacy Notice</h3>
-                  <div
-                    style={{ border: '1px solid #0dcaf0', borderRadius: 4, height: 300, overflowY: 'auto', marginBottom: 12 }}
-                    onScroll={onPdfScroll}
-                  >
-                    <iframe
-                      src="/privacy_notice.pdf"
-                      title="Customer Privacy Notice"
-                      style={{ width: '100%', height: 800, border: 'none' }}
-                    />
+                {hasRgpdDocument && (
+                  <div style={{ maxWidth: 800, margin: '0 auto' }} className="text-start mt-4 mb-4">
+                    <h3 style={{ fontSize: '1.25rem' }}>Customer Privacy Notice</h3>
+                    <div
+                      style={{ border: '1px solid #0dcaf0', borderRadius: 4, height: 300, overflowY: 'auto', marginBottom: 12 }}
+                      onScroll={onPdfScroll}
+                    >
+                      <iframe
+                        src="/privacy_notice.pdf"
+                        title="Customer Privacy Notice"
+                        style={{ width: '100%', height: 800, border: 'none' }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <input
+                        type="checkbox"
+                        id="gdprConsent"
+                        disabled={!hasScrolledToBottom}
+                        checked={consentChecked}
+                        onChange={(e) => setConsentChecked(e.target.checked)}
+                      />
+                      <label htmlFor="gdprConsent" style={{ margin: 0 }}>
+                        I have read and agree to the Customer Privacy Notice (scroll to bottom to enable)
+                      </label>
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <input
-                      type="checkbox"
-                      id="gdprConsent"
-                      disabled={!hasScrolledToBottom}
-                      checked={consentChecked}
-                      onChange={(e) => setConsentChecked(e.target.checked)}
-                    />
-                    <label htmlFor="gdprConsent" style={{ margin: 0 }}>
-                      I have read and agree to the Customer Privacy Notice (scroll to bottom to enable)
-                    </label>
-                  </div>
-                </div>
+                )}
 
                 <div className="text-center">
                   <button
                     type="submit"
                     className="btn btn-outline-light btn-lg px-4"
-                    disabled={loading || !allFilesSelected || !consentChecked}
+                    disabled={loading || !allFilesSelected || (hasRgpdDocument && !consentChecked)}
                   >
                     {loading ? (
                       <>
@@ -261,7 +272,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                   </button>
                   <div style={{ marginTop: 10, fontSize: 12 }}>
                     {!allFilesSelected && <span>All required files must be selected. </span>}
-                    {!consentChecked && <span>GDPR consent required.</span>}
+                    {hasRgpdDocument && !consentChecked && <span>GDPR consent required.</span>}
                   </div>
                 </div>
               </form>

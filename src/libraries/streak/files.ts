@@ -1,5 +1,6 @@
 import axios from "axios";
 import dotenv from "dotenv";
+import logger from '../loggers/logger';
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -52,6 +53,7 @@ export default class File {
    * @returns {Promise<Object>} - Response data from the Streak API.
    */
   static async addFilesToBox(files: FileData[]): Promise<any> {
+    logger.debug("Adding files to box");
     const apiUrl = "https://www.streak.com/api/v2/files/";
 
     if (!Array.isArray(files) || files.length === 0) {
@@ -65,10 +67,10 @@ export default class File {
           Authorization: authorizationToken!,
         },
       });
-      console.log("Successfully added files to box");
+      logger.info("Successfully added files to box: " + JSON.stringify(files, null, 2));
       return response.data;
     } catch (error: any) {
-      console.error("Error adding files to box:", error.response?.data || error);
+      logger.error("Error adding files to box:", error.response?.data || error);
       throw new Error("Failed to add files to box.");
     }
   }

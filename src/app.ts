@@ -6,6 +6,7 @@ import uploadDocuments from './apps/request-documentation/api/getdocumentuploadr
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './libraries/gateway/swagger'; // Path to your swagger specification
 import applySecurityMiddleware from './libraries/gateway/security';
+import logger from './libraries/loggers/logger'; // Logger
 import sequelize from "./libraries/data-access/db-config"; // Sequelize instance
 import SchedulerManager from './apps/schedulers/schedulerManager'; // Import scheduler manager
 
@@ -40,35 +41,35 @@ app.get("*", (req, res) => {
 sequelize
   .sync()
   .then(async () => {
-    console.log("Database synchronized successfully!");
+    logger.info("Database synchronized successfully!");
 
     // Start all schedulers after database sync
     try {
       const schedulerManager = SchedulerManager.getInstance();
       await schedulerManager.startAll();
     } catch (error) {
-      console.error("Error starting schedulers:", error);
+      logger.error("Error starting schedulers:", error);
       // Continue with server startup even if schedulers fail
     }
 
     app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
+      logger.info(`Server is running on http://localhost:${PORT}`);
     });
   })
   .catch((err) => {
-    console.error("Error syncing database:", err);
+    logger.error("Error syncing database:", err);
   });
 
 // Graceful shutdown handling
 process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully');
+  logger.info('SIGTERM received, shutting down gracefully');
   const schedulerManager = SchedulerManager.getInstance();
   schedulerManager.stopAll();
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
-  console.log('SIGINT received, shutting down gracefully');
+  logger.info('SIGINT received, shutting down gracefully');
   const schedulerManager = SchedulerManager.getInstance();
   schedulerManager.stopAll();
   process.exit(0);
