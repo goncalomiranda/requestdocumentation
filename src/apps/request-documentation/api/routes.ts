@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { getDocumentsByLanguage } from "../domain/documentService";
 import { getRequestedDocumentation } from "../domain/DocumentationRequest";
 import { requestDocumentation } from "../domain/requestdocumentation";
+import { getNewsfeed } from "../domain/newsfeedService";
 import { DocumentationRequest } from '../domain/models/RequestDocumentationModel'; // Adjust path accordingly
 
 import { apiKeyMiddleware } from "../../../libraries/gateway/authenticators/api/authenticator";
@@ -80,6 +81,28 @@ router.get("/", async (req: Request & { tenantId?: string }, res: Response) => {
 
   } catch (error: any) {
     logger.error('Error fetching documents: ' + error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Define the route to fetch newsfeed data
+router.get("/newsfeed", async (req: Request & { tenantId?: string }, res: Response) => {
+  logger.info('Fetching newsfeed data...');
+
+  const customerId = req.headers.customer as string;
+  const tenantId = req.tenantId as string;
+
+  try {
+    if (!tenantId) {
+      throw new Error("Tenant ID is required");
+    }
+
+    // Fetch newsfeed data, optionally filtered by customer
+    const newsfeedData = await getNewsfeed(tenantId, customerId);
+    res.status(200).json(newsfeedData);
+
+  } catch (error: any) {
+    logger.error('Error fetching newsfeed data: ' + error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 });
