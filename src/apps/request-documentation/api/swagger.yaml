@@ -48,6 +48,115 @@ paths:
                         value:
                           type: string
 
+  /document-requests/newsfeed:
+    get:
+      summary: Retrieve newsfeed data
+      description: Fetches a list of newsfeed entries showing documentation request status changes and operations.
+      security:
+        - ApiKeyAuth: [] # Requires x-api-key header
+      parameters:
+        - in: header
+          name: customer
+          required: false
+          schema:
+            type: string
+          description: Optional customer ID to filter newsfeed entries for a specific customer
+      responses:
+        200:
+          description: A list of newsfeed entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    customerId:
+                      type: string
+                      description: ID of the customer associated with the entry
+                      example: "agxzfm1"
+                    createdDate:
+                      type: string
+                      format: date-time
+                      description: Date and time when the entry was created
+                      example: "2025-09-10 04:11:57"
+                    scope:
+                      type: string
+                      description: Scope of the operation (currently always "STATUS")
+                      example: "STATUS"
+                    operation:
+                      type: string
+                      enum: [INSERT, EDIT, DELETE]
+                      description: Type of operation performed
+                      example: "EDIT"
+                    feedKey:
+                      type: string
+                      description: Unique ID associated with the entry
+                      example: "agxz"
+                    requestId:
+                      type: string
+                      description: ID of the documentation request
+                      example: "1758589804023"
+                    messageVariables:
+                      type: object
+                      description: Variables used in the message template
+                      properties:
+                        CUSTOMER_ID:
+                          type: string
+                          example: "1758240000000"
+                        REQUEST_ID:
+                          type: string
+                          example: "1758589804023"
+                        OLD_STATUS:
+                          type: string
+                          example: "ACTIVE"
+                        NEW_STATUS:
+                          type: string
+                          example: "DONE"
+                      additionalProperties: true
+                    message:
+                      type: string
+                      description: Human-readable message describing the operation
+                      example: "Customer <CUSTOMER_ID> changed request documentation status from <OLD_STATUS> to <NEW_STATUS>"
+                    id:
+                      type: integer
+                      description: Unique identifier of the newsfeed entry
+                    tenant_id:
+                      type: string
+                      description: Tenant ID (for backward compatibility)
+                    old_status:
+                      type: string
+                      description: Previous status (for backward compatibility)
+                      nullable: true
+                    new_status:
+                      type: string
+                      description: New status (for backward compatibility)
+                      nullable: true
+                    changed_at:
+                      type: string
+                      format: date-time
+                      description: Timestamp of the change (for backward compatibility)
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Bad request"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error"
+
   /document-requests:
     post:
       summary: Create a document request
@@ -118,6 +227,7 @@ paths:
                   error:
                     type: string
                     example: "Invalid request format"
+
   /document/upload:
     get:
       summary: Retrieve document upload details
