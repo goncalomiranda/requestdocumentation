@@ -53,6 +53,22 @@ const RequestedDocumentation = dbaccess.define(
       onDelete: "CASCADE",
       onUpdate: "CASCADE",
     },
+    consentGiven: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
+    consentVersion: {
+      type: DataTypes.STRING(32),
+      allowNull: true,
+    },
+    givenAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    consentTimezone: {
+      type: DataTypes.STRING(64),
+      allowNull: true,
+    },
   },
   {
     tableName: "RequestedDocumentation",

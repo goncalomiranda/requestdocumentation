@@ -7,7 +7,12 @@ import { getDocumentsByLanguage } from "./documentService";
 import { createFile } from '../../../libraries/googledrive/driveapi';
 import streakFiles from '../../../libraries/streak/files';
 
-export async function uploadDocuments(token: string, files: Express.Multer.File[]) {
+export async function uploadDocuments(token: string, files: Express.Multer.File[], consentData?: {
+  consentGiven?: boolean;
+  consentVersion?: string | null;
+  givenAt?: Date | null;
+  consentTimezone?: string | null;
+}) {
 
   console.log("uploading....");
   if (!token) {
@@ -72,8 +77,17 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
 
       streakFiles.addFilesToBox(docIds);
 
+      // Build update fields for status and GDPR consent
+      const updateFields: any = { status: "DONE" };
+      if (consentData) {
+        if (consentData.consentGiven !== undefined) updateFields.consentGiven = consentData.consentGiven;
+        if (consentData.consentVersion) updateFields.consentVersion = consentData.consentVersion;
+        if (consentData.givenAt) updateFields.givenAt = consentData.givenAt;
+        if (consentData.consentTimezone) updateFields.consentTimezone = consentData.consentTimezone;
+      }
+
       await RequestedDocumentation.update(
-        { status: "DONE" },
+        updateFields,
         { where: { request_id: token } }
       );
 

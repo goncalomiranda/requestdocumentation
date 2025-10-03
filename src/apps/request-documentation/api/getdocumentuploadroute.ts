@@ -1,7 +1,5 @@
 import express, { Request, Response } from "express";
-import { getDocumentsByLanguage } from "../domain/documentService";
 import { getDocumentsToUpload, uploadDocuments } from "../domain/documentUploadService";
-import { DocumentationRequest } from '../domain/models/RequestDocumentationModel'; 
 import apiRateLimiter from "../../../libraries/gateway/rate-limiter"; // Import rate limiter
 import logger from '../../../libraries/loggers/logger';
 import upload from '../../../libraries/multer';
@@ -22,10 +20,21 @@ router.post("/upload", upload.any(), async (req: Request, res: Response) => {
   // Extract uploaded files
   const files: Express.Multer.File[] = req.files as Express.Multer.File[];
 
+  // Extract GDPR consent fields if present
+  const consentGiven = req.body.consentGiven === 'true';
+  const consentVersion = req.body.consentVersion || null;
+  const givenAt = req.body.givenAt ? new Date(req.body.givenAt) : null;
+  const consentTimezone = req.body.consentTimezone || null;
+
   try {
-    await uploadDocuments(token, files);
+    await uploadDocuments(token, files, {
+      consentGiven,
+      consentVersion,
+      givenAt,
+      consentTimezone,
+    });
     res.status(200).json({ message: "Your documents have been uploaded successfully" });
-  } catch (error:any) {
+  } catch (error: any) {
     res.status(500).json({ message: "Internal server error", error });
   }
 
@@ -40,7 +49,7 @@ router.get("/upload", async (req: Request, res: Response) => {
     try {
       const documents = await getDocumentsToUpload(token);
       res.json(documents);
-    } catch (error:any) {
+    } catch (error: any) {
       logger.error('Error fetching documents: ' + error.message);
       res.status(500).json({ error: "Internal server error" });
     }
