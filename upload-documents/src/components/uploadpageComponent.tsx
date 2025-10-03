@@ -121,6 +121,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
       formData.append("consentGiven", "true");
       formData.append("consentVersion", "GDPR_v1.0");
       formData.append("givenAt", new Date().toISOString());
+      formData.append("consentTimezone", Intl.DateTimeFormat().resolvedOptions().timeZone || '');
     }
     formData.append("customerId", customerId);
 
