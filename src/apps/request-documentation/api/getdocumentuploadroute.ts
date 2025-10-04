@@ -25,6 +25,12 @@ router.post("/upload", upload.any(), async (req: Request, res: Response) => {
   const consentVersion = req.body.consentVersion || null;
   const givenAt = req.body.givenAt ? new Date(req.body.givenAt) : null;
   const consentTimezone = req.body.consentTimezone || null;
+  const userAgent = req.body.userAgent || null;
+  const browserLanguage = req.body.browserLanguage || null;
+  const consentA = req.body.consentA === 'true';
+  const consentB = req.body.consentB === 'true';
+  const consentC = req.body.consentC === 'true';
+  const consentD = req.body.consentD === 'true';
 
   try {
     await uploadDocuments(token, files, {
@@ -32,6 +38,12 @@ router.post("/upload", upload.any(), async (req: Request, res: Response) => {
       consentVersion,
       givenAt,
       consentTimezone,
+      userAgent,
+      browserLanguage,
+      consentA,
+      consentB,
+      consentC,
+      consentD,
     });
     res.status(200).json({ message: "Your documents have been uploaded successfully" });
   } catch (error: any) {

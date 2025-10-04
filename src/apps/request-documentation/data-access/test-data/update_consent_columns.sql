@@ -3,3 +3,12 @@ ALTER TABLE RequestedDocumentation
   ADD COLUMN consentVersion VARCHAR(32) DEFAULT NULL,
   ADD COLUMN givenAt DATETIME DEFAULT NULL,
   ADD COLUMN consentTimezone VARCHAR(64) DEFAULT NULL;
+
+
+  ALTER TABLE RequestedDocumentation
+  ADD COLUMN userAgent VARCHAR(255),
+  ADD COLUMN browserLanguage VARCHAR(32),
+  ADD COLUMN consentA BOOLEAN,
+  ADD COLUMN consentB BOOLEAN,
+  ADD COLUMN consentC BOOLEAN,
+  ADD COLUMN consentD BOOLEAN;
