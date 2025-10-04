@@ -11,6 +11,7 @@
     "error": "Error",
     "close": "Close",
     "learnMore": "Click on the Vite and React logos to learn more",
+    "quantityRequired": "Quantity Required",
     "consents": {
       "intro": "I declare that I have read and understood the Privacy Policy and that the authorisations selected below represent my explicit choice:",
       "A": "With regard to the possibility of financial and credit institutions with whom the credit intermediary has established commercial partnerships consulting information about me in the Central Credit Register as well as in the List of Bank Check Users offering Risk, both of which are available from the Bank of Portugal, in accordance with the applicable legislation and regulations.",
@@ -33,6 +34,7 @@
     "error": "Erro",
     "close": "Fechar",
     "learnMore": "Clique nos logotipos do Vite e do React para saber mais",
+    "quantityRequired": "Quantidade necessária",
     "consents": {
       "intro": "Declaro que tomei conhecimento da Política de Privacidade e que as autorizações assinaladas em baixo correspondem à minha vontade expressa:",
       "A": "Quanto à possibilidade de as instituições financeiras e de crédito com quem o intermediário de crédito tenha estabelecido parcerias comerciais consultarem informação que a meu respeito constar da Central de Responsabilidades de Crédito bem como da Listagem de Utilizadores de Cheque que oferecem Risco, ambas existentes junto do Banco de Portugal, em conformidade com a legislação e regulamentação aplicáveis.",

@@ -22,7 +22,7 @@ interface UploadPageProps {
 function UploadPage({ onUploadComplete }: UploadPageProps) {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
-  const t = useTranslation();
+  const { translations, language } = useTranslation();
 
   const [documentation, setDocumentation] = useState<Documentation | null>(null);
   const [customerId, setCustomerId] = useState<string>(''); // Add customerId state
@@ -35,6 +35,9 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   const [consentChecked, setConsentChecked] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<Record<string, boolean>>({});
+
+  // PDF src logic based on selected language
+  const privacyPdfSrc = language === 'pt' ? '/RGPD_LVF_PT_v1.0.pdf' : '/RGPD_LVF_EN_v1.0.pdf';
 
   useEffect(() => {
     if (token) {
@@ -161,10 +164,10 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
         <LogoSection />
         <div className="bg-dark text-secondary px-4 pt-2 pb-5 text-center" id="mainDivDocumentation">
           <div className="py-4">
-            <h1 className="display-5 fw-bold text-white">{t.uploadDocuments}</h1>
+            <h1 className="display-5 fw-bold text-white">{translations.uploadDocuments}</h1>
             <div className="col-lg-6 mx-auto">
-              <p className="fs-5 mb-4">{t.uploadDescription}</p>
-              <p className="text-info" style={{display: "none"}}>{error || t.documentationUnavailable}</p>
+              <p className="fs-5 mb-4">{translations.uploadDescription}</p>
+              <p className="text-info" style={{display: "none"}}>{error || translations.documentationUnavailable}</p>
             </div>
           </div>
         </div>
@@ -186,15 +189,15 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
       <LogoSection />
       <div className="bg-dark text-secondary px-4 pt-2 pb-5 text-center" id="mainDivDocumentation">
         <div className="py-4">
-          <h1 className="display-5 fw-bold text-white">{t.uploadDocuments}</h1>
+          <h1 className="display-5 fw-bold text-white">{translations.uploadDocuments}</h1>
           <div className="col-lg-6 mx-auto">
-            <p className="fs-5 mb-4">{t.uploadDescription}</p>
+            <p className="fs-5 mb-4">{translations.uploadDescription}</p>
           </div>
 
           {/* Hide this section if token is missing or after successful submission */}
           {token && !uploadSuccess && (
             <div id="requiredDocumentsDiv">
-              <h2 className="mb-4">{t.requiredDocuments}</h2>
+              <h2 className="mb-4">{translations.requiredDocuments}</h2>
               <form onSubmit={handleUpload} encType="multipart/form-data">
                 <input type="hidden" name="request_id" value={documentation.request_id} />
                 <div className="row justify-content-center bg-dark text-light py-4" id="documentationList">
@@ -205,11 +208,11 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                           <strong>{doc.value}</strong>
                         </div>
                         <div className="card-body">
-                          <p className="card-text">Quantity Required: {doc.quantity}</p>
+                          <p className="card-text">{translations.quantityRequired}: {doc.quantity}</p>
                           {[...Array(doc.quantity)].map((_, i) => (
                             <div className="mb-3" key={i}>
                               <label htmlFor={`upload_${index}_${i}`} className="form-label">
-                                {t.uploadFile} {i + 1}
+                                {translations.uploadFile} {i + 1}
                               </label>
                               <input
                                 type="file"
@@ -230,7 +233,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                 {/* GDPR Consent Section */}
                 {hasRgpdDocument && (
                   <div style={{ maxWidth: 800, margin: '0 auto' }} className="text-start mt-4 mb-4">
-                    <h3 style={{ fontSize: '1.25rem' }}>{t.consents?.privacyNoticeTitle}</h3>
+                    <h3 style={{ fontSize: '1.25rem' }}>{translations.consents?.privacyNoticeTitle}</h3>
                     {/* Consent Intro from translations */}
                     <br />
                     <div
@@ -238,7 +241,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                       onScroll={onPdfScroll}
                     >
                       <iframe
-                        src="/privacy_notice.pdf"
+                        src={privacyPdfSrc}
                         title="Customer Privacy Notice"
                         style={{ width: '100%', height: 800, border: 'none' }}
                       />
@@ -256,7 +259,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                           />
                           
                         </strong>
-                        <span style={{ lineHeight: 1.5 }}> <strong>A.</strong> {t.consents?.A}</span>
+                        <span style={{ lineHeight: 1.5 }}> <strong>A.</strong> {translations.consents?.A}</span>
                       </div>
                       {/* Consent B */}
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
@@ -269,7 +272,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                           />
                           
                         </strong>
-                        <span style={{ lineHeight: 1.5 }}><strong>B.</strong> {t.consents?.B}</span>
+                        <span style={{ lineHeight: 1.5 }}><strong>B.</strong> {translations.consents?.B}</span>
                       </div>
                       {/* Consent C */}
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
@@ -282,7 +285,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                           />
                           
                         </strong>
-                        <span style={{ lineHeight: 1.5 }}><strong>C.</strong>  {t.consents?.C}</span>
+                        <span style={{ lineHeight: 1.5 }}><strong>C.</strong>  {translations.consents?.C}</span>
                       </div>
                       {/* Consent D */}
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
@@ -295,7 +298,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                           />
                           
                         </strong>
-                        <span style={{ lineHeight: 1.5 }}><strong>D.</strong> {t.consents?.D}</span>
+                        <span style={{ lineHeight: 1.5 }}><strong>D.</strong> {translations.consents?.D}</span>
                       </div>
                     </div>
                     {/* Main consent checkbox remains below the consents */}
@@ -308,7 +311,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                         onChange={(e) => setConsentChecked(e.target.checked)}
                       />
                       <label htmlFor="gdprConsent" style={{ margin: 4 }}>
-                        {t.consents?.RGPD_CONSENT}
+                        {translations.consents?.RGPD_CONSENT}
                       </label>
                     </div>
                   </div>
@@ -323,10 +326,10 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                     {loading ? (
                       <>
                         <span className="spinner-grow spinner-grow-sm me-2" role="status" />
-                        {t.uploading}
+                        {translations.uploading}
                       </>
                     ) : (
-                      t.submitDocuments
+                      translations.submitDocuments
                     )}
                   </button>
                   <div style={{ marginTop: 10, fontSize: 12 }}>
@@ -346,13 +349,13 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
           <div className="modal-dialog">
             <div className="modal-content bg-white text-dark shadow-lg" style={{ border: 'none', borderRadius: '8px' }}>
               <div className="modal-header" style={{ borderBottom: '1px solid #e9ecef', backgroundColor: 'white' }}>
-                <h5 className="modal-title text-success fw-bold">{t.success}</h5>
+                <h5 className="modal-title text-success fw-bold">{translations.success}</h5>
                 <button type="button" className="btn-close" onClick={handleSuccessClose}></button>
               </div>
               <div className="modal-body" style={{ backgroundColor: 'white', color: '#333' }}>{uploadSuccess}</div>
               <div className="modal-footer" style={{ borderTop: '1px solid #e9ecef', backgroundColor: 'white' }}>
                 <button type="button" className="btn btn-success" onClick={handleSuccessClose}>
-                  {t.close}
+                  {translations.close}
                 </button>
               </div>
             </div>
@@ -366,13 +369,13 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
           <div className="modal-dialog">
             <div className="modal-content bg-white text-dark shadow-lg" style={{ border: 'none', borderRadius: '8px' }}>
               <div className="modal-header" style={{ borderBottom: '1px solid #e9ecef', backgroundColor: 'white' }}>
-                <h5 className="modal-title text-danger fw-bold">{t.error}</h5>
+                <h5 className="modal-title text-danger fw-bold">{translations.error}</h5>
                 <button type="button" className="btn-close" onClick={() => setUploadError(null)}></button>
               </div>
               <div className="modal-body" style={{ backgroundColor: 'white', color: '#333' }}>{uploadError}</div>
               <div className="modal-footer" style={{ borderTop: '1px solid #e9ecef', backgroundColor: 'white' }}>
                 <button type="button" className="btn btn-danger" onClick={() => setUploadError(null)}>
-                  {t.close}
+                  {translations.close}
                 </button>
               </div>
             </div>
