@@ -5,7 +5,7 @@ const TranslationContext = createContext(translations.en);
 
 export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const userLang = navigator.language;
-  const selectedLanguage = userLang.startsWith("pt") ? translations.pt : translations.en;
+  const selectedLanguage = userLang.startsWith("PT") ? translations.pt : translations.en;
 
   return (
     <TranslationContext.Provider value={selectedLanguage}>

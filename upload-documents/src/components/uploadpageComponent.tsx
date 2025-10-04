@@ -230,7 +230,9 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                 {/* GDPR Consent Section */}
                 {hasRgpdDocument && (
                   <div style={{ maxWidth: 800, margin: '0 auto' }} className="text-start mt-4 mb-4">
-                    <h3 style={{ fontSize: '1.25rem' }}>Customer Privacy Notice</h3>
+                    <h3 style={{ fontSize: '1.25rem' }}>{t.consents?.privacyNoticeTitle}</h3>
+                    {/* Consent Intro from translations */}
+                    <br />
                     <div
                       style={{ border: '1px solid #0dcaf0', borderRadius: 4, height: 300, overflowY: 'auto', marginBottom: 12 }}
                       onScroll={onPdfScroll}
@@ -241,6 +243,62 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                         style={{ width: '100%', height: 800, border: 'none' }}
                       />
                     </div>
+                    {/* Consent checkboxes below the iframe */}
+                    <div className="mb-2" style={{ fontSize: '0.95rem', color: '#fff' }}>
+                      {/* Consent A */}
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
+                        <strong style={{ marginRight: 4 }}>
+                          <input
+                            type="checkbox"
+                            id="consentA"
+                            disabled={!hasScrolledToBottom}
+                            style={{ verticalAlign: 'middle', marginRight: 4 }}
+                          />
+                          
+                        </strong>
+                        <span style={{ lineHeight: 1.5 }}> <strong>A.</strong> {t.consents?.A}</span>
+                      </div>
+                      {/* Consent B */}
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
+                        <strong style={{ marginRight: 4 }}>
+                          <input
+                            type="checkbox"
+                            id="consentB"
+                            disabled={!hasScrolledToBottom}
+                            style={{ verticalAlign: 'middle', marginRight: 4 }}
+                          />
+                          
+                        </strong>
+                        <span style={{ lineHeight: 1.5 }}><strong>B.</strong> {t.consents?.B}</span>
+                      </div>
+                      {/* Consent C */}
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
+                        <strong style={{ marginRight: 4 }}>
+                          <input
+                            type="checkbox"
+                            id="consentC"
+                            disabled={!hasScrolledToBottom}
+                            style={{ verticalAlign: 'middle', marginRight: 4 }}
+                          />
+                          
+                        </strong>
+                        <span style={{ lineHeight: 1.5 }}><strong>C.</strong>  {t.consents?.C}</span>
+                      </div>
+                      {/* Consent D */}
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
+                        <strong style={{ marginRight: 4 }}>
+                          <input
+                            type="checkbox"
+                            id="consentD"
+                            disabled={!hasScrolledToBottom}
+                            style={{ verticalAlign: 'middle', marginRight: 4 }}
+                          />
+                          
+                        </strong>
+                        <span style={{ lineHeight: 1.5 }}><strong>D.</strong> {t.consents?.D}</span>
+                      </div>
+                    </div>
+                    {/* Main consent checkbox remains below the consents */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <input
                         type="checkbox"
@@ -249,8 +307,8 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                         checked={consentChecked}
                         onChange={(e) => setConsentChecked(e.target.checked)}
                       />
-                      <label htmlFor="gdprConsent" style={{ margin: 0 }}>
-                        I have read and agree to the Customer Privacy Notice (scroll to bottom to enable)
+                      <label htmlFor="gdprConsent" style={{ margin: 4 }}>
+                        {t.consents?.RGPD_CONSENT}
                       </label>
                     </div>
                   </div>
