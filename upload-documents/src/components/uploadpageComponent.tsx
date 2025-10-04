@@ -34,6 +34,10 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
   // GDPR related state
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   const [consentChecked, setConsentChecked] = useState(false);
+  const [consentA, setConsentA] = useState(false);
+  const [consentB, setConsentB] = useState(false);
+  const [consentC, setConsentC] = useState(false);
+  const [consentD, setConsentD] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<Record<string, boolean>>({});
 
   // PDF src logic based on selected language
@@ -113,7 +117,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
 
   const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!allFilesSelected || !consentChecked) return; // Safety
+    if (!allFilesSelected || (hasRgpdDocument && !(consentChecked && consentA && consentB && consentC && consentD))) return;
     setLoading(true);
     setUploadSuccess(null);
     setUploadError(null);
@@ -121,12 +125,20 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
     const formData = new FormData(e.currentTarget);
     // Append consent metadata only if RGPD is requested
     if (hasRgpdDocument) {
-      formData.append("consentGiven", "true");
-      formData.append("consentVersion", "GDPR_v1.0");
+      formData.append("consentGiven", consentChecked ? "true" : "false");
+      formData.append("consentA", consentA ? "true" : "false");
+      formData.append("consentB", consentB ? "true" : "false");
+      formData.append("consentC", consentC ? "true" : "false");
+      formData.append("consentD", consentD ? "true" : "false");
+      formData.append("consentVersion", privacyPdfSrc.replace("/", ""));
       formData.append("givenAt", new Date().toISOString());
       formData.append("consentTimezone", Intl.DateTimeFormat().resolvedOptions().timeZone || '');
     }
     formData.append("customerId", customerId);
+    formData.append("userAgent", navigator.userAgent);
+    formData.append("browserLanguage", navigator.language);
+    
+    
 
     try {
       const response = await fetch("https://ts.goncalomiranda.dev/request-documentation/upload", {
@@ -232,7 +244,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
 
                 {/* GDPR Consent Section */}
                 {hasRgpdDocument && (
-                  <div style={{ maxWidth: 800, margin: '0 auto' }} className="text-start mt-4 mb-4">
+                  <div id="gdprConsentDiv" className="text-start mt-4 mb-4" style={{ maxWidth: '1000px', margin: '0 auto' }}>
                     <h3 style={{ fontSize: '1.25rem' }}>{translations.consents?.privacyNoticeTitle}</h3>
                     {/* Consent Intro from translations */}
                     <br />
@@ -250,54 +262,50 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                     <div className="mb-2" style={{ fontSize: '0.95rem', color: '#fff' }}>
                       {/* Consent A */}
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
-                        <strong style={{ marginRight: 4 }}>
-                          <input
-                            type="checkbox"
-                            id="consentA"
-                            disabled={!hasScrolledToBottom}
-                            style={{ verticalAlign: 'middle', marginRight: 4 }}
-                          />
-                          
-                        </strong>
+                        <input
+                          type="checkbox"
+                          id="consentA"
+                          disabled={!hasScrolledToBottom}
+                          checked={consentA}
+                          onChange={e => setConsentA(e.target.checked)}
+                          style={{ verticalAlign: 'middle', marginRight: 4 }}
+                        />
                         <span style={{ lineHeight: 1.5 }}> <strong>A.</strong> {translations.consents?.A}</span>
                       </div>
                       {/* Consent B */}
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
-                        <strong style={{ marginRight: 4 }}>
-                          <input
-                            type="checkbox"
-                            id="consentB"
-                            disabled={!hasScrolledToBottom}
-                            style={{ verticalAlign: 'middle', marginRight: 4 }}
-                          />
-                          
-                        </strong>
+                        <input
+                          type="checkbox"
+                          id="consentB"
+                          disabled={!hasScrolledToBottom}
+                          checked={consentB}
+                          onChange={e => setConsentB(e.target.checked)}
+                          style={{ verticalAlign: 'middle', marginRight: 4 }}
+                        />
                         <span style={{ lineHeight: 1.5 }}><strong>B.</strong> {translations.consents?.B}</span>
                       </div>
                       {/* Consent C */}
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
-                        <strong style={{ marginRight: 4 }}>
-                          <input
-                            type="checkbox"
-                            id="consentC"
-                            disabled={!hasScrolledToBottom}
-                            style={{ verticalAlign: 'middle', marginRight: 4 }}
-                          />
-                          
-                        </strong>
+                        <input
+                          type="checkbox"
+                          id="consentC"
+                          disabled={!hasScrolledToBottom}
+                          checked={consentC}
+                          onChange={e => setConsentC(e.target.checked)}
+                          style={{ verticalAlign: 'middle', marginRight: 4 }}
+                        />
                         <span style={{ lineHeight: 1.5 }}><strong>C.</strong>  {translations.consents?.C}</span>
                       </div>
                       {/* Consent D */}
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
-                        <strong style={{ marginRight: 4 }}>
-                          <input
-                            type="checkbox"
-                            id="consentD"
-                            disabled={!hasScrolledToBottom}
-                            style={{ verticalAlign: 'middle', marginRight: 4 }}
-                          />
-                          
-                        </strong>
+                        <input
+                          type="checkbox"
+                          id="consentD"
+                          disabled={!hasScrolledToBottom}
+                          checked={consentD}
+                          onChange={e => setConsentD(e.target.checked)}
+                          style={{ verticalAlign: 'middle', marginRight: 4 }}
+                        />
                         <span style={{ lineHeight: 1.5 }}><strong>D.</strong> {translations.consents?.D}</span>
                       </div>
                     </div>
@@ -308,7 +316,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                         id="gdprConsent"
                         disabled={!hasScrolledToBottom}
                         checked={consentChecked}
-                        onChange={(e) => setConsentChecked(e.target.checked)}
+                        onChange={e => setConsentChecked(e.target.checked)}
                       />
                       <label htmlFor="gdprConsent" style={{ margin: 4 }}>
                         {translations.consents?.RGPD_CONSENT}
@@ -321,7 +329,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                   <button
                     type="submit"
                     className="btn btn-outline-light btn-lg px-4"
-                    disabled={loading || !allFilesSelected || (hasRgpdDocument && !consentChecked)}
+                    disabled={loading || !allFilesSelected || (hasRgpdDocument && !(consentChecked && consentA && consentB && consentC && consentD))}
                   >
                     {loading ? (
                       <>
