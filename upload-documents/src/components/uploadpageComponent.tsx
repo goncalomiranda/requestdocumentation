@@ -39,9 +39,25 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
   const [consentC, setConsentC] = useState(false);
   const [consentD, setConsentD] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<Record<string, boolean>>({});
+  const [isMobile, setIsMobile] = useState<boolean>(false);
 
   // PDF src logic based on selected language
   const privacyPdfSrc = language === 'pt' ? '/RGPD_LVF_PT_v1.0.pdf' : '/RGPD_LVF_EN_v1.0.pdf';
+
+  // Get DOCUMENTATION_HOST from environment variable
+  const DOCUMENTATION_HOST = import.meta.env.VITE_DOCUMENTATION_HOST || "https://wrongurl.com";
+
+  // Mobile detection hook
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
 
   useEffect(() => {
     if (token) {
@@ -53,7 +69,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
 
   const fetchDocumentation = async (token: string) => {
     try {
-      const response = await fetch(`https://ts.goncalomiranda.dev/request-documentation/upload?token=${token}`);
+      const response = await fetch(`${DOCUMENTATION_HOST}/request-documentation/upload?token=${token}`);
 
       if (!response.ok) {
         throw new Error("Invalid or expired token");
@@ -141,7 +157,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
     
 
     try {
-      const response = await fetch("https://ts.goncalomiranda.dev/request-documentation/upload", {
+      const response = await fetch(`${DOCUMENTATION_HOST}/request-documentation/upload`, {
         method: "POST",
         body: formData,
       });
@@ -248,16 +264,96 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                     <h3 style={{ fontSize: '1.25rem' }}>{translations.consents?.privacyNoticeTitle}</h3>
                     {/* Consent Intro from translations */}
                     <br />
-                    <div
-                      style={{ border: '1px solid #0dcaf0', borderRadius: 4, height: 300, overflowY: 'auto', marginBottom: 12 }}
-                      onScroll={onPdfScroll}
-                    >
-                      <iframe
-                        src={privacyPdfSrc}
-                        title="Customer Privacy Notice"
-                        style={{ width: '100%', height: 800, border: 'none' }}
-                      />
+                    
+                    {/* Mobile-friendly PDF viewer */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <div
+                        style={{ 
+                          border: '1px solid #0dcaf0', 
+                          borderRadius: 4, 
+                          height: '300px', 
+                          overflowY: 'auto', 
+                          marginBottom: 12,
+                          WebkitOverflowScrolling: 'touch', // Enable momentum scrolling on iOS
+                          position: 'relative'
+                        }}
+                        onScroll={onPdfScroll}
+                      >
+                        <iframe
+                          src={privacyPdfSrc}
+                          title="Customer Privacy Notice"
+                          style={{ 
+                            width: '100%', 
+                            height: '800px', 
+                            border: 'none',
+                            display: 'block'
+                          }}
+                        />
+                        
+                        {/* Overlay for mobile with link to open PDF */}
+                        <div 
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: 'rgba(0,0,0,0.1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            opacity: isMobile ? 1 : 0,
+                            pointerEvents: isMobile ? 'auto' : 'none',
+                            transition: 'opacity 0.3s ease'
+                          }}
+                          className="mobile-pdf-overlay"
+                        >
+                          <a
+                            href={privacyPdfSrc}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              background: '#0dcaf0',
+                              color: 'white',
+                              padding: '12px 24px',
+                              borderRadius: '6px',
+                              textDecoration: 'none',
+                              fontWeight: 'bold',
+                              boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                            }}
+                            onClick={() => {
+                              // Automatically mark as scrolled when opening PDF on mobile
+                              if (isMobile) {
+                                setHasScrolledToBottom(true);
+                              }
+                            }}
+                          >
+                            📄 Open Privacy Policy
+                          </a>
+                        </div>
+                      </div>
+                      
+                      {/* Alternative: Direct link for mobile users */}
+                      <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+                        <a
+                          href={privacyPdfSrc}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            color: '#0dcaf0',
+                            textDecoration: 'underline',
+                            fontSize: '14px'
+                          }}
+                          onClick={() => {
+                            // Mark as read when clicking the direct link
+                            setHasScrolledToBottom(true);
+                          }}
+                        >
+                          Can't scroll? Click here to open Privacy Policy in new tab
+                        </a>
+                      </div>
                     </div>
+
                     {/* Consent checkboxes below the iframe */}
                     <div className="mb-2" style={{ fontSize: '0.95rem', color: '#fff' }}>
                       {/* Consent A */}

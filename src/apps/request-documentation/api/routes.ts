@@ -38,7 +38,7 @@ router.post("/", async (req: Request & { tenantId?: string }, res: Response) => 
   const requestBody: DocumentationRequest = req.body;
 
   // Now you can safely access `requestBody.customer`, `requestBody.documents`, etc.
-  console.log(requestBody.customer.name);
+  logger.debug(requestBody.customer.name);
 
   try {
     // Create document here
