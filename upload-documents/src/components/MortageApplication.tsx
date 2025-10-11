@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 // Types
 interface Person {
@@ -53,33 +53,88 @@ const MortageApplication: React.FC = () => {
   });
 
   const [submitted, setSubmitted] = useState<any | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    // Try to initialize Material Kit input animations
-    if (window.materialKit && typeof window.materialKit.input === 'function') {
-      window.materialKit.input();
-    } else if (window.materialKit && typeof window.materialKit.initFormInputs === 'function') {
-      window.materialKit.initFormInputs();
-    } else {
-      // Fallback: trigger input animation by dispatching input event
+    // Initialize Material Kit inputs after component mounts
+    const initializeMaterialInputs = () => {
       const inputs = document.querySelectorAll('.input-group-dynamic .form-control');
-      inputs.forEach(input => {
-        input.dispatchEvent(new Event('input', { bubbles: true }));
+      
+      inputs.forEach((input) => {
+        const inputElement = input as HTMLInputElement | HTMLTextAreaElement;
+        const inputGroup = inputElement.closest('.input-group-dynamic');
+        
+        if (inputGroup) {
+          // Add event listeners for focus, blur, and input
+          const handleFocus = () => {
+            inputGroup.classList.add('is-focused');
+            if (inputElement.value !== '') {
+              inputGroup.classList.add('is-filled');
+            }
+          };
+          
+          const handleBlur = () => {
+            inputGroup.classList.remove('is-focused');
+            if (inputElement.value === '') {
+              inputGroup.classList.remove('is-filled');
+            }
+          };
+          
+          const handleInput = () => {
+            if (inputElement.value !== '') {
+              inputGroup.classList.add('is-filled');
+            } else {
+              inputGroup.classList.remove('is-filled');
+            }
+          };
+          
+          // Remove existing listeners to prevent duplicates
+          inputElement.removeEventListener('focus', handleFocus);
+          inputElement.removeEventListener('blur', handleBlur);
+          inputElement.removeEventListener('input', handleInput);
+          
+          // Add the event listeners
+          inputElement.addEventListener('focus', handleFocus);
+          inputElement.addEventListener('blur', handleBlur);
+          inputElement.addEventListener('input', handleInput);
+          
+          // Initialize state based on current value
+          if (inputElement.value !== '') {
+            inputGroup.classList.add('is-filled');
+          }
+        }
       });
-    }
-  }, [form.consultant]); // Re-run when consultant changes
+    };
+
+    // Initialize immediately and also with a small delay
+    initializeMaterialInputs();
+    const timer = setTimeout(initializeMaterialInputs, 100);
+    
+    return () => clearTimeout(timer);
+  }, [form.proponents.length]); // Re-run when proponents change
 
   const handleTopLevelChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     console.log('handleTopLevelChange:', { name, value }); // Debug log
     setForm(prev => ({ ...prev, [name]: value }));
+    
+    // Trigger input event for Material Kit animation
+    const inputGroup = e.target.closest('.input-group-dynamic');
+    if (inputGroup) {
+      if (value !== '') {
+        inputGroup.classList.add('is-filled');
+      } else {
+        inputGroup.classList.remove('is-filled');
+      }
+    }
   };
 
   const handlePersonChange = (
     section: 'guarantor' | 'proponents',
     index: number,
     field: keyof Person,
-    value: string
+    value: string,
+    event?: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setForm(prev => {
       const copy = { ...prev } as FormState;
@@ -88,6 +143,18 @@ const MortageApplication: React.FC = () => {
       copy[section] = arr;
       return copy;
     });
+
+    // Handle Material Kit animation for the input that changed
+    if (event) {
+      const inputGroup = event.target.closest('.input-group-dynamic');
+      if (inputGroup) {
+        if (value !== '') {
+          inputGroup.classList.add('is-filled');
+        } else {
+          inputGroup.classList.remove('is-filled');
+        }
+      }
+    }
   };
 
   const addPerson = (section: 'guarantor' | 'proponents') => {
@@ -129,10 +196,10 @@ const MortageApplication: React.FC = () => {
   };
 
   return (
-    <section>
+    <div className="bg-gray-200">
       <header>
         <div
-          className="page-header min-vh-100"
+          className="page-header min-vh-60"
           style={{
             backgroundImage:
               "url('/header-bg.jpg')",
@@ -141,164 +208,222 @@ const MortageApplication: React.FC = () => {
             position: 'relative',
           }}
         >
-          <span className="mask bg-gradient-dark opacity-5" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}></span>
+          <span className="mask bg-gradient-dark opacity-6" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}></span>
           <div className="container" style={{ position: 'relative', zIndex: 2 }}>
             <div className="row">
-              <div className="col-lg-6 col-md-7 d-flex justify-content-center flex-column">
-                <h1 className="text-white font-weight-black mb-4">Material Kit</h1>
-                <p className="text-white opacity-8 lead pe-5 me-5">
-                  The time is now for it be okay to be great. People in this world shun people for being nice.
+              <div className="col-lg-8 col-md-10 d-flex justify-content-center flex-column">
+                <h1 className="text-white font-weight-bolder mb-4" style={{ fontSize: '3.5rem' }}>Mortgage Application</h1>
+                <p className="text-white opacity-8 lead pe-5 me-5 mb-5">
+                  Complete your mortgage application with our streamlined process. Secure, fast, and designed with your needs in mind.
                 </p>
                 <div className="buttons">
-                  <button type="button" className="btn btn-white mt-4">Get Started</button>
-                  <button type="button" className="btn text-white shadow-none mt-4">Read more</button>
+                  <button type="button" className="btn bg-gradient-dark btn-lg me-3" style={{ borderRadius: '0.75rem' }}>Get Started</button>
+                  <button type="button" className="btn btn-outline-dark btn-lg" style={{ borderRadius: '0.75rem' }}>Learn More</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </header>
-      <div className="container py-4">
-        <div className="row">
-          <div className="col-lg-7 mx-auto d-flex justify-content-center flex-column">
-            <h3 className="text-center">Mortgage Application</h3>
-            <div className="card shadow" style={{ background: '#fff', borderRadius: 12 }}>
-              <form role="form" id="mortgage-form" method="post" autoComplete="off" onSubmit={onSubmit}>
-                <div className="card-body">
-                  {/* Top-level fields */}
-                  <div className="row">
-                    <div className="col-md-6">
-                      <div className="input-group input-group-dynamic mb-4">
-                        <label className="form-label">Consultant</label>
-                        <input className="form-control" name="consultant" value={form.consultant} onChange={handleTopLevelChange} aria-label="Consultant..." type="text" />
+      
+      <section className="py-7" style={{ backgroundColor: '#f8f9fa' }}>
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-8 mx-auto">
+              <div className="text-center mb-6">
+                <h2 className="text-dark font-weight-bold mb-3">Application Form</h2>
+                <p className="lead text-muted">Please fill out all required information below</p>
+              </div>
+              
+              <div className="card shadow-lg border-0" style={{ borderRadius: '1rem' }}>
+                <div className="card-header bg-gradient-dark text-white text-center" style={{ borderRadius: '1rem 1rem 0 0', padding: '1.5rem', color: 'white' }}>
+                  <h4 className="mb-0 text-white font-weight-bold" style={{ color: 'white' }}>Mortgage Application Details</h4>
+                </div>
+                
+                <form role="form" id="mortgage-form" method="post" autoComplete="off" onSubmit={onSubmit} ref={formRef}>
+                  <div className="card-body p-5">
+                    {/* Basic Information Section */}
+                    <div className="row mb-5">
+                      <div className="col-12">
+                        <h5 className="font-weight-bold text-dark mb-4">
+                          <i className="material-icons text-dark me-2">person</i>
+                          Basic Information
+                        </h5>
                       </div>
-                    </div>
-                    <div className="col-md-6 ps-2">
-                      <div className="input-group input-group-dynamic mb-4">
-                        <label className="form-label">Rents</label>
-                        <input className="form-control" name="rents" value={form.rents} onChange={handleTopLevelChange} aria-label="Rents..." type="text" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-4">
-                      <div className="input-group input-group-dynamic mb-4">
-                        <label className="form-label">Purchase Value</label>
-                        <input className="form-control" name="purchaseValue" value={form.purchaseValue} onChange={handleTopLevelChange} aria-label="Purchase Value..." type="text" />
-                      </div>
-                    </div>
-                    <div className="col-md-4">
-                      <div className="input-group input-group-dynamic mb-4">
-                        <label className="form-label">Appraisal Value</label>
-                        <input className="form-control" name="appraisalValue" value={form.appraisalValue} onChange={handleTopLevelChange} aria-label="Appraisal Value..." type="text" />
-                      </div>
-                    </div>
-                    <div className="col-md-4">
-                      <div className="input-group input-group-dynamic mb-4">
-                        <label className="form-label">Financing Amount</label>
-                        <input className="form-control" name="financingAmount" value={form.financingAmount} onChange={handleTopLevelChange} aria-label="Financing Amount..." type="text" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-4">
-                      <div className="input-group input-group-dynamic mb-4">
-                        <label className="form-label">Other Financing Amount</label>
-                        <input className="form-control" name="otherFinancingAmount" value={form.otherFinancingAmount} onChange={handleTopLevelChange} aria-label="Other Financing Amount..." type="text" />
-                      </div>
-                    </div>
-                    <div className="col-md-8">
-                      <div className="input-group input-group-dynamic mb-4">
-                        <label className="form-label">Own Capital</label>
-                        <input className="form-control" name="ownCapital" value={form.ownCapital} onChange={handleTopLevelChange} aria-label="Own Capital..." type="text" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mb-4">
-                    <div className="input-group input-group-dynamic">
-                      <label className="form-label">Comments</label>
-                      <textarea className="form-control" name="comments" rows={2} value={form.comments} onChange={handleTopLevelChange} />
-                    </div>
-                  </div>
-                  {/* Example validation row */}
-                  <div className="row text-center py-3 mt-3">
-                    <div className="col-4 ms-auto">
-                      <input type="text" placeholder="Success" className="form-control is-valid" />
-                    </div>
-                    <div className="col-4 me-auto">
-                      <input type="text" placeholder="Error" className="form-control is-invalid" />
-                    </div>
-                  </div>
-                  {/* Proponents Section (first only, for style) */}
-                  <div className="row mt-4">
-                    <div className="col-md-12">
-                      <h5 className="text-center">Proponents</h5>
-                      {form.proponents.map((p, idx) => (
-                        <div key={`proponent-${idx}`} className="card card-plain mb-4">
-                          <div className="row">
-                            <div className="col-md-6">
-                              <div className="input-group input-group-dynamic mb-4">
-                                <label className="form-label">Name</label>
-                                <input className="form-control" value={p.name} onChange={e => handlePersonChange('proponents', idx, 'name', e.target.value)} aria-label="Name..." type="text" />
-                              </div>
-                            </div>
-                            <div className="col-md-3">
-                              <div className="input-group input-group-dynamic mb-4">
-                                <label className="form-label">Phone</label>
-                                <input className="form-control" value={p.phoneNumber} onChange={e => handlePersonChange('proponents', idx, 'phoneNumber', e.target.value)} aria-label="Phone..." type="text" />
-                              </div>
-                            </div>
-                            <div className="col-md-3">
-                              <div className="input-group input-group-dynamic mb-4">
-                                <label className="form-label">Email</label>
-                                <input className="form-control" value={p.email} onChange={e => handlePersonChange('proponents', idx, 'email', e.target.value)} aria-label="Email..." type="email" />
-                              </div>
-                            </div>
-                          </div>
-                          {/* ...other proponent fields in similar style... */}
-                          <div className="row">
-                            <div className="col-md-12 d-flex justify-content-end">
-                              <button type="button" className="btn btn-danger btn-sm" onClick={() => removePerson('proponents', idx)} disabled={form.proponents.length <= 1}>
-                                Remove
-                              </button>
-                            </div>
-                          </div>
+                      <div className="col-md-6">
+                        <div className={`input-group input-group-dynamic mb-4 ${form.consultant ? 'is-filled' : ''}`}>
+                          <label className="form-label">Consultant</label>
+                          <input className="form-control" name="consultant" value={form.consultant} onChange={handleTopLevelChange} aria-label="Consultant..." type="text" />
                         </div>
-                      ))}
-                      <button type="button" className="btn bg-gradient-dark w-100 mb-4" onClick={() => addPerson('proponents')}>
-                        + Add Proponent
-                      </button>
-                    </div>
-                  </div>
-                  {/* Terms and Conditions */}
-                  <div className="row">
-                    <div className="col-md-12">
-                      <div className="form-check form-switch mb-4 d-flex align-items-center">
-                        <input className="form-check-input" type="checkbox" id="flexSwitchCheckDefault" defaultChecked />
-                        <label className="form-check-label ms-3 mb-0" htmlFor="flexSwitchCheckDefault">I agree to the <a href="#" className="text-dark" onClick={e => e.preventDefault()}><u>Terms and Conditions</u></a>.</label>
+                      </div>
+                      <div className="col-md-6">
+                        <div className={`input-group input-group-dynamic mb-4 ${form.rents ? 'is-filled' : ''}`}>
+                          <label className="form-label">Rents</label>
+                          <input className="form-control" name="rents" value={form.rents} onChange={handleTopLevelChange} aria-label="Rents..." type="text" />
+                        </div>
                       </div>
                     </div>
-                    <div className="col-md-12">
-                      <button type="submit" className="btn bg-gradient-dark w-100">Submit</button>
+
+                    {/* Financial Details Section */}
+                    <div className="row mb-5">
+                      <div className="col-12">
+                        <h5 className="font-weight-bold text-dark mb-4">
+                          <i className="material-icons text-dark me-2">account_balance</i>
+                          Financial Details
+                        </h5>
+                      </div>
+                      <div className="col-md-4">
+                        <div className={`input-group input-group-dynamic mb-4 ${form.purchaseValue ? 'is-filled' : ''}`}>
+                          <label className="form-label">Purchase Value</label>
+                          <input className="form-control" name="purchaseValue" value={form.purchaseValue} onChange={handleTopLevelChange} aria-label="Purchase Value..." type="text" />
+                        </div>
+                      </div>
+                      <div className="col-md-4">
+                        <div className={`input-group input-group-dynamic mb-4 ${form.appraisalValue ? 'is-filled' : ''}`}>
+                          <label className="form-label">Appraisal Value</label>
+                          <input className="form-control" name="appraisalValue" value={form.appraisalValue} onChange={handleTopLevelChange} aria-label="Appraisal Value..." type="text" />
+                        </div>
+                      </div>
+                      <div className="col-md-4">
+                        <div className={`input-group input-group-dynamic mb-4 ${form.financingAmount ? 'is-filled' : ''}`}>
+                          <label className="form-label">Financing Amount</label>
+                          <input className="form-control" name="financingAmount" value={form.financingAmount} onChange={handleTopLevelChange} aria-label="Financing Amount..." type="text" />
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className={`input-group input-group-dynamic mb-4 ${form.otherFinancingAmount ? 'is-filled' : ''}`}>
+                          <label className="form-label">Other Financing Amount</label>
+                          <input className="form-control" name="otherFinancingAmount" value={form.otherFinancingAmount} onChange={handleTopLevelChange} aria-label="Other Financing Amount..." type="text" />
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className={`input-group input-group-dynamic mb-4 ${form.ownCapital ? 'is-filled' : ''}`}>
+                          <label className="form-label">Own Capital</label>
+                          <input className="form-control" name="ownCapital" value={form.ownCapital} onChange={handleTopLevelChange} aria-label="Own Capital..." type="text" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Comments Section */}
+                    <div className="row mb-5">
+                      <div className="col-12">
+                        <h5 className="font-weight-bold text-dark mb-4">
+                          <i className="material-icons text-dark me-2">comment</i>
+                          Additional Comments
+                        </h5>
+                        <div className={`input-group input-group-dynamic ${form.comments ? 'is-filled' : ''}`}>
+                          <label className="form-label">Comments</label>
+                          <textarea className="form-control" name="comments" rows={4} value={form.comments} onChange={handleTopLevelChange} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Proponents Section */}
+                    <div className="row mb-5">
+                      <div className="col-12">
+                        <h5 className="font-weight-bold text-dark mb-4">
+                          <i className="material-icons text-dark me-2">group</i>
+                          Proponents
+                        </h5>
+                        {form.proponents.map((p, idx) => (
+                          <div key={`proponent-${idx}`} className="card card-plain border mb-4" style={{ borderRadius: '0.75rem', backgroundColor: '#f8f9fa' }}>
+                            <div className="card-body p-4">
+                              <div className="d-flex justify-content-between align-items-center mb-3">
+                                <h6 className="font-weight-bold text-dark mb-0">Proponent {idx + 1}</h6>
+                                {form.proponents.length > 1 && (
+                                  <button type="button" className="btn btn-outline-dark btn-sm" onClick={() => removePerson('proponents', idx)} style={{ borderRadius: '0.5rem' }}>
+                                    <i className="material-icons" style={{ fontSize: '16px' }}>delete</i>
+                                    Remove
+                                  </button>
+                                )}
+                              </div>
+                              <div className="row">
+                                <div className="col-md-6">
+                                  <div className={`input-group input-group-dynamic mb-4 ${p.name ? 'is-filled' : ''}`}>
+                                    <label className="form-label">Full Name</label>
+                                    <input 
+                                      className="form-control" 
+                                      value={p.name} 
+                                      onChange={e => handlePersonChange('proponents', idx, 'name', e.target.value, e)} 
+                                      aria-label="Name..." 
+                                      type="text" 
+                                    />
+                                  </div>
+                                </div>
+                                <div className="col-md-3">
+                                  <div className={`input-group input-group-dynamic mb-4 ${p.phoneNumber ? 'is-filled' : ''}`}>
+                                    <label className="form-label">Phone</label>
+                                    <input 
+                                      className="form-control" 
+                                      value={p.phoneNumber} 
+                                      onChange={e => handlePersonChange('proponents', idx, 'phoneNumber', e.target.value, e)} 
+                                      aria-label="Phone..." 
+                                      type="text" 
+                                    />
+                                  </div>
+                                </div>
+                                <div className="col-md-3">
+                                  <div className={`input-group input-group-dynamic mb-4 ${p.email ? 'is-filled' : ''}`}>
+                                    <label className="form-label">Email</label>
+                                    <input 
+                                      className="form-control" 
+                                      value={p.email} 
+                                      onChange={e => handlePersonChange('proponents', idx, 'email', e.target.value, e)} 
+                                      aria-label="Email..." 
+                                      type="email" 
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        <button type="button" className="btn bg-gradient-dark w-100 mb-4" onClick={() => addPerson('proponents')} style={{ borderRadius: '0.75rem', padding: '12px' }}>
+                          <i className="material-icons me-2">add</i>
+                          Add Proponent
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Terms and Submit */}
+                    <div className="row">
+                      <div className="col-12">
+                        <div className="form-check form-switch mb-4 d-flex align-items-center">
+                          <input className="form-check-input" type="checkbox" id="flexSwitchCheckDefault" defaultChecked />
+                          <label className="form-check-label ms-3 mb-0" htmlFor="flexSwitchCheckDefault">
+                            I agree to the <a href="#" className="text-dark font-weight-bold" onClick={e => e.preventDefault()}><u>Terms and Conditions</u></a>.
+                          </label>
+                        </div>
+                      </div>
+                      <div className="col-12">
+                        <button type="submit" className="btn bg-gradient-dark w-100 btn-lg" style={{ borderRadius: '0.75rem', padding: '15px' }}>
+                          <i className="material-icons me-2">send</i>
+                          Submit Application
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </form>
-              {submitted && (
-                <div className="card mt-4">
-                  <div className="card-header card-header-info">
-                    <h4 className="card-title">Preview JSON</h4>
+                </form>
+                
+                {submitted && (
+                  <div className="card mt-4 border-0 shadow" style={{ borderRadius: '1rem' }}>
+                    <div className="card-header bg-gradient-dark text-white" style={{ borderRadius: '1rem 1rem 0 0', color: 'white' }}>
+                      <h4 className="card-title mb-0 font-weight-bold" style={{ color: 'white' }}>
+                        <i className="material-icons me-2" style={{ color: 'white' }}>check_circle</i>
+                        Application Preview
+                      </h4>
+                    </div>
+                    <div className="card-body p-4">
+                      <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', margin: 0, backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '0.5rem', fontSize: '14px' }}>{JSON.stringify(submitted, null, 2)}</pre>
+                    </div>
                   </div>
-                  <div className="card-body">
-                    <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', margin: 0 }}>{JSON.stringify(submitted, null, 2)}</pre>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 };
 

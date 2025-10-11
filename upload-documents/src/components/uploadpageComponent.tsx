@@ -188,277 +188,416 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
 
   if (isValid === false) {
     return (
-      <>
+      <div className="bg-gray-200">
         <LogoSection />
-        <div className="bg-dark text-secondary px-4 pt-2 pb-5 text-center" id="mainDivDocumentation">
-          <div className="py-4">
-            <h1 className="display-5 fw-bold text-white">{translations.uploadDocuments}</h1>
-            <div className="col-lg-6 mx-auto">
-              <p className="fs-5 mb-4">{translations.uploadDescription}</p>
-              <p className="text-info" style={{display: "none"}}>{error || translations.documentationUnavailable}</p>
+        
+        {/* Hero Error Section */}
+        <div className="page-header min-vh-75" style={{ 
+          background: 'linear-gradient(195deg, #ec407a 0%, #d81b60 100%)', 
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <span className="mask bg-gradient-dark opacity-2"></span>
+          
+          {/* Decorative Elements */}
+          <div style={{
+            position: 'absolute',
+            top: '10%',
+            right: '10%',
+            width: '200px',
+            height: '200px',
+            background: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: '50%',
+            filter: 'blur(60px)'
+          }}></div>
+          <div style={{
+            position: 'absolute',
+            bottom: '20%',
+            left: '5%',
+            width: '150px',
+            height: '150px',
+            background: 'rgba(255, 255, 255, 0.08)',
+            borderRadius: '50%',
+            filter: 'blur(50px)'
+          }}></div>
+          
+          <div className="container" style={{ position: 'relative', zIndex: 2 }}>
+            <div className="row">
+              <div className="col-lg-8 col-md-10 mx-auto text-center text-white py-7">
+                <div className="mb-5">
+                  <div className="icon-shape bg-white shadow-lg mx-auto mb-4" style={{
+                    width: '80px',
+                    height: '80px',
+                    borderRadius: '1rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <i className="material-icons text-dark" style={{ fontSize: '2.5rem' }}>error_outline</i>
+                  </div>
+                  <h1 className="display-3 font-weight-bolder mb-4 text-white">Oops! Something went wrong</h1>
+                  <p className="lead opacity-9 mb-5 px-5">
+                    We're sorry, but we couldn't load your document upload page. This might be due to an invalid or expired link.
+                  </p>
+                </div>
+                
+                <div className="card border-0 shadow-xl mx-auto" style={{ 
+                  borderRadius: '1.5rem', 
+                  maxWidth: '500px',
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  backdropFilter: 'blur(10px)'
+                }}>
+                  <div className="card-body p-5">
+                    <div className="alert alert-warning border-0 mb-4" style={{ 
+                      borderRadius: '1rem',
+                      background: 'linear-gradient(45deg, #ff9800, #f57c00)',
+                      color: 'white'
+                    }}>
+                      <div className="d-flex align-items-center">
+                        <i className="material-icons me-3" style={{ fontSize: '1.5rem' }}>warning</i>
+                        <div>
+                          <strong>Error Details:</strong>
+                          <div className="mt-1">{error || translations.documentationUnavailable}</div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="text-center">
+                      <h5 className="text-dark font-weight-bold mb-3">What can you do?</h5>
+                      <div className="row text-start">
+                        <div className="col-12 mb-3">
+                          <div className="d-flex align-items-center">
+                            <div className="icon-shape bg-gradient-success shadow me-3" style={{
+                              width: '35px',
+                              height: '35px',
+                              borderRadius: '0.5rem',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}>
+                              <i className="material-icons text-white" style={{ fontSize: '1rem' }}>refresh</i>
+                            </div>
+                            <span className="text-sm text-dark">Try refreshing the page</span>
+                          </div>
+                        </div>
+                        <div className="col-12 mb-3">
+                          <div className="d-flex align-items-center">
+                            <div className="icon-shape bg-gradient-info shadow me-3" style={{
+                              width: '35px',
+                              height: '35px',
+                              borderRadius: '0.5rem',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}>
+                              <i className="material-icons text-white" style={{ fontSize: '1rem' }}>link</i>
+                            </div>
+                            <span className="text-sm text-dark">Check if your link is correct</span>
+                          </div>
+                        </div>
+                        <div className="col-12">
+                          <div className="d-flex align-items-center">
+                            <div className="icon-shape bg-gradient-primary shadow me-3" style={{
+                              width: '35px',
+                              height: '35px',
+                              borderRadius: '0.5rem',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}>
+                              <i className="material-icons text-white" style={{ fontSize: '1rem' }}>support_agent</i>
+                            </div>
+                            <span className="text-sm text-dark">Contact support if the problem persists</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <footer className="fixed-bottom bg-dark text-center py-3">
-          <span className="text-secondary">
-            made by <a href="https://goncalomiranda.dev" className="text-info text-decoration-none" target="_blank" rel="noopener noreferrer">goncalomiranda.dev</a>
-          </span>
+
+        <footer className="py-4" style={{ backgroundColor: '#ffffff', borderTop: '1px solid #e9ecef' }}>
+          <div className="container text-center">
+            <span className="text-muted">
+              made by <a href="https://goncalomiranda.dev" className="text-primary text-decoration-none" target="_blank" rel="noopener noreferrer">goncalomiranda.dev</a>
+            </span>
+          </div>
         </footer>
-      </>
+      </div>
     );
   }
 
   if (!documentation) {
-    return <div className="text-center text-light">Loading...</div>;
+    return (
+      <div className="bg-gray-200" style={{ minHeight: '100vh' }}>
+        <LogoSection />
+        <div className="container-fluid d-flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
+          <div className="text-center">
+            <div className="card border-0 shadow-lg p-5" style={{ borderRadius: '1rem' }}>
+              <div className="spinner-border text-primary mb-4" role="status" style={{ width: '3rem', height: '3rem' }}>
+                <span className="visually-hidden">Loading...</span>
+              </div>
+              <h5 className="text-muted">Loading your documents...</h5>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <main>
+    <div className="bg-gray-200">
       <LogoSection />
-      <div className="bg-dark text-secondary px-4 pt-2 pb-5 text-center" id="mainDivDocumentation">
-        <div className="py-4">
-          <h1 className="display-5 fw-bold text-white">{translations.uploadDocuments}</h1>
-          <div className="col-lg-6 mx-auto">
-            <p className="fs-5 mb-4">{translations.uploadDescription}</p>
+      
+      {/* Hero Header */}
+      <div className="page-header min-vh-30" style={{ backgroundColor: 'linear-gradient(195deg, #42424a 0%, #191919 100%)', position: 'relative' }}>
+        <span className="mask bg-gradient-dark opacity-4"></span>
+        <div className="container" style={{ position: 'relative', zIndex: 2 }}>
+          <div className="row">
+            <div className="col-lg-8 col-md-10 mx-auto text-center text-white py-5">
+              <h1 className="display-4 font-weight-bolder mb-4">{translations.uploadDocuments}</h1>
+              <p className="lead opacity-8 mb-0">{translations.uploadDescription}</p>
+            </div>
           </div>
+        </div>
+      </div>
 
-          {/* Hide this section if token is missing or after successful submission */}
+      {/* Main Content */}
+      <section className="py-7" style={{ backgroundColor: '#f8f9fa' }}>
+        <div className="container">
           {token && !uploadSuccess && (
-            <div id="requiredDocumentsDiv">
-              <h2 className="mb-4">{translations.requiredDocuments}</h2>
-              <form onSubmit={handleUpload} encType="multipart/form-data">
-                <input type="hidden" name="request_id" value={documentation.request_id} />
-                <div className="row justify-content-center bg-dark text-light py-4" id="documentationList">
-                  {uploadDocuments.map((doc, index) => (
-                    <div className="col-md-8" key={doc.key}>
-                      <div className="card border-info mb-3 bg-dark text-light">
-                        <div className="card-header bg-dark text-info">
-                          <strong>{doc.value}</strong>
-                        </div>
-                        <div className="card-body">
-                          <p className="card-text">{translations.quantityRequired}: {doc.quantity}</p>
-                          {[...Array(doc.quantity)].map((_, i) => (
-                            <div className="mb-3" key={i}>
-                              <label htmlFor={`upload_${index}_${i}`} className="form-label">
-                                {translations.uploadFile} {i + 1}
-                              </label>
-                              <input
-                                type="file"
-                                className="form-control"
-                                id={`upload_${index}_${i}`}
-                                name={`documents[${doc.key}][${i}]`}
-                                required
-                                onChange={handleFileChange}
-                              />
+            <div className="row justify-content-center">
+              <div className="col-lg-10">
+                <div className="text-center mb-6">
+                  <h2 className="font-weight-bold text-dark mb-3">{translations.requiredDocuments}</h2>
+                  <p className="text-muted">Please upload all required documents to complete your application</p>
+                </div>
+                
+                <form onSubmit={handleUpload} encType="multipart/form-data">
+                  <input type="hidden" name="request_id" value={documentation.request_id} />
+                  
+                  {/* Document Upload Cards */}
+                  <div className="row">
+                    {uploadDocuments.map((doc, index) => (
+                      <div className="col-lg-6 mb-4" key={doc.key}>
+                        <div className="card h-100 border-0 shadow-lg" style={{ borderRadius: '1rem' }}>
+                          <div className="card-header bg-gradient-dark text-white" style={{ borderRadius: '1rem 1rem 0 0', padding: '1.25rem', color: 'white' }}>
+                            <div className="d-flex align-items-center">
+                              <i className="material-icons me-3" style={{ color: 'white' }}>description</i>
+                              <div>
+                                <h5 className="mb-0 font-weight-bold" style={{ color: 'white' }}>{doc.value}</h5>
+                                <small className="opacity-8" style={{ color: 'white' }}>Required: {doc.quantity} file{doc.quantity > 1 ? 's' : ''}</small>
+                              </div>
                             </div>
-                          ))}
+                          </div>
+                          <div className="card-body p-4">
+                            {[...Array(doc.quantity)].map((_, i) => (
+                              <div className="mb-3" key={i}>
+                                <label htmlFor={`upload_${index}_${i}`} className="form-label font-weight-bold text-dark mb-2">
+                                  <i className="material-icons text-sm me-1">attach_file</i>
+                                  {translations.uploadFile} {i + 1}
+                                </label>
+                                <input
+                                  type="file"
+                                  className="form-control"
+                                  id={`upload_${index}_${i}`}
+                                  name={`documents[${doc.key}][${i}]`}
+                                  required
+                                  onChange={handleFileChange}
+                                  style={{ borderRadius: '0.5rem', border: '1px solid #d2d6da' }}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* GDPR Consent Section */}
+                  {hasRgpdDocument && (
+                    <div className="row justify-content-center mt-6">
+                      <div className="col-lg-12">
+                        <div className="card border-0 shadow-lg" style={{ borderRadius: '1rem' }}>
+                          <div className="card-header bg-gradient-dark text-white" style={{ borderRadius: '1rem 1rem 0 0', padding: '1.5rem', color: 'white' }}>
+                            <div className="d-flex align-items-center">
+                              <i className="material-icons me-3" style={{ color: 'white' }}>security</i>
+                              <h4 className="mb-0 font-weight-bold" style={{ color: 'white' }}>{translations.consents?.privacyNoticeTitle}</h4>
+                            </div>
+                          </div>
+                          <div className="card-body p-4">
+                            {/* PDF Viewer */}
+                            <div className="mb-4">
+                              <div className="alert alert-info border-0" style={{ borderRadius: '0.75rem' }}>
+                                <i className="material-icons me-2">info</i>
+                                <strong>Please review the privacy policy below before continuing.</strong>
+                              </div>
+                              
+                              <div
+                                className="border"
+                                style={{ 
+                                  borderRadius: '0.75rem', 
+                                  height: '400px', 
+                                  overflowY: 'auto',
+                                  backgroundColor: '#fff',
+                                  position: 'relative'
+                                }}
+                                onScroll={onPdfScroll}
+                              >
+                                <iframe
+                                  src={privacyPdfSrc}
+                                  title="Customer Privacy Notice"
+                                  style={{ 
+                                    width: '100%', 
+                                    height: '800px', 
+                                    border: 'none',
+                                    borderRadius: '0.75rem'
+                                  }}
+                                />
+                                
+                                {/* Mobile Overlay */}
+                                {isMobile && (
+                                  <div 
+                                    style={{
+                                      position: 'absolute',
+                                      top: '20px',
+                                      left: '50%',
+                                      transform: 'translateX(-50%)',
+                                      zIndex: 10
+                                    }}
+                                  >
+                                    <a
+                                      href={privacyPdfSrc}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="btn bg-gradient-dark text-white shadow-lg"
+                                      style={{ borderRadius: '2rem' }}
+                                      onClick={() => setHasScrolledToBottom(true)}
+                                    >
+                                      <i className="material-icons me-2">open_in_new</i>
+                                      Open Privacy Policy
+                                    </a>
+                                  </div>
+                                )}
+                              </div>
+                              
+                              <div className="text-center mt-3">
+                                <a
+                                  href={privacyPdfSrc}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-primary text-decoration-none"
+                                  onClick={() => setHasScrolledToBottom(true)}
+                                >
+                                  <i className="material-icons text-sm me-1">open_in_new</i>
+                                  Open in new tab
+                                </a>
+                              </div>
+                            </div>
+
+                            {/* Consent Checkboxes */}
+                            <div className="mb-4">
+                              <h6 className="font-weight-bold text-dark mb-4">Data Processing Consent</h6>
+                              
+                              {['A', 'B', 'C', 'D'].map((letter) => (
+                                <div className="form-check mb-3 p-3 border" style={{ borderRadius: '0.75rem', backgroundColor: '#f8f9fa' }} key={letter}>
+                                  <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id={`consent${letter}`}
+                                    disabled={!hasScrolledToBottom}
+                                    checked={letter === 'A' ? consentA : letter === 'B' ? consentB : letter === 'C' ? consentC : consentD}
+                                    onChange={e => {
+                                      if (letter === 'A') setConsentA(e.target.checked);
+                                      else if (letter === 'B') setConsentB(e.target.checked);
+                                      else if (letter === 'C') setConsentC(e.target.checked);
+                                      else setConsentD(e.target.checked);
+                                    }}
+                                  />
+                                  <label className="form-check-label text-dark ms-2" htmlFor={`consent${letter}`}>
+                                    <strong>{letter}.</strong> {translations.consents?.[letter as keyof typeof translations.consents]}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                            
+                            {/* Main Consent */}
+                            <div className="form-check p-4 bg-gradient-dark" style={{ borderRadius: '0.75rem' }}>
+                              <input
+                                type="checkbox"
+                                className="form-check-input"
+                                id="gdprConsent"
+                                disabled={!hasScrolledToBottom}
+                                checked={consentChecked}
+                                onChange={e => setConsentChecked(e.target.checked)}
+                              />
+                              <label className="form-check-label text-white font-weight-bold ms-2" htmlFor="gdprConsent">
+                                <i className="material-icons text-sm me-2">verified_user</i>
+                                {translations.consents?.RGPD_CONSENT}
+                              </label>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  )}
 
-                {/* GDPR Consent Section */}
-                {hasRgpdDocument && (
-                  <div id="gdprConsentDiv" className="text-start mt-4 mb-4" style={{ maxWidth: '1000px', margin: '0 auto' }}>
-                    <h3 style={{ fontSize: '1.25rem' }}>{translations.consents?.privacyNoticeTitle}</h3>
-                    {/* Consent Intro from translations */}
-                    <br />
-                    
-                    {/* Mobile-friendly PDF viewer */}
-                    <div style={{ marginBottom: '16px' }}>
-                      <div
-                        style={{ 
-                          border: '1px solid #0dcaf0', 
-                          borderRadius: 4, 
-                          height: '300px', 
-                          overflowY: 'auto', 
-                          marginBottom: 12,
-                          WebkitOverflowScrolling: 'touch', // Enable momentum scrolling on iOS
-                          position: 'relative'
-                        }}
-                        onScroll={onPdfScroll}
-                      >
-                        <iframe
-                          src={privacyPdfSrc}
-                          title="Customer Privacy Notice"
-                          style={{ 
-                            width: '100%', 
-                            height: '800px', 
-                            border: 'none',
-                            display: 'block'
-                          }}
-                        />
+                  {/* Submit Section */}
+                  <div className="row justify-content-center mt-6">
+                    <div className="col-lg-6 text-center">
+                      <div className="card border-0 shadow-lg p-4" style={{ borderRadius: '1rem' }}>
+                        <button
+                          type="submit"
+                          className="btn bg-gradient-dark btn-lg w-100 mb-3"
+                          disabled={loading || !allFilesSelected || (hasRgpdDocument && !(consentChecked && consentA && consentB && consentC && consentD))}
+                          style={{ borderRadius: '0.75rem', padding: '15px' }}
+                        >
+                          {loading ? (
+                            <>
+                              <span className="spinner-border spinner-border-sm me-2" role="status" />
+                              {translations.uploading}
+                            </>
+                          ) : (
+                            <>
+                              <i className="material-icons me-2">cloud_upload</i>
+                              {translations.submitDocuments}
+                            </>
+                          )}
+                        </button>
                         
-                        {/* Overlay for mobile with link to open PDF */}
-                        <div 
-                          style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            background: 'rgba(0,0,0,0.1)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            opacity: isMobile ? 1 : 0,
-                            pointerEvents: isMobile ? 'auto' : 'none',
-                            transition: 'opacity 0.3s ease'
-                          }}
-                          className="mobile-pdf-overlay"
-                        >
-                          <a
-                            href={privacyPdfSrc}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              background: '#0dcaf0',
-                              color: 'white',
-                              padding: '12px 24px',
-                              borderRadius: '6px',
-                              textDecoration: 'none',
-                              fontWeight: 'bold',
-                              boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
-                            }}
-                            onClick={() => {
-                              // Automatically mark as scrolled when opening PDF on mobile
-                              if (isMobile) {
-                                setHasScrolledToBottom(true);
-                              }
-                            }}
-                          >
-                            📄 Open Privacy Policy
-                          </a>
-                        </div>
+                        {(!allFilesSelected || (hasRgpdDocument && !consentChecked)) && (
+                          <div className="alert alert-warning border-0 mt-3" style={{ borderRadius: '0.5rem' }}>
+                            <small>
+                              {!allFilesSelected && <div><i className="material-icons text-sm me-1">warning</i> All required files must be selected</div>}
+                              {hasRgpdDocument && !consentChecked && <div><i className="material-icons text-sm me-1">privacy_tip</i> GDPR consent required</div>}
+                            </small>
+                          </div>
+                        )}
                       </div>
-                      
-                      {/* Alternative: Direct link for mobile users */}
-                      <div style={{ textAlign: 'center', marginBottom: '12px' }}>
-                        <a
-                          href={privacyPdfSrc}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            color: '#0dcaf0',
-                            textDecoration: 'underline',
-                            fontSize: '14px'
-                          }}
-                          onClick={() => {
-                            // Mark as read when clicking the direct link
-                            setHasScrolledToBottom(true);
-                          }}
-                        >
-                          Can't scroll? Click here to open Privacy Policy in new tab
-                        </a>
-                      </div>
-                    </div>
-
-                    {/* Consent checkboxes below the iframe */}
-                    <div className="mb-2" style={{ fontSize: '0.95rem', color: '#fff' }}>
-                      {/* Consent A */}
-                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
-                        <input
-                          type="checkbox"
-                          id="consentA"
-                          disabled={!hasScrolledToBottom}
-                          checked={consentA}
-                          onChange={e => setConsentA(e.target.checked)}
-                          style={{ verticalAlign: 'middle', marginRight: 4 }}
-                        />
-                        <span style={{ lineHeight: 1.5 }}> <strong>A.</strong> {translations.consents?.A}</span>
-                      </div>
-                      {/* Consent B */}
-                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
-                        <input
-                          type="checkbox"
-                          id="consentB"
-                          disabled={!hasScrolledToBottom}
-                          checked={consentB}
-                          onChange={e => setConsentB(e.target.checked)}
-                          style={{ verticalAlign: 'middle', marginRight: 4 }}
-                        />
-                        <span style={{ lineHeight: 1.5 }}><strong>B.</strong> {translations.consents?.B}</span>
-                      </div>
-                      {/* Consent C */}
-                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
-                        <input
-                          type="checkbox"
-                          id="consentC"
-                          disabled={!hasScrolledToBottom}
-                          checked={consentC}
-                          onChange={e => setConsentC(e.target.checked)}
-                          style={{ verticalAlign: 'middle', marginRight: 4 }}
-                        />
-                        <span style={{ lineHeight: 1.5 }}><strong>C.</strong>  {translations.consents?.C}</span>
-                      </div>
-                      {/* Consent D */}
-                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
-                        <input
-                          type="checkbox"
-                          id="consentD"
-                          disabled={!hasScrolledToBottom}
-                          checked={consentD}
-                          onChange={e => setConsentD(e.target.checked)}
-                          style={{ verticalAlign: 'middle', marginRight: 4 }}
-                        />
-                        <span style={{ lineHeight: 1.5 }}><strong>D.</strong> {translations.consents?.D}</span>
-                      </div>
-                    </div>
-                    {/* Main consent checkbox remains below the consents */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <input
-                        type="checkbox"
-                        id="gdprConsent"
-                        disabled={!hasScrolledToBottom}
-                        checked={consentChecked}
-                        onChange={e => setConsentChecked(e.target.checked)}
-                      />
-                      <label htmlFor="gdprConsent" style={{ margin: 4 }}>
-                        {translations.consents?.RGPD_CONSENT}
-                      </label>
                     </div>
                   </div>
-                )}
-
-                <div className="text-center">
-                  <button
-                    type="submit"
-                    className="btn btn-outline-light btn-lg px-4"
-                    disabled={loading || !allFilesSelected || (hasRgpdDocument && !(consentChecked && consentA && consentB && consentC && consentD))}
-                  >
-                    {loading ? (
-                      <>
-                        <span className="spinner-grow spinner-grow-sm me-2" role="status" />
-                        {translations.uploading}
-                      </>
-                    ) : (
-                      translations.submitDocuments
-                    )}
-                  </button>
-                  <div style={{ marginTop: 10, fontSize: 12 }}>
-                    {!allFilesSelected && <span>All required files must be selected. </span>}
-                    {hasRgpdDocument && !consentChecked && <span>GDPR consent required.</span>}
-                  </div>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
           )}
         </div>
-      </div>
+      </section>
 
       {/* Success Modal */}
       {uploadSuccess && (
         <div className="modal fade show d-block" tabIndex={-1} role="dialog" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
           <div className="modal-dialog">
-            <div className="modal-content bg-white text-dark shadow-lg" style={{ border: 'none', borderRadius: '8px' }}>
-              <div className="modal-header" style={{ borderBottom: '1px solid #e9ecef', backgroundColor: 'white' }}>
-                <h5 className="modal-title text-success fw-bold">{translations.success}</h5>
-                <button type="button" className="btn-close" onClick={handleSuccessClose}></button>
+            <div className="modal-content shadow-lg" style={{ border: 'none', borderRadius: '12px' }}>
+              <div className="modal-header bg-gradient-dark text-white" style={{ borderRadius: '12px 12px 0 0' }}>
+                <h5 className="modal-title font-weight-bold">{translations.success}</h5>
+                <button type="button" className="btn-close btn-close-white" onClick={handleSuccessClose}></button>
               </div>
-              <div className="modal-body" style={{ backgroundColor: 'white', color: '#333' }}>{uploadSuccess}</div>
-              <div className="modal-footer" style={{ borderTop: '1px solid #e9ecef', backgroundColor: 'white' }}>
-                <button type="button" className="btn btn-success" onClick={handleSuccessClose}>
+              <div className="modal-body bg-white text-dark p-4">{uploadSuccess}</div>
+              <div className="modal-footer bg-white" style={{ borderRadius: '0 0 12px 12px' }}>
+                <button type="button" className="btn bg-gradient-dark text-white" onClick={handleSuccessClose}>
                   {translations.close}
                 </button>
               </div>
@@ -471,14 +610,14 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
       {uploadError && (
         <div className="modal fade show d-block" tabIndex={-1} role="dialog" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
           <div className="modal-dialog">
-            <div className="modal-content bg-white text-dark shadow-lg" style={{ border: 'none', borderRadius: '8px' }}>
-              <div className="modal-header" style={{ borderBottom: '1px solid #e9ecef', backgroundColor: 'white' }}>
-                <h5 className="modal-title text-danger fw-bold">{translations.error}</h5>
-                <button type="button" className="btn-close" onClick={() => setUploadError(null)}></button>
+            <div className="modal-content shadow-lg" style={{ border: 'none', borderRadius: '12px' }}>
+              <div className="modal-header bg-gradient-danger text-white" style={{ borderRadius: '12px 12px 0 0' }}>
+                <h5 className="modal-title font-weight-bold">{translations.error}</h5>
+                <button type="button" className="btn-close btn-close-white" onClick={() => setUploadError(null)}></button>
               </div>
-              <div className="modal-body" style={{ backgroundColor: 'white', color: '#333' }}>{uploadError}</div>
-              <div className="modal-footer" style={{ borderTop: '1px solid #e9ecef', backgroundColor: 'white' }}>
-                <button type="button" className="btn btn-danger" onClick={() => setUploadError(null)}>
+              <div className="modal-body bg-white text-dark p-4">{uploadError}</div>
+              <div className="modal-footer bg-white" style={{ borderRadius: '0 0 12px 12px' }}>
+                <button type="button" className="btn bg-gradient-danger text-white" onClick={() => setUploadError(null)}>
                   {translations.close}
                 </button>
               </div>
@@ -487,12 +626,21 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
         </div>
       )}
 
-      <footer className="fixed-bottom bg-dark text-center py-3">
-        <span className="text-secondary">
-          made by <a href="https://goncalomiranda.dev" className="text-info text-decoration-none" target="_blank" rel="noopener noreferrer">goncalomiranda.dev</a>
-        </span>
+      <footer className="py-5" style={{ backgroundColor: '#ffffff', borderTop: '1px solid #e9ecef' }}>
+        <div className="container text-center">
+          <div className="row">
+            <div className="col-12">
+              <p className="text-muted mb-0">
+                Made with <i className="material-icons text-danger text-sm">favorite</i> by 
+                <a href="https://goncalomiranda.dev" className="text-primary text-decoration-none font-weight-bold ms-1" target="_blank" rel="noopener noreferrer">
+                  goncalomiranda.dev
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
       </footer>
-    </main>
+    </div>
   );
 }
 
