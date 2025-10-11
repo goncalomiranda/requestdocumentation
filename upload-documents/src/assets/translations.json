@@ -10,7 +10,17 @@
     "success": "Success",
     "error": "Error",
     "close": "Close",
-    "learnMore": "Click on the Vite and React logos to learn more"
+    "learnMore": "Click on the Vite and React logos to learn more",
+    "quantityRequired": "Quantity Required",
+    "consents": {
+      "intro": "I declare that I have read and understood the Privacy Policy and that the authorisations selected below represent my explicit choice:",
+      "A": "With regard to the possibility of financial and credit institutions with whom the credit intermediary has established commercial partnerships consulting information about me in the Central Credit Register as well as in the List of Bank Check Users offering Risk, both of which are available from the Bank of Portugal, in accordance with the applicable legislation and regulations.",
+      "B": "I authorise the transmission and processing of my personal data to financial and credit institutions with whom the credit intermediary has established commercial partnerships for the purpose of these credit institutions analysing the application for the granting of credit and presenting me with a financing proposal; the decision to be taken by the credit institutions on the credit proposal may be presented to me by the credit intermediary in this consent.",
+      "C": "I also authorise the same financial institutions to transmit to the credit intermediary, in the event that the credit granted provides for release in instalments during a previously agreed period of use, information on the release of the various instalments as the amount granted is used up.",
+      "D": "I authorise the transmission and processing of my personal data to one or more insurance brokers, intermediaries and/or insurers, for the purpose of these entities presenting insurance proposals, which may be presented to me by the credit intermediary in this consent.",
+      "RGPD_CONSENT": "I have read and agree to the Privacy Policy (scroll to bottom to enable)",
+      "privacyNoticeTitle": "Privacy Policy"
+    }
   },
   "pt": {
     "uploadDocuments": "Carregar Documentos",
@@ -23,6 +33,16 @@
     "success": "Sucesso",
     "error": "Erro",
     "close": "Fechar",
-    "learnMore": "Clique nos logotipos do Vite e do React para saber mais"
+    "learnMore": "Clique nos logotipos do Vite e do React para saber mais",
+    "quantityRequired": "Quantidade necessária",
+    "consents": {
+      "intro": "Declaro que tomei conhecimento da Política de Privacidade e que as autorizações assinaladas em baixo correspondem à minha vontade expressa:",
+      "A": "Quanto à possibilidade de as instituições financeiras e de crédito com quem o intermediário de crédito tenha estabelecido parcerias comerciais consultarem informação que a meu respeito constar da Central de Responsabilidades de Crédito bem como da Listagem de Utilizadores de Cheque que oferecem Risco, ambas existentes junto do Banco de Portugal, em conformidade com a legislação e regulamentação aplicáveis.",
+      "B": "Autorizo a transmissão, e o tratamento, dos meus dados pessoais a instituições financeiras e de crédito com quem o intermediário de crédito tenha estabelecido parcerias comerciais com o objetivo dessas instituições de crédito analisarem o pedido de concessão de crédito e me apresentarem uma proposta de financiamento; a decisão que vier a ser tomada pelas instituições de crédito sobre a proposta de crédito poder-me-á ser apresentada pelo intermediário de crédito neste consentimento referido.",
+      "C": "Autorizo igualmente as mesmas instituições financeiras a transmitir ao intermediário de crédito, no caso de o crédito concedido prever a libertação por tranches, durante um período de utilização previamente acordado, informação sobre a libertação das diversas tranches, à medida que o montante concedido for sendo utilizado.",
+      "D": "Autorizo a transmissão e o tratamento dos meus dados pessoais a um, ou mais, corretores de seguros, mediadores e/ou seguradoras, com o objetivo dessas entidades apresentarem propostas de seguros, as quais poder-me-ão ser apresentadas pelo intermediário de crédito neste consentimento referido.",
+      "RGPD_CONSENT": "Li e concordo com a Política de Privacidade (desça até ao fim para ativar)",
+      "privacyNoticeTitle": "Política de Privacidade"
+    }
   }
 }

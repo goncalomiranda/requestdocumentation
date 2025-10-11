@@ -69,6 +69,30 @@ const RequestedDocumentation = dbaccess.define(
       type: DataTypes.STRING(64),
       allowNull: true,
     },
+    userAgent: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    browserLanguage: {
+      type: DataTypes.STRING(32),
+      allowNull: true,
+    },
+    consentA: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
+    consentB: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
+    consentC: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
+    consentD: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
   },
   {
     tableName: "RequestedDocumentation",

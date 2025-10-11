@@ -12,9 +12,15 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
   consentVersion?: string | null;
   givenAt?: Date | null;
   consentTimezone?: string | null;
+  userAgent?: string | null;
+  browserLanguage?: string | null;
+  consentA?: boolean;
+  consentB?: boolean;
+  consentC?: boolean;
+  consentD?: boolean;
 }) {
 
-  console.log("uploading....");
+  logger.info("uploading....");
   if (!token) {
     logger.error("Request ID is missing");
     deleteFiles(files); // Ensure files are deleted
@@ -84,6 +90,12 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
         if (consentData.consentVersion) updateFields.consentVersion = consentData.consentVersion;
         if (consentData.givenAt) updateFields.givenAt = consentData.givenAt;
         if (consentData.consentTimezone) updateFields.consentTimezone = consentData.consentTimezone;
+        if (consentData.userAgent) updateFields.userAgent = consentData.userAgent;
+        if (consentData.browserLanguage) updateFields.browserLanguage = consentData.browserLanguage;
+        if (consentData.consentA !== undefined) updateFields.consentA = consentData.consentA;
+        if (consentData.consentB !== undefined) updateFields.consentB = consentData.consentB;
+        if (consentData.consentC !== undefined) updateFields.consentC = consentData.consentC;
+        if (consentData.consentD !== undefined) updateFields.consentD = consentData.consentD;
       }
 
       await RequestedDocumentation.update(
@@ -127,7 +139,7 @@ export async function getDocumentsToUpload(token: string = "") {
           },
         }
       ).then((result) => {
-        console.log("fetching documentation");
+        logger.debug("fetching documentation");
       })
         .catch((err) => {
           logger.error("Error updating documentation status to EXPIRED");
@@ -174,7 +186,7 @@ export async function getDocumentsToUpload(token: string = "") {
 
 
   } else {
-    console.log("Requested documentation not found.");
+    logger.warn("Requested documentation not found.");
     throw new AppError("G3", "Requested documentation not found.", true);
   }
 
@@ -189,7 +201,7 @@ function isRequestExpired(expiry_date: string) {
 
 const deleteFiles = (files: any) => {
   files.forEach((file: any) => {
-    console.log(file.path);
+    logger.debug(file.path);
     fs.unlink(file.path, (err) => {
       if (err) {
         logger.error(`Error deleting file ${file.path}:`, err);
