@@ -9,7 +9,15 @@ export default defineConfig(({ mode }) => {
   const documentationHost = env.VITE_DOCUMENTATION_HOST || 'https://wrongurl.dev'
 
   return {
-    plugins: [react()],
+    plugins: [
+      react(),
+      {
+        name: 'html-transform',
+        transformIndexHtml(html) {
+          return html.replace('%VITE_DOCUMENTATION_HOST%', documentationHost)
+        }
+      }
+    ],
     server: {
       headers: {
         'Content-Security-Policy': `default-src 'self'; connect-src 'self' ${documentationHost}; img-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';`
