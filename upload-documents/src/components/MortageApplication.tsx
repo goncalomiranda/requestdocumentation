@@ -53,7 +53,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder = 
           <div className="col-lg-12 mx-auto">
             <div className="input-group input-group-static mb-4">
               <span className="input-group-text">
-                <i className="fas fa-calendar"></i>
+                <i className="material-icons">calendar_today</i>
               </span>
               <input
                 ref={inputRef}
