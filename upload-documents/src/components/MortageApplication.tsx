@@ -11,7 +11,7 @@ interface DatePickerProps {
   isFilled?: boolean;
 }
 
-const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder = "Please select date", className = "", isFilled = false }) => {
+const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder = "Date of Birth", className = "", isFilled = false }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const flatpickrRef = useRef<flatpickr.Instance | null>(null);
 
@@ -21,7 +21,13 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder = 
         dateFormat: "Y-m-d",
         allowInput: true,
         onChange: (selectedDates, dateStr) => {
-          onChange(dateStr);
+          // Create a synthetic event to pass to handlePersonChange
+          const syntheticEvent = {
+            target: {
+              closest: () => null // Since this is input-group-static, we don't need Material Kit animation
+            }
+          };
+          onChange(dateStr, syntheticEvent);
         }
       });
     }
@@ -530,7 +536,7 @@ const MortageApplication: React.FC = () => {
                                 <div className="col-md-4">
                                   <DatePicker
                                     value={p.dateOfBirth}
-                                    onChange={(value) => handlePersonChange('proponents', idx, 'dateOfBirth', value)}
+                                    onChange={(value, event) => handlePersonChange('proponents', idx, 'dateOfBirth', value, event)}
                                     isFilled={!!p.dateOfBirth}
                                   />
                                 </div>
@@ -678,7 +684,7 @@ const MortageApplication: React.FC = () => {
                                     <div className="col-md-4">
                                       <DatePicker
                                         value={g.dateOfBirth}
-                                        onChange={(value) => handlePersonChange('guarantor', idx, 'dateOfBirth', value)}
+                                        onChange={(value, event) => handlePersonChange('guarantor', idx, 'dateOfBirth', value, event)}
                                         isFilled={!!g.dateOfBirth}
                                       />
                                     </div>
