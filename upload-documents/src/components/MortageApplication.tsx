@@ -1,11 +1,82 @@
 import React, { useState, useEffect, useRef } from 'react';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
+
+// DatePicker Component using Flatpickr
+interface DatePickerProps {
+  value: string;
+  onChange: (value: string, event?: any) => void;
+  placeholder?: string;
+  className?: string;
+  isFilled?: boolean;
+}
+
+const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder = "Please select date", className = "", isFilled = false }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const flatpickrRef = useRef<flatpickr.Instance | null>(null);
+
+  useEffect(() => {
+    if (inputRef.current && !flatpickrRef.current) {
+      flatpickrRef.current = flatpickr(inputRef.current, {
+        dateFormat: "Y-m-d",
+        allowInput: true,
+        onChange: (selectedDates, dateStr) => {
+          onChange(dateStr);
+        }
+      });
+    }
+
+    // Set initial value if provided
+    if (flatpickrRef.current && value) {
+      flatpickrRef.current.setDate(value);
+    }
+
+    return () => {
+      if (flatpickrRef.current) {
+        flatpickrRef.current.destroy();
+        flatpickrRef.current = null;
+      }
+    };
+  }, []);
+
+  // Update flatpickr when value changes externally
+  useEffect(() => {
+    if (flatpickrRef.current && value !== flatpickrRef.current.input.value) {
+      flatpickrRef.current.setDate(value || "");
+    }
+  }, [value]);
+
+  return (
+    <div className="row py-3">
+      <div className="col-md-12 mx-auto">
+        <div className="row">
+          <div className="col-lg-12 mx-auto">
+            <div className="input-group input-group-static mb-4">
+              <span className="input-group-text">
+                <i className="fas fa-calendar"></i>
+              </span>
+              <input
+                ref={inputRef}
+                className={`form-control datepicker ${className}`}
+                placeholder={placeholder}
+                type="text"
+                value={value}
+                readOnly
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Types
 interface Person {
   name: string;
   phoneNumber: string;
   email: string;
-  age: string;
+  dateOfBirth: string;
   responsibilities: string;
   incomes: string;
   maritalStatus: string;
@@ -24,13 +95,14 @@ interface FormState {
   rents: string;
   guarantor: Person[];
   proponents: Person[];
+  hasGuarantors: boolean;
 }
 
 const emptyPerson = (): Person => ({
   name: '',
   phoneNumber: '',
   email: '',
-  age: '',
+  dateOfBirth: '',
   responsibilities: '',
   incomes: '',
   maritalStatus: 'single',
@@ -50,6 +122,7 @@ const MortageApplication: React.FC = () => {
     rents: '',
     guarantor: [],
     proponents: [emptyPerson()],
+    hasGuarantors: false,
   });
 
   const [submitted, setSubmitted] = useState<any | null>(null);
@@ -119,7 +192,7 @@ const MortageApplication: React.FC = () => {
     const timer = setTimeout(initializeMaterialInputs, 100);
     
     return () => clearTimeout(timer);
-  }, [form.proponents.length]); // Re-run when proponents change
+  }, [form.proponents.length, form.hasGuarantors]); // Re-run when proponents or guarantors change
 
   const handleTopLevelChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -163,6 +236,15 @@ const MortageApplication: React.FC = () => {
         }
       }
     }
+  };
+
+  const handleGuarantorsToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const hasGuarantors = e.target.checked;
+    setForm(prev => ({
+      ...prev,
+      hasGuarantors,
+      guarantor: hasGuarantors ? [emptyPerson()] : [] // Add one guarantor when enabled, clear when disabled
+    }));
   };
 
   const addPerson = (section: 'guarantor' | 'proponents') => {
@@ -402,8 +484,10 @@ const MortageApplication: React.FC = () => {
                                   </button>
                                 )}
                               </div>
+                              
+                              {/* Basic Information Row */}
                               <div className="row">
-                                <div className="col-md-6">
+                                <div className="col-md-4">
                                   <div className={`input-group input-group-dynamic mb-4 ${p.name ? 'is-filled' : ''}`}>
                                     <label className="form-label">Full Name</label>
                                     <input 
@@ -415,9 +499,9 @@ const MortageApplication: React.FC = () => {
                                     />
                                   </div>
                                 </div>
-                                <div className="col-md-3">
+                                <div className="col-md-4">
                                   <div className={`input-group input-group-dynamic mb-4 ${p.phoneNumber ? 'is-filled' : ''}`}>
-                                    <label className="form-label">Phone</label>
+                                    <label className="form-label">Phone Number</label>
                                     <input 
                                       className="form-control" 
                                       value={p.phoneNumber} 
@@ -427,7 +511,7 @@ const MortageApplication: React.FC = () => {
                                     />
                                   </div>
                                 </div>
-                                <div className="col-md-3">
+                                <div className="col-md-4">
                                   <div className={`input-group input-group-dynamic mb-4 ${p.email ? 'is-filled' : ''}`}>
                                     <label className="form-label">Email</label>
                                     <input 
@@ -440,6 +524,96 @@ const MortageApplication: React.FC = () => {
                                   </div>
                                 </div>
                               </div>
+
+                              {/* Personal Details Row */}
+                              <div className="row">
+                                <div className="col-md-4">
+                                  <DatePicker
+                                    value={p.dateOfBirth}
+                                    onChange={(value) => handlePersonChange('proponents', idx, 'dateOfBirth', value)}
+                                    isFilled={!!p.dateOfBirth}
+                                  />
+                                </div>
+                                <div className="col-md-4">
+                                  <div className="mb-4">
+                                    <label className="form-label text-dark font-weight-bold mb-2">Marital Status</label>
+                                    <select 
+                                      className="form-select" 
+                                      value={p.maritalStatus} 
+                                      onChange={e => handlePersonChange('proponents', idx, 'maritalStatus', e.target.value, e)}
+                                      style={{ borderRadius: '0.5rem', border: '1px solid #d2d6da', padding: '0.75rem' }}
+                                    >
+                                      <option value="single">Single</option>
+                                      <option value="married">Married</option>
+                                      <option value="divorced">Divorced</option>
+                                      <option value="widowed">Widowed</option>
+                                      <option value="separated">Separated</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <div className="col-md-4">
+                                  <div className="mb-4">
+                                    <label className="form-label text-dark mb-2">Employment Status</label>
+                                    <select 
+                                      className="form-select" 
+                                      value={p.employmentStatus} 
+                                      onChange={e => handlePersonChange('proponents', idx, 'employmentStatus', e.target.value, e)}
+                                      style={{ borderRadius: '0.5rem', border: '1px solid #d2d6da', padding: '0.75rem' }}
+                                    >
+                                      <option value="employed_full_time">Employed Full-Time</option>
+                                      <option value="employed_part_time">Employed Part-Time</option>
+                                      <option value="self_employed">Self-Employed</option>
+                                      <option value="unemployed">Unemployed</option>
+                                      <option value="retired">Retired</option>
+                                      <option value="student">Student</option>
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Financial Details Row */}
+                              <div className="row">
+                                <div className="col-md-4">
+                                  <div className={`input-group input-group-dynamic mb-4 ${p.responsibilities ? 'is-filled' : ''}`}>
+                                    <label className="form-label">Responsibilities</label>
+                                    <input 
+                                      className="form-control" 
+                                      value={p.responsibilities} 
+                                      onChange={e => handlePersonChange('proponents', idx, 'responsibilities', e.target.value, e)} 
+                                      aria-label="Responsibilities..." 
+                                      type="text" 
+                                    />
+                                  </div>
+                                </div>
+                                <div className="col-md-4">
+                                  <div className={`input-group input-group-dynamic mb-4 ${p.incomes ? 'is-filled' : ''}`}>
+                                    <label className="form-label">Incomes</label>
+                                    <input 
+                                      className="form-control" 
+                                      value={p.incomes} 
+                                      onChange={e => handlePersonChange('proponents', idx, 'incomes', e.target.value, e)} 
+                                      aria-label="Incomes..." 
+                                      type="text" 
+                                    />
+                                  </div>
+                                </div>
+                                <div className="col-md-4">
+                                  <div className={`input-group input-group-dynamic mb-4 ${p.dependents ? 'is-filled' : ''}`}>
+                                    <label className="form-label">Dependents</label>
+                                    <input 
+                                      className="form-control" 
+                                      value={p.dependents} 
+                                      onChange={e => {
+                                        const value = e.target.value.replace(/[^0-9]/g, ''); // Only allow digits
+                                        handlePersonChange('proponents', idx, 'dependents', value, e);
+                                      }} 
+                                      aria-label="Dependents..." 
+                                      type="text" 
+                                      inputMode="numeric"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -447,6 +621,156 @@ const MortageApplication: React.FC = () => {
                           <i className="material-icons me-2">add</i>
                           Add Proponent
                         </button>
+                      </div>
+                    </div>
+
+                    {/* Guarantors Checkbox and Section */}
+                    <div className="row mb-5">
+                      <div className="col-12">
+                        <div className="form-check form-switch mb-4 d-flex align-items-center">
+                          <input 
+                            className="form-check-input" 
+                            type="checkbox" 
+                            id="hasGuarantors" 
+                            checked={form.hasGuarantors}
+                            onChange={handleGuarantorsToggle}
+                          />
+                          <label className="form-check-label ms-3 mb-0 font-weight-bold text-dark" htmlFor="hasGuarantors">
+                            <i className="material-icons text-sm me-2">verified_user</i>
+                            This mortgage application has guarantors
+                          </label>
+                        </div>
+
+                        {/* Guarantors Section - Only show if checkbox is checked */}
+                        {form.hasGuarantors && (
+                          <div className="mt-4">
+                            <h5 className="font-weight-bold text-dark mb-4">
+                              <i className="material-icons text-dark me-2">shield</i>
+                              Guarantors
+                            </h5>
+                            {form.guarantor.map((g, idx) => (
+                              <div key={`guarantor-${idx}`} className="card card-plain border mb-4" style={{ borderRadius: '0.75rem', backgroundColor: '#fff3e0' }}>
+                                <div className="card-body p-4">
+                                  <div className="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 className="font-weight-bold text-dark mb-0">Guarantor {idx + 1}</h6>
+                                    {form.guarantor.length > 1 && (
+                                      <button type="button" className="btn btn-outline-warning btn-sm" onClick={() => removePerson('guarantor', idx)} style={{ borderRadius: '0.5rem' }}>
+                                        <i className="material-icons" style={{ fontSize: '16px' }}>delete</i>
+                                        Remove
+                                      </button>
+                                    )}
+                                  </div>
+                                  
+                                  {/* Basic Information Row */}
+                                  <div className="row">
+                                    <div className="col-md-4">
+                                      <div className={`input-group input-group-dynamic mb-4 ${g.name ? 'is-filled' : ''}`}>
+                                        <label className="form-label">Full Name</label>
+                                        <input 
+                                          className="form-control" 
+                                          value={g.name} 
+                                          onChange={e => handlePersonChange('guarantor', idx, 'name', e.target.value, e)} 
+                                          aria-label="Name..." 
+                                          type="text" 
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="col-md-4">
+                                      <DatePicker
+                                        value={g.dateOfBirth}
+                                        onChange={(value) => handlePersonChange('guarantor', idx, 'dateOfBirth', value)}
+                                        isFilled={!!g.dateOfBirth}
+                                      />
+                                    </div>
+                                    <div className="col-md-4">
+                                      <div className="mb-4">
+                                        <label className="form-label text-dark mb-2">Marital Status</label>
+                                        <select 
+                                          className="form-select" 
+                                          value={g.maritalStatus} 
+                                          onChange={e => handlePersonChange('guarantor', idx, 'maritalStatus', e.target.value, e)}
+                                          style={{ borderRadius: '0.5rem', border: '1px solid #d2d6da', padding: '0.75rem' }}
+                                        >                                      
+                                          <option value="single">Single</option>
+                                          <option value="married">Married</option>
+                                          <option value="divorced">Divorced</option>
+                                          <option value="widowed">Widowed</option>
+                                          <option value="separated">Separated</option>
+                                        </select>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Employment and Financial Row */}
+                                  <div className="row">
+                                    <div className="col-md-3">
+                                      <div className="mb-4">
+                                        <label className="form-label text-dark mb-2">Employment Status</label>
+                                        <select 
+                                          className="form-select" 
+                                          value={g.employmentStatus} 
+                                          onChange={e => handlePersonChange('guarantor', idx, 'employmentStatus', e.target.value, e)}
+                                          style={{ borderRadius: '0.5rem', border: '1px solid #d2d6da', padding: '0.75rem' }}
+                                        >
+                                          <option value="employed_full_time">Employed Full-Time</option>
+                                          <option value="employed_part_time">Employed Part-Time</option>
+                                          <option value="self_employed">Self-Employed</option>
+                                          <option value="unemployed">Unemployed</option>
+                                          <option value="retired">Retired</option>
+                                          <option value="student">Student</option>
+                                        </select>
+                                      </div>
+                                    </div>
+                                    <div className="col-md-3">
+                                      <div className={`input-group input-group-dynamic mb-4 ${g.responsibilities ? 'is-filled' : ''}`}>
+                                        <label className="form-label">Responsibilities</label>
+                                        <input 
+                                          className="form-control" 
+                                          value={g.responsibilities} 
+                                          onChange={e => handlePersonChange('guarantor', idx, 'responsibilities', e.target.value, e)} 
+                                          aria-label="Responsibilities..." 
+                                          type="text" 
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="col-md-3">
+                                      <div className={`input-group input-group-dynamic mb-4 ${g.incomes ? 'is-filled' : ''}`}>
+                                        <label className="form-label">Incomes</label>
+                                        <input 
+                                          className="form-control" 
+                                          value={g.incomes} 
+                                          onChange={e => handlePersonChange('guarantor', idx, 'incomes', e.target.value, e)} 
+                                          aria-label="Incomes..." 
+                                          type="text" 
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="col-md-3">
+                                      <div className={`input-group input-group-dynamic mb-4 ${g.dependents ? 'is-filled' : ''}`}>
+                                        <label className="form-label">Dependents</label>
+                                        <input 
+                                          className="form-control" 
+                                          value={g.dependents} 
+                                          onChange={e => {
+                                            const value = e.target.value.replace(/[^0-9]/g, ''); // Only allow digits
+                                            handlePersonChange('guarantor', idx, 'dependents', value, e);
+                                          }} 
+                                          aria-label="Dependents..." 
+                                          type="text" 
+                                          inputMode="numeric"
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                            <button type="button" className="btn bg-gradient-warning w-100 mb-4" onClick={() => addPerson('guarantor')} style={{ borderRadius: '0.75rem', padding: '12px' }}>
+                              <i className="material-icons me-2">add</i>
+                              Add Guarantor
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
 
