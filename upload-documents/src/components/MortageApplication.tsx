@@ -53,26 +53,18 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder = 
   }, [value]);
 
   return (
-    <div className="row py-3">
-      <div className="col-md-12 mx-auto">
-        <div className="row">
-          <div className="col-lg-12 mx-auto">
-            <div className="input-group input-group-static mb-4">
-              <span className="input-group-text">
-                <i className="material-icons">calendar_today</i>
-              </span>
-              <input
-                ref={inputRef}
-                className={`form-control datepicker ${className}`}
-                placeholder={placeholder}
-                type="text"
-                value={value}
-                readOnly
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="input-group input-group-static mb-4">
+      <span className="input-group-text">
+        <i className="material-icons">calendar_today</i>
+      </span>
+      <input
+        ref={inputRef}
+        className={`form-control datepicker ${className}`}
+        placeholder={placeholder}
+        type="text"
+        value={value}
+        readOnly
+      />
     </div>
   );
 };
@@ -111,9 +103,9 @@ const emptyPerson = (): Person => ({
   dateOfBirth: '',
   responsibilities: '',
   incomes: '',
-  maritalStatus: 'single',
-  employmentStatus: 'employed_full_time',
-  dependents: '0',
+  maritalStatus: '',
+  employmentStatus: '',
+  dependents: '',
 });
 
 const MortageApplication: React.FC = () => {
@@ -541,14 +533,26 @@ const MortageApplication: React.FC = () => {
                                   />
                                 </div>
                                 <div className="col-md-4">
-                                  <div className="mb-4">
-                                    <label className="form-label text-dark font-weight-bold mb-2">Marital Status</label>
+                                  <div className={`input-group input-group-dynamic mb-4 ${p.maritalStatus && p.maritalStatus !== '' ? 'is-filled' : ''}`}>
+                                    <label className="form-label">Marital Status</label>
                                     <select 
-                                      className="form-select" 
+                                      className="form-control" 
                                       value={p.maritalStatus} 
                                       onChange={e => handlePersonChange('proponents', idx, 'maritalStatus', e.target.value, e)}
-                                      style={{ borderRadius: '0.5rem', border: '1px solid #d2d6da', padding: '0.75rem' }}
+                                      style={{ 
+                                        backgroundImage: 'url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3e%3c/svg%3e")',
+                                        backgroundPosition: 'right 0.75rem center',
+                                        backgroundRepeat: 'no-repeat',
+                                        backgroundSize: '1.5em 1.5em',
+                                        paddingRight: '2.5rem',
+                                        appearance: 'none',
+                                        border: 'none',
+                                        borderBottom: '1px solid #d2d6da',
+                                        borderRadius: '0',
+                                        backgroundColor: 'transparent'
+                                      }}
                                     >
+                                      <option value=""></option>
                                       <option value="single">Single</option>
                                       <option value="married">Married</option>
                                       <option value="divorced">Divorced</option>
@@ -558,14 +562,26 @@ const MortageApplication: React.FC = () => {
                                   </div>
                                 </div>
                                 <div className="col-md-4">
-                                  <div className="mb-4">
-                                    <label className="form-label text-dark mb-2">Employment Status</label>
+                                  <div className={`input-group input-group-dynamic mb-4 ${p.employmentStatus && p.employmentStatus !== '' ? 'is-filled' : ''}`}>
+                                    <label className="form-label">Employment Status</label>
                                     <select 
-                                      className="form-select" 
+                                      className="form-control" 
                                       value={p.employmentStatus} 
                                       onChange={e => handlePersonChange('proponents', idx, 'employmentStatus', e.target.value, e)}
-                                      style={{ borderRadius: '0.5rem', border: '1px solid #d2d6da', padding: '0.75rem' }}
+                                      style={{ 
+                                        backgroundImage: 'url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3e%3c/svg%3e")',
+                                        backgroundPosition: 'right 0.75rem center',
+                                        backgroundRepeat: 'no-repeat',
+                                        backgroundSize: '1.5em 1.5em',
+                                        paddingRight: '2.5rem',
+                                        appearance: 'none',
+                                        border: 'none',
+                                        borderBottom: '1px solid #d2d6da',
+                                        borderRadius: '0',
+                                        backgroundColor: 'transparent'
+                                      }}
                                     >
+                                      <option value=""></option>
                                       <option value="employed_full_time">Employed Full-Time</option>
                                       <option value="employed_part_time">Employed Part-Time</option>
                                       <option value="self_employed">Self-Employed</option>
@@ -689,14 +705,26 @@ const MortageApplication: React.FC = () => {
                                       />
                                     </div>
                                     <div className="col-md-4">
-                                      <div className="mb-4">
-                                        <label className="form-label text-dark mb-2">Marital Status</label>
+                                      <div className={`input-group input-group-dynamic mb-4 ${g.maritalStatus && g.maritalStatus !== '' ? 'is-filled' : ''}`}>
+                                        <label className="form-label">Marital Status</label>
                                         <select 
-                                          className="form-select" 
+                                          className="form-control" 
                                           value={g.maritalStatus} 
                                           onChange={e => handlePersonChange('guarantor', idx, 'maritalStatus', e.target.value, e)}
-                                          style={{ borderRadius: '0.5rem', border: '1px solid #d2d6da', padding: '0.75rem' }}
+                                          style={{ 
+                                            backgroundImage: 'url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3e%3c/svg%3e")',
+                                            backgroundPosition: 'right 0.75rem center',
+                                            backgroundRepeat: 'no-repeat',
+                                            backgroundSize: '1.5em 1.5em',
+                                            paddingRight: '2.5rem',
+                                            appearance: 'none',
+                                            border: 'none',
+                                            borderBottom: '1px solid #d2d6da',
+                                            borderRadius: '0',
+                                            backgroundColor: 'transparent'
+                                          }}
                                         >                                      
+                                          <option value=""></option>
                                           <option value="single">Single</option>
                                           <option value="married">Married</option>
                                           <option value="divorced">Divorced</option>
@@ -710,14 +738,26 @@ const MortageApplication: React.FC = () => {
                                   {/* Employment and Financial Row */}
                                   <div className="row">
                                     <div className="col-md-3">
-                                      <div className="mb-4">
-                                        <label className="form-label text-dark mb-2">Employment Status</label>
+                                      <div className={`input-group input-group-dynamic mb-4 ${g.employmentStatus && g.employmentStatus !== '' ? 'is-filled' : ''}`}>
+                                        <label className="form-label">Employment Status</label>
                                         <select 
-                                          className="form-select" 
+                                          className="form-control" 
                                           value={g.employmentStatus} 
                                           onChange={e => handlePersonChange('guarantor', idx, 'employmentStatus', e.target.value, e)}
-                                          style={{ borderRadius: '0.5rem', border: '1px solid #d2d6da', padding: '0.75rem' }}
+                                          style={{ 
+                                            backgroundImage: 'url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3e%3c/svg%3e")',
+                                            backgroundPosition: 'right 0.75rem center',
+                                            backgroundRepeat: 'no-repeat',
+                                            backgroundSize: '1.5em 1.5em',
+                                            paddingRight: '2.5rem',
+                                            appearance: 'none',
+                                            border: 'none',
+                                            borderBottom: '1px solid #d2d6da',
+                                            borderRadius: '0',
+                                            backgroundColor: 'transparent'
+                                          }}
                                         >
+                                          <option value=""></option>
                                           <option value="employed_full_time">Employed Full-Time</option>
                                           <option value="employed_part_time">Employed Part-Time</option>
                                           <option value="self_employed">Self-Employed</option>
