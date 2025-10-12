@@ -2,6 +2,46 @@ import React, { useState, useEffect, useRef } from 'react';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
+// Custom validation styles to work with Material Kit
+const validationStyles = `
+  .input-group-dynamic .form-control.is-valid {
+    border-bottom-color: #198754 !important;
+    box-shadow: 0 1px 0 0 #198754 !important;
+  }
+  
+  .input-group-dynamic .form-control.is-invalid {
+    border-bottom-color: #dc3545 !important;
+    box-shadow: 0 1px 0 0 #dc3545 !important;
+  }
+  
+  .input-group-static .form-control.is-valid {
+    border-color: #198754 !important;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;
+  }
+  
+  .input-group-static .form-control.is-invalid {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+  }
+  
+  .form-control.is-valid {
+    background-image: none !important;
+  }
+  
+  .form-control.is-invalid {
+    background-image: none !important;
+  }
+  
+  /* For select dropdowns with custom styling */
+  select.form-control.is-valid {
+    border-bottom-color: #198754 !important;
+  }
+  
+  select.form-control.is-invalid {
+    border-bottom-color: #dc3545 !important;
+  }
+`;
+
 // DatePicker Component using Flatpickr
 interface DatePickerProps {
   value: string;
@@ -9,9 +49,10 @@ interface DatePickerProps {
   placeholder?: string;
   className?: string;
   isFilled?: boolean;
+  validationClass?: string;
 }
 
-const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder = "Date of Birth", className = "", isFilled = false }) => {
+const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder = "Date of Birth", className = "", isFilled = false, validationClass = "" }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const flatpickrRef = useRef<flatpickr.Instance | null>(null);
 
@@ -59,7 +100,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder = 
       </span>
       <input
         ref={inputRef}
-        className={`form-control datepicker ${className}`}
+        className={`form-control datepicker ${className} ${validationClass}`}
         placeholder={placeholder}
         type="text"
         value={value}
@@ -124,8 +165,109 @@ const MortageApplication: React.FC = () => {
   });
 
   const [submitted, setSubmitted] = useState<any | null>(null);
+  const [formErrors, setFormErrors] = useState<Record<string, boolean>>({});
+  const [showValidation, setShowValidation] = useState<boolean>(false);
   const formRef = useRef<HTMLFormElement>(null);
   const applicationSectionRef = useRef<HTMLElement>(null);
+
+  // Validation functions
+  const validateForm = () => {
+    const errors: Record<string, boolean> = {};
+
+    // Required top-level fields
+    if (!form.purchaseValue?.trim()) errors.purchaseValue = true;
+    if (!form.appraisalValue?.trim()) errors.appraisalValue = true;
+    
+    // Financing validation: either Financing Amount OR Other Financing Amount must be filled
+    if (!form.financingAmount?.trim() && !form.otherFinancingAmount?.trim()) {
+      errors.financingAmount = true;
+      errors.otherFinancingAmount = true;
+    }
+
+    // At least one proponent is mandatory (already enforced by UI)
+    // All proponent fields are mandatory
+    form.proponents.forEach((proponent, idx) => {
+      if (!proponent.name?.trim()) errors[`proponent-${idx}-name`] = true;
+      if (!proponent.phoneNumber?.trim()) errors[`proponent-${idx}-phoneNumber`] = true;
+      if (!proponent.email?.trim()) errors[`proponent-${idx}-email`] = true;
+      if (!proponent.dateOfBirth?.trim()) errors[`proponent-${idx}-dateOfBirth`] = true;
+      if (!proponent.responsibilities?.trim()) errors[`proponent-${idx}-responsibilities`] = true;
+      if (!proponent.incomes?.trim()) errors[`proponent-${idx}-incomes`] = true;
+      if (!proponent.maritalStatus?.trim()) errors[`proponent-${idx}-maritalStatus`] = true;
+      if (!proponent.employmentStatus?.trim()) errors[`proponent-${idx}-employmentStatus`] = true;
+      if (!proponent.dependents?.trim()) errors[`proponent-${idx}-dependents`] = true;
+    });
+
+    // If guarantors exist, all their fields are mandatory
+    if (form.hasGuarantors) {
+      form.guarantor.forEach((guarantor, idx) => {
+        if (!guarantor.name?.trim()) errors[`guarantor-${idx}-name`] = true;
+        if (!guarantor.dateOfBirth?.trim()) errors[`guarantor-${idx}-dateOfBirth`] = true;
+        if (!guarantor.responsibilities?.trim()) errors[`guarantor-${idx}-responsibilities`] = true;
+        if (!guarantor.incomes?.trim()) errors[`guarantor-${idx}-incomes`] = true;
+        if (!guarantor.maritalStatus?.trim()) errors[`guarantor-${idx}-maritalStatus`] = true;
+        if (!guarantor.employmentStatus?.trim()) errors[`guarantor-${idx}-employmentStatus`] = true;
+        if (!guarantor.dependents?.trim()) errors[`guarantor-${idx}-dependents`] = true;
+      });
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const getValidationClass = (fieldName: string) => {
+    if (!showValidation) return '';
+    
+    // For financing amount special case - both fields need to be checked together
+    if (fieldName === 'financingAmount' || fieldName === 'otherFinancingAmount') {
+      const hasFinancing = form.financingAmount?.trim();
+      const hasOtherFinancing = form.otherFinancingAmount?.trim();
+      
+      // Show as invalid if both are empty
+      if (!hasFinancing && !hasOtherFinancing) {
+        return 'is-invalid';
+      } else {
+        return ''; // Remove validation styling once user fills either field
+      }
+    }
+    
+    // For regular fields, only show red if field was marked as error AND is still empty
+    const hasError = formErrors[fieldName];
+    const fieldValue = getFieldValue(fieldName);
+    
+    // Only show invalid if field has error and is still empty
+    if (hasError && !fieldValue?.trim()) {
+      return 'is-invalid';
+    }
+    
+    // Remove validation styling once user starts filling the field
+    return '';
+  };
+
+  const getFieldValue = (fieldName: string): string => {
+    // Handle top-level form fields
+    if (fieldName in form) {
+      return form[fieldName as keyof FormState] as string;
+    }
+    
+    // Handle proponent fields
+    if (fieldName.startsWith('proponent-')) {
+      const parts = fieldName.split('-');
+      const idx = parseInt(parts[1]);
+      const field = parts[2] as keyof Person;
+      return form.proponents[idx]?.[field] || '';
+    }
+    
+    // Handle guarantor fields
+    if (fieldName.startsWith('guarantor-')) {
+      const parts = fieldName.split('-');
+      const idx = parseInt(parts[1]);
+      const field = parts[2] as keyof Person;
+      return form.guarantor[idx]?.[field] || '';
+    }
+    
+    return '';
+  };
 
   const scrollToApplication = () => {
     applicationSectionRef.current?.scrollIntoView({ 
@@ -267,6 +409,13 @@ const MortageApplication: React.FC = () => {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setShowValidation(true);
+    
+    if (!validateForm()) {
+      // Scroll to first error or stay on form if validation fails
+      return;
+    }
+    
     const payload = {
       consultant: form.consultant || '',
       purchaseValue: toNumberOrNull(form.purchaseValue) ?? 0,
@@ -278,6 +427,7 @@ const MortageApplication: React.FC = () => {
       rents: form.rents || '',
       guarantor: form.guarantor.map(g => ({ ...g })),
       proponents: form.proponents.map(p => ({ ...p })),
+      hasGuarantors: form.hasGuarantors,
     };
     setSubmitted(payload);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -285,6 +435,9 @@ const MortageApplication: React.FC = () => {
 
   return (
     <div className="bg-gray-200">
+      {/* Custom validation styles */}
+      <style>{validationStyles}</style>
+      
       <header>
         <div
           className="page-header min-vh-60"
@@ -398,13 +551,13 @@ const MortageApplication: React.FC = () => {
                       <div className="col-md-6">
                         <div className={`input-group input-group-dynamic mb-4 ${form.consultant ? 'is-filled' : ''}`}>
                           <label className="form-label">Consultant</label>
-                          <input className="form-control" name="consultant" value={form.consultant} onChange={handleTopLevelChange} aria-label="Consultant..." type="text" />
+                          <input className={`form-control ${getValidationClass('consultant')}`} name="consultant" value={form.consultant} onChange={handleTopLevelChange} aria-label="Consultant..." type="text" />
                         </div>
                       </div>
                       <div className="col-md-6">
                         <div className={`input-group input-group-dynamic mb-4 ${form.rents ? 'is-filled' : ''}`}>
                           <label className="form-label">Rents</label>
-                          <input className="form-control" name="rents" value={form.rents} onChange={handleTopLevelChange} aria-label="Rents..." type="text" />
+                          <input className={`form-control ${getValidationClass('rents')}`} name="rents" value={form.rents} onChange={handleTopLevelChange} aria-label="Rents..." type="text" />
                         </div>
                       </div>
                     </div>
@@ -416,35 +569,36 @@ const MortageApplication: React.FC = () => {
                           <i className="material-icons text-dark me-2">account_balance</i>
                           Financial Details
                         </h5>
+                        {showValidation && !form.financingAmount?.trim() && !form.otherFinancingAmount?.trim() }
                       </div>
                       <div className="col-md-4">
                         <div className={`input-group input-group-dynamic mb-4 ${form.purchaseValue ? 'is-filled' : ''}`}>
-                          <label className="form-label">Purchase Value</label>
-                          <input className="form-control" name="purchaseValue" value={form.purchaseValue} onChange={handleTopLevelChange} aria-label="Purchase Value..." type="text" />
+                          <label className="form-label">Purchase Value *</label>
+                          <input className={`form-control ${getValidationClass('purchaseValue')}`} name="purchaseValue" value={form.purchaseValue} onChange={handleTopLevelChange} aria-label="Purchase Value..." type="text" />
                         </div>
                       </div>
                       <div className="col-md-4">
                         <div className={`input-group input-group-dynamic mb-4 ${form.appraisalValue ? 'is-filled' : ''}`}>
-                          <label className="form-label">Appraisal Value</label>
-                          <input className="form-control" name="appraisalValue" value={form.appraisalValue} onChange={handleTopLevelChange} aria-label="Appraisal Value..." type="text" />
+                          <label className="form-label">Appraisal Value *</label>
+                          <input className={`form-control ${getValidationClass('appraisalValue')}`} name="appraisalValue" value={form.appraisalValue} onChange={handleTopLevelChange} aria-label="Appraisal Value..." type="text" />
                         </div>
                       </div>
                       <div className="col-md-4">
                         <div className={`input-group input-group-dynamic mb-4 ${form.financingAmount ? 'is-filled' : ''}`}>
-                          <label className="form-label">Financing Amount</label>
-                          <input className="form-control" name="financingAmount" value={form.financingAmount} onChange={handleTopLevelChange} aria-label="Financing Amount..." type="text" />
+                          <label className="form-label">Financing Amount *</label>
+                          <input className={`form-control ${getValidationClass('financingAmount')}`} name="financingAmount" value={form.financingAmount} onChange={handleTopLevelChange} aria-label="Financing Amount..." type="text" />
                         </div>
                       </div>
                       <div className="col-md-6">
                         <div className={`input-group input-group-dynamic mb-4 ${form.otherFinancingAmount ? 'is-filled' : ''}`}>
-                          <label className="form-label">Other Financing Amount</label>
-                          <input className="form-control" name="otherFinancingAmount" value={form.otherFinancingAmount} onChange={handleTopLevelChange} aria-label="Other Financing Amount..." type="text" />
+                          <label className="form-label">Other Financing Amount *</label>
+                          <input className={`form-control ${getValidationClass('otherFinancingAmount')}`} name="otherFinancingAmount" value={form.otherFinancingAmount} onChange={handleTopLevelChange} aria-label="Other Financing Amount..." type="text" />
                         </div>
                       </div>
                       <div className="col-md-6">
                         <div className={`input-group input-group-dynamic mb-4 ${form.ownCapital ? 'is-filled' : ''}`}>
                           <label className="form-label">Own Capital</label>
-                          <input className="form-control" name="ownCapital" value={form.ownCapital} onChange={handleTopLevelChange} aria-label="Own Capital..." type="text" />
+                          <input className={`form-control ${getValidationClass('ownCapital')}`} name="ownCapital" value={form.ownCapital} onChange={handleTopLevelChange} aria-label="Own Capital..." type="text" />
                         </div>
                       </div>
                     </div>
@@ -458,7 +612,7 @@ const MortageApplication: React.FC = () => {
                         </h5>
                         <div className={`input-group input-group-dynamic ${form.comments ? 'is-filled' : ''}`}>
                           <label className="form-label">Comments</label>
-                          <textarea className="form-control" name="comments" rows={4} value={form.comments} onChange={handleTopLevelChange} />
+                          <textarea className={`form-control ${getValidationClass('comments')}`} name="comments" rows={4} value={form.comments} onChange={handleTopLevelChange} />
                         </div>
                       </div>
                     </div>
@@ -477,7 +631,7 @@ const MortageApplication: React.FC = () => {
                                 <h6 className="font-weight-bold text-dark mb-0">Proponent {idx + 1}</h6>
                                 {form.proponents.length > 1 && (
                                   <button type="button" className="btn btn-outline-dark btn-sm" onClick={() => removePerson('proponents', idx)} style={{ borderRadius: '0.5rem' }}>
-                                    <i className="material-icons" style={{ fontSize: '16px' }}>delete</i>
+                                    <i className="material-icons" style={{ fontSize: '16px', verticalAlign: 'middle' }}>delete</i>
                                     Remove
                                   </button>
                                 )}
@@ -489,7 +643,7 @@ const MortageApplication: React.FC = () => {
                                   <div className={`input-group input-group-dynamic mb-4 ${p.name ? 'is-filled' : ''}`}>
                                     <label className="form-label">Full Name</label>
                                     <input 
-                                      className="form-control" 
+                                      className={`form-control ${getValidationClass(`proponent-${idx}-name`)}`} 
                                       value={p.name} 
                                       onChange={e => handlePersonChange('proponents', idx, 'name', e.target.value, e)} 
                                       aria-label="Name..." 
@@ -501,7 +655,7 @@ const MortageApplication: React.FC = () => {
                                   <div className={`input-group input-group-dynamic mb-4 ${p.phoneNumber ? 'is-filled' : ''}`}>
                                     <label className="form-label">Phone Number</label>
                                     <input 
-                                      className="form-control" 
+                                      className={`form-control ${getValidationClass(`proponent-${idx}-phoneNumber`)}`} 
                                       value={p.phoneNumber} 
                                       onChange={e => handlePersonChange('proponents', idx, 'phoneNumber', e.target.value, e)} 
                                       aria-label="Phone..." 
@@ -513,7 +667,7 @@ const MortageApplication: React.FC = () => {
                                   <div className={`input-group input-group-dynamic mb-4 ${p.email ? 'is-filled' : ''}`}>
                                     <label className="form-label">Email</label>
                                     <input 
-                                      className="form-control" 
+                                      className={`form-control ${getValidationClass(`proponent-${idx}-email`)}`} 
                                       value={p.email} 
                                       onChange={e => handlePersonChange('proponents', idx, 'email', e.target.value, e)} 
                                       aria-label="Email..." 
@@ -530,13 +684,14 @@ const MortageApplication: React.FC = () => {
                                     value={p.dateOfBirth}
                                     onChange={(value, event) => handlePersonChange('proponents', idx, 'dateOfBirth', value, event)}
                                     isFilled={!!p.dateOfBirth}
+                                    validationClass={getValidationClass(`proponent-${idx}-dateOfBirth`)}
                                   />
                                 </div>
                                 <div className="col-md-4">
                                   <div className={`input-group input-group-dynamic mb-4 ${p.maritalStatus && p.maritalStatus !== '' ? 'is-filled' : ''}`}>
                                     <label className="form-label">Marital Status</label>
                                     <select 
-                                      className="form-control" 
+                                      className={`form-control ${getValidationClass(`proponent-${idx}-maritalStatus`)}`} 
                                       value={p.maritalStatus} 
                                       onChange={e => handlePersonChange('proponents', idx, 'maritalStatus', e.target.value, e)}
                                       style={{ 
@@ -565,7 +720,7 @@ const MortageApplication: React.FC = () => {
                                   <div className={`input-group input-group-dynamic mb-4 ${p.employmentStatus && p.employmentStatus !== '' ? 'is-filled' : ''}`}>
                                     <label className="form-label">Employment Status</label>
                                     <select 
-                                      className="form-control" 
+                                      className={`form-control ${getValidationClass(`proponent-${idx}-employmentStatus`)}`} 
                                       value={p.employmentStatus} 
                                       onChange={e => handlePersonChange('proponents', idx, 'employmentStatus', e.target.value, e)}
                                       style={{ 
@@ -599,7 +754,7 @@ const MortageApplication: React.FC = () => {
                                   <div className={`input-group input-group-dynamic mb-4 ${p.responsibilities ? 'is-filled' : ''}`}>
                                     <label className="form-label">Responsibilities</label>
                                     <input 
-                                      className="form-control" 
+                                      className={`form-control ${getValidationClass(`proponent-${idx}-responsibilities`)}`} 
                                       value={p.responsibilities} 
                                       onChange={e => handlePersonChange('proponents', idx, 'responsibilities', e.target.value, e)} 
                                       aria-label="Responsibilities..." 
@@ -611,7 +766,7 @@ const MortageApplication: React.FC = () => {
                                   <div className={`input-group input-group-dynamic mb-4 ${p.incomes ? 'is-filled' : ''}`}>
                                     <label className="form-label">Incomes</label>
                                     <input 
-                                      className="form-control" 
+                                      className={`form-control ${getValidationClass(`proponent-${idx}-incomes`)}`} 
                                       value={p.incomes} 
                                       onChange={e => handlePersonChange('proponents', idx, 'incomes', e.target.value, e)} 
                                       aria-label="Incomes..." 
@@ -623,7 +778,7 @@ const MortageApplication: React.FC = () => {
                                   <div className={`input-group input-group-dynamic mb-4 ${p.dependents ? 'is-filled' : ''}`}>
                                     <label className="form-label">Dependents</label>
                                     <input 
-                                      className="form-control" 
+                                      className={`form-control ${getValidationClass(`proponent-${idx}-dependents`)}`} 
                                       value={p.dependents} 
                                       onChange={e => {
                                         const value = e.target.value.replace(/[^0-9]/g, ''); // Only allow digits
@@ -640,7 +795,7 @@ const MortageApplication: React.FC = () => {
                           </div>
                         ))}
                         <button type="button" className="btn bg-gradient-dark w-100 mb-4" onClick={() => addPerson('proponents')} style={{ borderRadius: '0.75rem', padding: '12px' }}>
-                          <i className="material-icons me-2">add</i>
+                          <i className="material-icons me-2" style={{ verticalAlign: 'middle', fontSize: '18px' }}>add</i>
                           Add Proponent
                         </button>
                       </div>
@@ -658,7 +813,7 @@ const MortageApplication: React.FC = () => {
                             onChange={handleGuarantorsToggle}
                           />
                           <label className="form-check-label ms-3 mb-0 font-weight-bold text-dark" htmlFor="hasGuarantors">
-                            <i className="material-icons text-sm me-2">verified_user</i>
+                            <i className="material-icons text-sm me-2" style={{ verticalAlign: 'middle', fontSize: '16px' }}>verified_user</i>
                             This mortgage application has guarantors
                           </label>
                         </div>
@@ -667,7 +822,7 @@ const MortageApplication: React.FC = () => {
                         {form.hasGuarantors && (
                           <div className="mt-4">
                             <h5 className="font-weight-bold text-dark mb-4">
-                              <i className="material-icons text-dark me-2">shield</i>
+                              <i className="material-icons text-dark me-2" style={{ verticalAlign: 'middle', fontSize: '20px' }}>shield</i>
                               Guarantors
                             </h5>
                             {form.guarantor.map((g, idx) => (
@@ -677,7 +832,7 @@ const MortageApplication: React.FC = () => {
                                     <h6 className="font-weight-bold text-dark mb-0">Guarantor {idx + 1}</h6>
                                     {form.guarantor.length > 1 && (
                                       <button type="button" className="btn btn-outline-warning btn-sm" onClick={() => removePerson('guarantor', idx)} style={{ borderRadius: '0.5rem' }}>
-                                        <i className="material-icons" style={{ fontSize: '16px' }}>delete</i>
+                                        <i className="material-icons" style={{ fontSize: '16px', verticalAlign: 'middle' }}>delete</i>
                                         Remove
                                       </button>
                                     )}
@@ -689,7 +844,7 @@ const MortageApplication: React.FC = () => {
                                       <div className={`input-group input-group-dynamic mb-4 ${g.name ? 'is-filled' : ''}`}>
                                         <label className="form-label">Full Name</label>
                                         <input 
-                                          className="form-control" 
+                                          className={`form-control ${getValidationClass(`guarantor-${idx}-name`)}`} 
                                           value={g.name} 
                                           onChange={e => handlePersonChange('guarantor', idx, 'name', e.target.value, e)} 
                                           aria-label="Name..." 
@@ -702,13 +857,14 @@ const MortageApplication: React.FC = () => {
                                         value={g.dateOfBirth}
                                         onChange={(value, event) => handlePersonChange('guarantor', idx, 'dateOfBirth', value, event)}
                                         isFilled={!!g.dateOfBirth}
+                                        validationClass={getValidationClass(`guarantor-${idx}-dateOfBirth`)}
                                       />
                                     </div>
                                     <div className="col-md-4">
                                       <div className={`input-group input-group-dynamic mb-4 ${g.maritalStatus && g.maritalStatus !== '' ? 'is-filled' : ''}`}>
                                         <label className="form-label">Marital Status</label>
                                         <select 
-                                          className="form-control" 
+                                          className={`form-control ${getValidationClass(`guarantor-${idx}-maritalStatus`)}`} 
                                           value={g.maritalStatus} 
                                           onChange={e => handlePersonChange('guarantor', idx, 'maritalStatus', e.target.value, e)}
                                           style={{ 
@@ -741,7 +897,7 @@ const MortageApplication: React.FC = () => {
                                       <div className={`input-group input-group-dynamic mb-4 ${g.employmentStatus && g.employmentStatus !== '' ? 'is-filled' : ''}`}>
                                         <label className="form-label">Employment Status</label>
                                         <select 
-                                          className="form-control" 
+                                          className={`form-control ${getValidationClass(`guarantor-${idx}-employmentStatus`)}`} 
                                           value={g.employmentStatus} 
                                           onChange={e => handlePersonChange('guarantor', idx, 'employmentStatus', e.target.value, e)}
                                           style={{ 
@@ -771,7 +927,7 @@ const MortageApplication: React.FC = () => {
                                       <div className={`input-group input-group-dynamic mb-4 ${g.responsibilities ? 'is-filled' : ''}`}>
                                         <label className="form-label">Responsibilities</label>
                                         <input 
-                                          className="form-control" 
+                                          className={`form-control ${getValidationClass(`guarantor-${idx}-responsibilities`)}`} 
                                           value={g.responsibilities} 
                                           onChange={e => handlePersonChange('guarantor', idx, 'responsibilities', e.target.value, e)} 
                                           aria-label="Responsibilities..." 
@@ -783,7 +939,7 @@ const MortageApplication: React.FC = () => {
                                       <div className={`input-group input-group-dynamic mb-4 ${g.incomes ? 'is-filled' : ''}`}>
                                         <label className="form-label">Incomes</label>
                                         <input 
-                                          className="form-control" 
+                                          className={`form-control ${getValidationClass(`guarantor-${idx}-incomes`)}`} 
                                           value={g.incomes} 
                                           onChange={e => handlePersonChange('guarantor', idx, 'incomes', e.target.value, e)} 
                                           aria-label="Incomes..." 
@@ -795,7 +951,7 @@ const MortageApplication: React.FC = () => {
                                       <div className={`input-group input-group-dynamic mb-4 ${g.dependents ? 'is-filled' : ''}`}>
                                         <label className="form-label">Dependents</label>
                                         <input 
-                                          className="form-control" 
+                                          className={`form-control ${getValidationClass(`guarantor-${idx}-dependents`)}`} 
                                           value={g.dependents} 
                                           onChange={e => {
                                             const value = e.target.value.replace(/[^0-9]/g, ''); // Only allow digits
@@ -812,7 +968,7 @@ const MortageApplication: React.FC = () => {
                               </div>
                             ))}
                             <button type="button" className="btn bg-gradient-warning w-100 mb-4" onClick={() => addPerson('guarantor')} style={{ borderRadius: '0.75rem', padding: '12px' }}>
-                              <i className="material-icons me-2">add</i>
+                              <i className="material-icons me-2" style={{ verticalAlign: 'middle', fontSize: '18px' }}>add</i>
                               Add Guarantor
                             </button>
                           </div>
@@ -832,7 +988,7 @@ const MortageApplication: React.FC = () => {
                       </div>
                       <div className="col-12">
                         <button type="submit" className="btn bg-gradient-dark w-100 btn-lg" style={{ borderRadius: '0.75rem', padding: '15px' }}>
-                          <i className="material-icons me-2">send</i>
+                          <i className="material-icons me-2" style={{ verticalAlign: 'middle', fontSize: '20px' }}>send</i>
                           Submit Application
                         </button>
                       </div>
