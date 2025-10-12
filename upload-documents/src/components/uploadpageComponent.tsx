@@ -1,5 +1,5 @@
 import { useSearchParams } from "react-router-dom";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useTranslation } from "./TranslationProvider";
 import LogoSection from "./LogoSection";
 
@@ -40,6 +40,14 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
   const [consentD, setConsentD] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<Record<string, boolean>>({});
   const [isMobile, setIsMobile] = useState<boolean>(false);
+  const requiredDocumentsRef = useRef<HTMLElement>(null);
+
+  const scrollToRequiredDocuments = () => {
+    requiredDocumentsRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
+  };
 
   // PDF src logic based on selected language
   const privacyPdfSrc = language === 'pt' ? '/RGPD_LVF_PT_v1.0.pdf' : '/RGPD_LVF_EN_v1.0.pdf';
@@ -350,23 +358,91 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
 
   return (
     <div className="bg-gray-200">
-      <LogoSection />
-      
+      {/* <LogoSection />
+       */}
       {/* Hero Header */}
-      <div className="page-header min-vh-30" style={{ backgroundColor: 'linear-gradient(195deg, #42424a 0%, #191919 100%)', position: 'relative' }}>
-        <span className="mask bg-gradient-dark opacity-4"></span>
+      <div className="page-header min-vh-30" style={{ backgroundColor: '#f8f9fa', position: 'relative', paddingTop: '6rem', paddingBottom: '4rem' }}>
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-          <div className="row">
-            <div className="col-lg-8 col-md-10 mx-auto text-center text-white py-5">
-              <h1 className="display-4 font-weight-bolder mb-4">{translations.uploadDocuments}</h1>
-              <p className="lead opacity-8 mb-0">{translations.uploadDescription}</p>
+          <div className="row align-items-center h-100">
+            <div className="col-lg-7 col-md-7 d-flex justify-content-center flex-column">
+              <div className="mb-3">
+                <span className="badge bg-gradient-dark text-white px-3 py-2" style={{ borderRadius: '2rem', fontSize: '0.875rem' }}>
+                  LVF - Luis Miguel Filipe, Lda
+                </span>
+              </div>
+              <h1 className="display-4 font-weight-bolder mb-4 text-dark">{translations.uploadDocuments}</h1>
+              <p className="lead text-muted pe-5 me-5 mb-5">
+                Securely upload your documents with LVF's trusted platform. Fast, encrypted, and designed to protect your sensitive financial information.
+              </p>
+              <div className="buttons">
+                <button 
+                  type="button" 
+                  className="btn bg-gradient-dark btn-lg me-3" 
+                  style={{ borderRadius: '0.75rem' }}
+                  onClick={scrollToRequiredDocuments}
+                >
+                  Get Started
+                </button>
+                <a href="https://www.lvf.pt" target="_blank" rel="noopener noreferrer" className="btn btn-outline-dark btn-lg" style={{ borderRadius: '0.75rem' }}>
+                  Learn More
+                </a>
+              </div>
+            </div>
+            <div className="col-lg-5 col-md-5 text-center">
+              <img 
+                src="/lvf_requestdocumentation.png" 
+                alt="LVF Logo" 
+                className="img-fluid"
+                style={{ 
+                  maxHeight: '150px',
+                  width: 'auto',
+                  filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))'
+                }}
+              />
             </div>
           </div>
         </div>
       </div>
 
+      {/* Trusted By Section */}
+      <section className="py-5" style={{ backgroundColor: '#ffffff' }}>
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-6 mx-auto text-center">
+              <h4 className="text-muted mb-1">Trusted by over</h4>
+              <h2 className="text-dark font-weight-bold mb-3">8,500+ customers</h2>
+              <p className="lead text-muted mb-5">
+                Thousands of clients trust our secure document upload system for sensitive financial information.
+              </p>
+            </div>
+          </div>
+          
+          <div className="row text-center">
+            <div className="col-md-4 col-6 mb-4">
+              <div className="p-3">
+                <h3 className="text-gradient text-primary font-weight-bold mb-0">8.5K+</h3>
+                <p className="text-sm text-muted mb-0">Documents Uploaded</p>
+              </div>
+            </div>
+            <div className="col-md-4 col-6 mb-4">
+              <div className="p-3">
+                <h3 className="text-gradient text-primary font-weight-bold mb-0">99.9%</h3>
+                <p className="text-sm text-muted mb-0">Security Rate</p>
+              </div>
+            </div>
+            <div className="col-md-4 col-6 mb-4">
+              <div className="p-3">
+                <h3 className="text-gradient text-primary font-weight-bold mb-0">2min</h3>
+                <p className="text-sm text-muted mb-0">Average Upload Time</p>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+
       {/* Main Content */}
-      <section className="py-7" style={{ backgroundColor: '#f8f9fa' }}>
+      <section className="py-7" style={{ backgroundColor: '#f8f9fa' }} ref={requiredDocumentsRef}>
         <div className="container">
           {token && !uploadSuccess && (
             <div className="row justify-content-center">

@@ -54,6 +54,14 @@ const MortageApplication: React.FC = () => {
 
   const [submitted, setSubmitted] = useState<any | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const applicationSectionRef = useRef<HTMLElement>(null);
+
+  const scrollToApplication = () => {
+    applicationSectionRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
+  };
 
   useEffect(() => {
     // Initialize Material Kit inputs after component mounts
@@ -201,32 +209,89 @@ const MortageApplication: React.FC = () => {
         <div
           className="page-header min-vh-60"
           style={{
-            backgroundImage:
-              "url('/header-bg.jpg')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundColor: '#f8f9fa',
             position: 'relative',
+            paddingTop: '6rem',
+            paddingBottom: '4rem',
           }}
         >
-          <span className="mask bg-gradient-dark opacity-6" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}></span>
           <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-            <div className="row">
-              <div className="col-lg-8 col-md-10 d-flex justify-content-center flex-column">
-                <h1 className="text-white font-weight-bolder mb-4" style={{ fontSize: '3.5rem' }}>Mortgage Application</h1>
-                <p className="text-white opacity-8 lead pe-5 me-5 mb-5">
-                  Complete your mortgage application with our streamlined process. Secure, fast, and designed with your needs in mind.
+            <div className="row align-items-center h-100">
+              <div className="col-lg-7 col-md-7 d-flex justify-content-center flex-column">
+                <div className="mb-3">
+                  <span className="badge bg-gradient-dark text-white px-3 py-2" style={{ borderRadius: '2rem', fontSize: '0.875rem' }}>
+                    LVF - Luis Miguel Filipe, Lda
+                  </span>
+                </div>
+                <h1 className="text-dark font-weight-bolder mb-4" style={{ fontSize: '3.5rem' }}>Mortgage Application</h1>
+                <p className="text-muted lead pe-5 me-5 mb-5">
+                  Complete your mortgage application with LVF's streamlined process. Secure, fast, and designed with your needs in mind by trusted financial experts.
                 </p>
                 <div className="buttons">
-                  <button type="button" className="btn bg-gradient-dark btn-lg me-3" style={{ borderRadius: '0.75rem' }}>Get Started</button>
-                  <button type="button" className="btn btn-outline-dark btn-lg" style={{ borderRadius: '0.75rem' }}>Learn More</button>
+                  <button type="button" className="btn bg-gradient-dark btn-lg me-3" style={{ borderRadius: '0.75rem' }} onClick={scrollToApplication}>Get Started</button>
+                  <a href="https://www.lvf.pt" target="_blank" rel="noopener noreferrer" className="btn btn-outline-dark btn-lg" style={{ borderRadius: '0.75rem' }}>Learn More</a>
                 </div>
+              </div>
+              <div className="col-lg-5 col-md-5 text-center">
+                <img 
+                  src="/lvf_requestdocumentation.png" 
+                  alt="LVF Logo" 
+                  className="img-fluid"
+                  style={{ 
+                    maxHeight: '200px',
+                    width: 'auto',
+                    filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))'
+                  }}
+                />
               </div>
             </div>
           </div>
         </div>
       </header>
       
-      <section className="py-7" style={{ backgroundColor: '#f8f9fa' }}>
+      {/* Trusted By Section */}
+      <section className="py-5" style={{ backgroundColor: '#ffffff' }}>
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-6 mx-auto text-center">
+              <h4 className="text-muted mb-1">Trusted by over</h4>
+              <h2 className="text-dark font-weight-bold mb-3">15,000+ customers</h2>
+              <p className="lead text-muted mb-5">
+                Many banks, financial institutions, and mortgage brokers trust our platform for secure and efficient loan processing.
+              </p>
+            </div>
+          </div>
+          
+          <div className="row">
+            <div className="col-lg-8 mx-auto">
+              <div className="row text-center">
+                <div className="col-md-4 col-6 mb-4">
+                  <div className="p-3">
+                    <h3 className="text-gradient text-primary font-weight-bold mb-0">15K+</h3>
+                    <p className="text-sm text-muted mb-0">Applications Processed</p>
+                  </div>
+                </div>
+                <div className="col-md-4 col-6 mb-4">
+                  <div className="p-3">
+                    <h3 className="text-gradient text-primary font-weight-bold mb-0">98%</h3>
+                    <p className="text-sm text-muted mb-0">Approval Rate</p>
+                  </div>
+                </div>
+                <div className="col-md-4 col-6 mb-4">
+                  <div className="p-3">
+                    <h3 className="text-gradient text-primary font-weight-bold mb-0">24h</h3>
+                    <p className="text-sm text-muted mb-0">Average Processing</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+
+        </div>
+      </section>
+      
+      <section className="py-7" style={{ backgroundColor: '#f8f9fa' }} ref={applicationSectionRef}>
         <div className="container">
           <div className="row">
             <div className="col-lg-8 mx-auto">
