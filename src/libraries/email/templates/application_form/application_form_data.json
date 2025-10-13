@@ -1,0 +1,20 @@
+{
+  "EN": {
+    "subject": "LVF - Complete Your Credit Application",
+    "title": "Complete Your Credit Application, {{name}}!",
+    "greeting": "Dear Customer,",
+    "body": "We're excited to help you with your credit application! To proceed with your request, we need you to complete your application form with detailed information about your financial situation and property details.\n\nAdditionally, you may need to upload some supporting documents to complete your application process.\n\nThis link will expire on {{expiryDate}}. Please ensure you complete the form and any required uploads before this date.",
+    "preheader": "Complete your credit application form and upload any required documents to move forward.",
+    "footer": "You received this email because you initiated a credit application process with LVF.<br />If this was not supposed to happen, please contact us immediately.",
+    "buttonLabel": "Complete Application"
+  },
+  "PT": {
+    "subject": "LVF - Complete a Sua Aplicação de Crédito",
+    "title": "Complete a Sua Aplicação de Crédito, {{name}}!",
+    "greeting": "Caro Cliente,",
+    "body": "Estamos entusiasmados por o ajudar com a sua aplicação de crédito! Para prosseguir com o seu pedido, necessitamos que complete o formulário de aplicação com informações detalhadas sobre a sua situação financeira e detalhes do imóvel.\n\nAdicionalmente, poderá precisar de carregar alguns documentos comprovativos para completar o processo de aplicação.\n\nEste link irá expirar em {{expiryDate}}. Por favor, assegure-se de completar o formulário e carregar os documentos necessários antes desta data.",
+    "preheader": "Complete o formulário de aplicação de crédito e carregue os documentos necessários para prosseguir.",
+    "footer": "Recebeu este email porque iniciou um processo de aplicação de crédito com a LVF.<br />Se não era suposto acontecer, por favor contacte-nos imediatamente.",
+    "buttonLabel": "Completar Aplicação"
+  }
+}

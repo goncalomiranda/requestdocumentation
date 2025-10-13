@@ -227,6 +227,59 @@ paths:
                   error:
                     type: string
                     example: "Invalid request format"
+    patch:
+      summary: Update request documentation status
+      description: Updates the status of an existing documentation request.
+      security:
+        - ApiKeyAuth: [] # Requires x-api-key header
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [request_id, status]
+              properties:
+                request_id:
+                  type: string
+                  description: Unique identifier of the documentation request to update
+                  example: "1758589804023"
+                status:
+                  type: string
+                  enum: [extend, reactivate, cancel]
+                  description: New status for the documentation request
+                  example: "extend"
+      responses:
+        200:
+          description: Request documentation status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requested_documentation:
+                    type: object
+                    description: Updated documentation request object
+        400:
+          description: Bad request, missing or invalid parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid request format"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error"
 
   /document/upload:
     get:
