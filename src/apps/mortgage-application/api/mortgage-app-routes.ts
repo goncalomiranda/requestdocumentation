@@ -35,6 +35,25 @@ router.post("/", async (req: Request & { tenantId?: string }, res: Response) => 
   }
 });
 
+// Define the route to fetch documents
+router.get("/", async (req: Request, res: Response) => {
+  logger.info('Fetching application form page...');
+  const token = req.query.token as string | undefined;
+
+  if (token) {
+    try {
+      const documents = await getDocumentsToUpload(token);
+      res.json(documents);
+    } catch (error: any) {
+      logger.error('Error fetching documents: ' + error.message);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  } else {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 
 
 export default router;
