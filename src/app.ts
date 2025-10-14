@@ -5,6 +5,7 @@ import documentation from './apps/request-documentation/api/routes';
 import documentationUpdate from './apps/request-documentation/api/requestdocumentationupdate';
 import uploadDocuments from './apps/request-documentation/api/getdocumentuploadroute';
 import applicationForm from './apps/mortgage-application/api/mortgage-app-routes';
+import applicationFormCustomers from './apps/mortgage-application/api/mortgage-app-customers';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './libraries/gateway/swagger'; // Path to your swagger specification
 import applySecurityMiddleware from './libraries/gateway/security';
@@ -33,7 +34,9 @@ app.use(bodyParser.json());
 app.use('/document-requests', documentation);
 app.use('/request-documentation', uploadDocuments);
 app.use('/request-documentation/status', documentationUpdate);
-app.use('/mortgage-application', applicationForm);
+app.use('/application-form', applicationForm);
+app.use('/mortgage-application', applicationFormCustomers);
+
 
 // Serve Swagger UI globally at /docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

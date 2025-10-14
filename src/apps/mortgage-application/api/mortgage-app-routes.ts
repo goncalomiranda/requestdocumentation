@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import { ApplicationForm } from '../domain/models/MortgageAppModel';
 import { requestApplicationForm } from "../domain/MortgageApplicationForm";
+import { getApplicationForm } from "../domain/ApplicationFormService";
 import { apiKeyMiddleware } from "../../../libraries/gateway/authenticators/api/authenticator";
 import apiRateLimiter from "../../../libraries/gateway/rate-limiter"; // Import rate limiter
 import logger from '../../../libraries/loggers/logger';
@@ -42,7 +43,7 @@ router.get("/", async (req: Request, res: Response) => {
 
   if (token) {
     try {
-      const documents = await getDocumentsToUpload(token);
+      const documents = await getApplicationForm(token);
       res.json(documents);
     } catch (error: any) {
       logger.error('Error fetching documents: ' + error.message);
