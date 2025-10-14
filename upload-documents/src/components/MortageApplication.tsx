@@ -492,19 +492,23 @@ const MortageApplication: React.FC = () => {
     <div className="bg-gray-200">
       {/* Custom validation styles */}
       <style>{validationStyles}</style>
+      {/* Scoped styles for header spacing */}
+      <style>{`
+        .mortgage-header { padding-top: 2.5rem; padding-bottom: 1.5rem; }
+        @media (min-width: 768px) { .mortgage-header { padding-top: 2rem; padding-bottom: 1rem; } }
+        @media (min-width: 1200px) { .mortgage-header { padding-top: 1.5rem; padding-bottom: 1rem; } }
+      `}</style>
       
       <header>
         <div
-          className="page-header min-vh-60"
+          className="page-header min-vh-50 mortgage-header"
           style={{
             backgroundColor: '#f8f9fa',
             position: 'relative',
-            paddingTop: '6rem',
-            paddingBottom: '4rem',
           }}
         >
           <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-            <div className="row align-items-center h-100">
+            <div className="row align-items-stretch h-100">
               <div className="col-lg-7 col-md-7 d-flex justify-content-center flex-column">
                 <div className="mb-3">
                   <span className="badge bg-gradient-dark text-white px-3 py-2" style={{ borderRadius: '2rem', fontSize: '0.875rem' }}>
@@ -522,14 +526,17 @@ const MortageApplication: React.FC = () => {
                   <a href="https://www.lvf.pt" target="_blank" rel="noopener noreferrer" className="btn btn-outline-dark btn-lg" style={{ borderRadius: '0.75rem' }}>Learn More</a>
                 </div>
               </div>
-              <div className="col-lg-5 col-md-5 text-center">
-                <img 
-                  src="/lvf_logo_black_motto.JPG" 
-                  alt="LVF Logo" 
+              <div className="col-lg-5 col-md-5 d-flex align-items-center justify-content-center h-100 text-center">
+                <img
+                  src="/lvf_blackfont_logo.png"
+                  alt="LVF Logo"
                   className="img-fluid"
-                  style={{ 
-                    maxHeight: '400px',
+                  style={{
+                    height: '100%',
+                    maxHeight: '100%',
                     width: 'auto',
+                    maxWidth: '100%',
+                    objectFit: 'contain',
                     filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))'
                   }}
                 />
