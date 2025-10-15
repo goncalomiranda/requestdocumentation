@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Footer from './Footer';
 import { useSearchParams } from "react-router-dom";
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
@@ -1078,13 +1079,7 @@ const MortageApplication: React.FC = () => {
         </section>
       )}
 
-      <footer className="py-4" style={{ backgroundColor: '#ffffff', borderTop: '1px solid #e9ecef' }}>
-        <div className="container text-center">
-          <span className="text-muted">
-            made by <a href="https://goncalomiranda.dev" className="text-primary text-decoration-none" target="_blank" rel="noopener noreferrer">goncalomiranda.dev</a>
-          </span>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
