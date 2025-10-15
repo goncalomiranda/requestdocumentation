@@ -1,10 +1,8 @@
 import React from 'react';
 import DatePicker, { MinimalEvent } from '../DatePicker';
 
-export interface Person {
+export interface Guarantor {
   name: string;
-  phoneNumber?: string;
-  email?: string;
   dateOfBirth: string;
   responsibilities: string;
   incomes: string;
@@ -15,10 +13,10 @@ export interface Person {
 
 interface GuarantorCardProps {
   index: number;
-  person: Person;
+  person: Guarantor;
   getValidationClass: (fieldName: string) => string;
   onChange: (
-    field: keyof Person,
+    field: keyof Guarantor,
     value: string,
     event?: MinimalEvent | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => void;

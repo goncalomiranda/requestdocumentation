@@ -296,14 +296,34 @@ const MortageApplication: React.FC = () => {
     return () => clearTimeout(timer);
   }, [form.proponents.length, form.hasGuarantors]);
 
+  // Allow only numbers with up to 2 decimal places
+  const sanitizeMoneyInput = (raw: string): string => {
+    if (raw === '') return '';
+    let s = raw.replace(/,/g, '.');
+    // Keep digits and dots only
+    s = s.replace(/[^0-9.]/g, '');
+    // If starts with dot, prefix a zero
+    if (s.startsWith('.')) s = '0' + s;
+    // Collapse multiple dots into one (keep the first)
+    const firstDot = s.indexOf('.');
+    if (firstDot !== -1) {
+      const intPart = s.slice(0, firstDot);
+      const decPart = s.slice(firstDot + 1).replace(/\./g, '');
+      s = intPart + '.' + decPart.slice(0, 2);
+    }
+    return s;
+  };
+
   const handleTopLevelChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    const moneyFields = new Set(['purchaseValue','appraisalValue','financingAmount','otherFinancingAmount','ownCapital']);
+    const nextValue = (moneyFields.has(name)) ? sanitizeMoneyInput(value) : value;
+    setForm(prev => ({ ...prev, [name]: nextValue }));
     
     // Trigger input event for Material Kit animation
     const inputGroup = e.target.closest('.input-group-dynamic');
     if (inputGroup) {
-      if (value !== '') {
+      if (nextValue !== '') {
         inputGroup.classList.add('is-filled');
       } else {
         inputGroup.classList.remove('is-filled');
@@ -386,7 +406,7 @@ const MortageApplication: React.FC = () => {
       return;
     }
     
-    const payload = {
+  const payload = {
       consultant: form.consultant || '',
       purchaseValue: toNumberOrNull(form.purchaseValue) ?? 0,
       appraisalValue: toNumberOrNull(form.appraisalValue) ?? 0,
@@ -395,14 +415,51 @@ const MortageApplication: React.FC = () => {
       ownCapital: toNumberOrNull(form.ownCapital) ?? 0,
       comments: form.comments || '',
       rents: form.rents || '',
-      guarantor: form.guarantor.map(g => ({ ...g })),
+      guarantor: form.guarantor.map(g => ({
+        name: g.name,
+        dateOfBirth: g.dateOfBirth,
+        responsibilities: g.responsibilities,
+        incomes: g.incomes,
+        maritalStatus: g.maritalStatus,
+        employmentStatus: g.employmentStatus,
+        dependents: g.dependents,
+      })),
       proponents: form.proponents.map(p => ({ ...p })),
       hasGuarantors: form.hasGuarantors,
       request_id: documentation?.request_id,
       customerId: customerId,
     };
-    setSubmitted(payload);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Submit to backend
+    const submit = async () => {
+      try {
+        const reqId = documentation?.request_id || '';
+        const base = import.meta.env.VITE_DOCUMENTATION_HOST || '';
+        const url = `${base}/mortgage-application/customers/submit?request_id=${encodeURIComponent(reqId)}`;
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ application_form: payload }),
+        });
+        const text = await res.text();
+        let data: unknown = null;
+        try {
+          data = text ? JSON.parse(text) : null;
+        } catch {
+          // ignore JSON parse error, fall back to text
+        }
+        const hasErrorKey = (v: unknown): v is { error: string } => !!v && typeof v === 'object' && 'error' in v;
+        if (!res.ok) {
+          const errMsg = hasErrorKey(data) ? data.error : `Submit failed (${res.status})`;
+          throw new Error(errMsg);
+        }
+        setSubmitted(payload as SubmittedPayload);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (err) {
+        console.error('Submit error', err);
+        alert('There was a problem submitting your application. Please try again.');
+      }
+    };
+    submit();
   };
 
   // Always render the page, but conditionally show application section
@@ -547,31 +604,31 @@ const MortageApplication: React.FC = () => {
                         <div className="col-md-4">
                           <div className={`input-group input-group-dynamic mb-4 ${form.purchaseValue ? 'is-filled' : ''}`}>
                             <label className="form-label">Purchase Value *</label>
-                            <input className={`form-control ${getValidationClass('purchaseValue')}`} name="purchaseValue" value={form.purchaseValue} onChange={handleTopLevelChange} aria-label="Purchase Value..." type="text" />
+                            <input className={`form-control ${getValidationClass('purchaseValue')}`} name="purchaseValue" value={form.purchaseValue} onChange={handleTopLevelChange} aria-label="Purchase Value..." type="text" inputMode="decimal" />
                           </div>
                         </div>
                         <div className="col-md-4">
                           <div className={`input-group input-group-dynamic mb-4 ${form.appraisalValue ? 'is-filled' : ''}`}>
                             <label className="form-label">Appraisal Value *</label>
-                            <input className={`form-control ${getValidationClass('appraisalValue')}`} name="appraisalValue" value={form.appraisalValue} onChange={handleTopLevelChange} aria-label="Appraisal Value..." type="text" />
+                            <input className={`form-control ${getValidationClass('appraisalValue')}`} name="appraisalValue" value={form.appraisalValue} onChange={handleTopLevelChange} aria-label="Appraisal Value..." type="text" inputMode="decimal" />
                           </div>
                         </div>
                         <div className="col-md-4">
                           <div className={`input-group input-group-dynamic mb-4 ${form.financingAmount ? 'is-filled' : ''}`}>
                             <label className="form-label">Financing Amount *</label>
-                            <input className={`form-control ${getValidationClass('financingAmount')}`} name="financingAmount" value={form.financingAmount} onChange={handleTopLevelChange} aria-label="Financing Amount..." type="text" />
+                            <input className={`form-control ${getValidationClass('financingAmount')}`} name="financingAmount" value={form.financingAmount} onChange={handleTopLevelChange} aria-label="Financing Amount..." type="text" inputMode="decimal" />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className={`input-group input-group-dynamic mb-4 ${form.otherFinancingAmount ? 'is-filled' : ''}`}>
                             <label className="form-label">Other Financing Amount *</label>
-                            <input className={`form-control ${getValidationClass('otherFinancingAmount')}`} name="otherFinancingAmount" value={form.otherFinancingAmount} onChange={handleTopLevelChange} aria-label="Other Financing Amount..." type="text" />
+                            <input className={`form-control ${getValidationClass('otherFinancingAmount')}`} name="otherFinancingAmount" value={form.otherFinancingAmount} onChange={handleTopLevelChange} aria-label="Other Financing Amount..." type="text" inputMode="decimal" />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className={`input-group input-group-dynamic mb-4 ${form.ownCapital ? 'is-filled' : ''}`}>
                             <label className="form-label">Own Capital</label>
-                            <input className={`form-control ${getValidationClass('ownCapital')}`} name="ownCapital" value={form.ownCapital} onChange={handleTopLevelChange} aria-label="Own Capital..." type="text" />
+                            <input className={`form-control ${getValidationClass('ownCapital')}`} name="ownCapital" value={form.ownCapital} onChange={handleTopLevelChange} aria-label="Own Capital..." type="text" inputMode="decimal" />
                           </div>
                         </div>
                       </div>

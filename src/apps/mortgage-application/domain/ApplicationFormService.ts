@@ -105,3 +105,79 @@ const deleteFiles = (files: any) => {
     });
   });
 };
+
+// Persist submitted application form for a given token and mark as DONE
+export async function submitApplicationForm(
+  token: string,
+  applicationFormData: any,
+  consentData?: {
+    consentGiven?: boolean;
+    consentVersion?: string | null;
+    givenAt?: Date | null;
+    consentTimezone?: string | null;
+    userAgent?: string | null;
+    browserLanguage?: string | null;
+    consentA?: boolean;
+    consentB?: boolean;
+    consentC?: boolean;
+    consentD?: boolean;
+  }
+) {
+  if (!token) {
+    logger.error("submitApplicationForm: Missing token");
+    throw new AppError("S1", "Bad Request", true);
+  }
+
+  const application = await MortgageApplicationRepository.findOne({
+    where: { request_id: token, application_type: "MORTGAGE" },
+  });
+
+  if (!application) {
+    logger.warn("submitApplicationForm: Mortgage Application not found.");
+    throw new AppError("G3", "Mortage Application not found.", true);
+  }
+
+  // Expiry check
+  if (isRequestExpired(application.dataValues.expiry_date)) {
+    await MortgageApplicationRepository.update(
+      { status: "EXPIRED" },
+      { where: { request_id: token } }
+    );
+    logger.error("submitApplicationForm: Request has expired");
+    throw new AppError("G1", "Bad Request", true);
+  }
+
+  // Not available if already DONE or EXPIRED
+  if (
+    application.dataValues.status === "DONE" ||
+    application.dataValues.status === "EXPIRED"
+  ) {
+    logger.error("submitApplicationForm: Status not available to submit");
+    throw new AppError("G2", "Mortage Application not available", true);
+  }
+
+  const updateFields: any = {
+    application_form: applicationFormData,
+    status: "DONE",
+  };
+
+  // Optionally persist consent metadata if provided
+  if (consentData) {
+    if (consentData.consentGiven !== undefined) updateFields.consentGiven = consentData.consentGiven;
+    if (consentData.consentVersion) updateFields.consentVersion = consentData.consentVersion;
+    if (consentData.givenAt) updateFields.givenAt = consentData.givenAt;
+    if (consentData.consentTimezone) updateFields.consentTimezone = consentData.consentTimezone;
+    if (consentData.userAgent) updateFields.userAgent = consentData.userAgent;
+    if (consentData.browserLanguage) updateFields.browserLanguage = consentData.browserLanguage;
+    if (consentData.consentA !== undefined) updateFields.consentA = consentData.consentA;
+    if (consentData.consentB !== undefined) updateFields.consentB = consentData.consentB;
+    if (consentData.consentC !== undefined) updateFields.consentC = consentData.consentC;
+    if (consentData.consentD !== undefined) updateFields.consentD = consentData.consentD;
+  }
+
+  await MortgageApplicationRepository.update(updateFields, { where: { request_id: token } });
+
+  logger.info("submitApplicationForm: Application form saved and marked as DONE");
+
+  return { request_id: token, status: "DONE" };
+}
