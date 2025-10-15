@@ -292,6 +292,18 @@ const MortageApplication: React.FC = () => {
 
     initializeMaterialInputs();
     const timer = setTimeout(initializeMaterialInputs, 100);
+
+    // Initialize Bootstrap tooltips if Bootstrap is available
+    try {
+      const maybeBootstrap: unknown = (window as unknown as { bootstrap?: unknown }).bootstrap;
+      const bs = maybeBootstrap as { Tooltip?: new (element: Element) => unknown } | undefined;
+      if (bs && bs.Tooltip && typeof bs.Tooltip === 'function') {
+        const tooltipTriggerList = Array.from(document.querySelectorAll('[data-bs-toggle="tooltip"]')) as HTMLElement[];
+        tooltipTriggerList.forEach(el => { new bs.Tooltip!(el); });
+      }
+    } catch {
+      // ignore if bootstrap is not present
+    }
     
     return () => clearTimeout(timer);
   }, [form.proponents.length, form.hasGuarantors]);
@@ -581,7 +593,17 @@ const MortageApplication: React.FC = () => {
                         <div className="col-md-6">
                           <div className={`input-group input-group-dynamic mb-4 ${form.consultant ? 'is-filled' : ''}`}>
                             <label className="form-label">Consultant</label>
-                            <input className={`form-control ${getValidationClass('consultant')}`} name="consultant" value={form.consultant} onChange={handleTopLevelChange} aria-label="Consultant..." type="text" />
+                            <input
+                              className={`form-control ${getValidationClass('consultant')}`}
+                              name="consultant"
+                              value={form.consultant}
+                              onChange={handleTopLevelChange}
+                              aria-label="Consultant..."
+                              type="text"
+                              data-bs-toggle="tooltip"
+                              data-bs-placement="top"
+                              title="Name of the consultant assisting with real estate purchase"
+                            />
                           </div>
                         </div>
                         <div className="col-md-6">
