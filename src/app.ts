@@ -35,7 +35,7 @@ app.use('/document-requests', documentation);
 app.use('/request-documentation', uploadDocuments);
 app.use('/request-documentation/status', documentationUpdate);
 app.use('/application-form', applicationForm);
-app.use('/mortgage-application', applicationFormCustomers);
+app.use('/mortgage-application/customers', applicationFormCustomers);
 
 
 // Serve Swagger UI globally at /docs

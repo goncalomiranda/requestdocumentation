@@ -334,7 +334,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                     <input type="hidden" name="request_id" value={documentation.request_id} />
 
                     {/* Document Upload Cards */}
-                    <div className="row">
+                    <div className="row justify-content-center">
                       {uploadDocuments.map((doc, index) => (
                         <div className="col-lg-6 mb-4" key={doc.key}>
                           <div className="card h-100 border-0 shadow-lg" style={{ borderRadius: '1rem' }}>

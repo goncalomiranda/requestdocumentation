@@ -195,7 +195,7 @@ const MortageApplication: React.FC = () => {
   // Fetch documentation from API
   const fetchDocumentation = async (token: string) => {
     try {
-      const response = await fetch(`${DOCUMENTATION_HOST}/mortgage-application?token=${token}`);
+      const response = await fetch(`${DOCUMENTATION_HOST}/mortgage-application/customers?token=${token}`);
 
       if (!response.ok) {
         return; // Don't set documentation if API fails
