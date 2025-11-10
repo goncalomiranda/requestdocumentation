@@ -10,6 +10,8 @@ type MinimalEvent = {
 import './mortgage.css';
 import ProponentCard from './mortgage/ProponentCard';
 import GuarantorCard from './mortgage/GuarantorCard';
+import mortgageTranslations from '../assets/mortgage-translations.json';
+type MortgageTranslations = typeof mortgageTranslations;
 
 // Types
 interface Document {
@@ -22,6 +24,7 @@ interface Documentation {
   request_id: string;
   documents: Document[];
   customerId?: string;
+  lang?: string;
 }
 
 interface Person {
@@ -45,7 +48,7 @@ interface FormState {
   ownCapital: string;
   comments: string;
   rents: string;
-  guarantor: Person[];
+  guarantors: Person[];
   proponents: Person[];
   hasGuarantors: boolean;
 }
@@ -59,7 +62,7 @@ interface SubmittedPayload {
   ownCapital: number;
   comments: string;
   rents: string;
-  guarantor: Person[];
+  guarantors: Person[];
   proponents: Person[];
   hasGuarantors: boolean;
   request_id?: string;
@@ -98,7 +101,7 @@ const MortageApplication: React.FC = () => {
     ownCapital: '',
     comments: '',
     rents: '',
-    guarantor: [],
+    guarantors: [],
     proponents: [emptyPerson()],
     hasGuarantors: false,
   });
@@ -122,6 +125,7 @@ const MortageApplication: React.FC = () => {
         request_id: data.request_id,
         documents: data.documents,
         customerId: data.customer_id,
+        lang: data.lang,
       };
 
       setDocumentation(formattedData);
@@ -167,7 +171,7 @@ const MortageApplication: React.FC = () => {
 
     // If guarantors exist, all their fields are mandatory
     if (form.hasGuarantors) {
-      form.guarantor.forEach((guarantor, idx) => {
+      form.guarantors.forEach((guarantor, idx) => {
         if (!guarantor.name?.trim()) errors[`guarantor-${idx}-name`] = true;
         if (!guarantor.dateOfBirth?.trim()) errors[`guarantor-${idx}-dateOfBirth`] = true;
         if (!guarantor.responsibilities?.trim()) errors[`guarantor-${idx}-responsibilities`] = true;
@@ -227,7 +231,7 @@ const MortageApplication: React.FC = () => {
       const parts = fieldName.split('-');
       const idx = parseInt(parts[1]);
       const field = parts[2] as keyof Person;
-      return form.guarantor[idx]?.[field] || '';
+      return form.guarantors[idx]?.[field] || '';
     }
     
     return '';
@@ -344,7 +348,7 @@ const MortageApplication: React.FC = () => {
   };
 
   const handlePersonChange = (
-    section: 'guarantor' | 'proponents',
+    section: 'guarantors' | 'proponents',
     index: number,
     field: keyof Person,
     value: string,
@@ -386,15 +390,15 @@ const MortageApplication: React.FC = () => {
     setForm(prev => ({
       ...prev,
       hasGuarantors,
-      guarantor: hasGuarantors ? [emptyPerson()] : []
+      guarantors: hasGuarantors ? [emptyPerson()] : []
     }));
   };
 
-  const addPerson = (section: 'guarantor' | 'proponents') => {
+  const addPerson = (section: 'guarantors' | 'proponents') => {
     setForm(prev => ({ ...prev, [section]: [...prev[section], emptyPerson()] }));
   };
 
-  const removePerson = (section: 'guarantor' | 'proponents', index: number) => {
+  const removePerson = (section: 'guarantors' | 'proponents', index: number) => {
     setForm(prev => {
       const arr = prev[section].slice();
       arr.splice(index, 1);
@@ -427,7 +431,7 @@ const MortageApplication: React.FC = () => {
       ownCapital: toNumberOrNull(form.ownCapital) ?? 0,
       comments: form.comments || '',
       rents: form.rents || '',
-      guarantor: form.guarantor.map(g => ({
+      guarantors: form.guarantors.map(g => ({
         name: g.name,
         dateOfBirth: g.dateOfBirth,
         responsibilities: g.responsibilities,
@@ -475,6 +479,10 @@ const MortageApplication: React.FC = () => {
   };
 
   // Always render the page, but conditionally show application section
+  const selLangRaw = documentation?.lang || navigator.language;
+  const lang: keyof MortgageTranslations = selLangRaw && selLangRaw.toLowerCase().startsWith('pt') ? 'pt' : 'en';
+  const t = mortgageTranslations[lang];
+
   return (
     <div className="bg-gray-200">
       <header>
@@ -490,18 +498,16 @@ const MortageApplication: React.FC = () => {
               <div className="col-lg-7 col-md-7 d-flex justify-content-center flex-column">
                 <div className="mb-3">
                   <span className="badge bg-gradient-dark text-white px-3 py-2" style={{ borderRadius: '2rem', fontSize: '0.875rem' }}>
-                    LVF - Luis Miguel Filipe, Lda
+                    {t.hero.badge}
                   </span>
                 </div>
-                <h1 className="text-dark font-weight-bolder mb-4" style={{ fontSize: '3.5rem' }}>Mortgage Application</h1>
-                <p className="text-muted lead pe-5 me-5 mb-5">
-                  Complete your mortgage application with LVF's streamlined process. Secure, fast, and designed with your needs in mind by trusted financial experts.
-                </p>
+                <h1 className="text-dark font-weight-bolder mb-4" style={{ fontSize: '3.5rem' }}>{t.hero.title}</h1>
+                <p className="text-muted lead pe-5 me-5 mb-5">{t.hero.subtitle}</p>
                 <div className="buttons">
                   {token && documentation && (
-                    <button type="button" className="btn bg-gradient-dark btn-lg me-3" style={{ borderRadius: '0.75rem' }} onClick={scrollToApplication}>Get Started</button>
+                    <button type="button" className="btn bg-gradient-dark btn-lg me-3" style={{ borderRadius: '0.75rem' }} onClick={scrollToApplication}>{t.hero.getStarted}</button>
                   )}
-                  <a href="https://www.lvf.pt" target="_blank" rel="noopener noreferrer" className="btn btn-outline-dark btn-lg" style={{ borderRadius: '0.75rem' }}>Learn More</a>
+                  <a href="https://www.lvf.pt" target="_blank" rel="noopener noreferrer" className="btn btn-outline-dark btn-lg" style={{ borderRadius: '0.75rem' }}>{t.hero.learnMore}</a>
                 </div>
               </div>
               <div className="col-lg-5 col-md-5 d-flex align-items-center justify-content-center h-100 text-center">
@@ -529,11 +535,9 @@ const MortageApplication: React.FC = () => {
         <div className="container">
           <div className="row">
             <div className="col-lg-6 mx-auto text-center">
-              <h4 className="text-muted mb-1">Trusted by over</h4>
-              <h2 className="text-dark font-weight-bold mb-3">15,000+ customers</h2>
-              <p className="lead text-muted mb-5">
-                Many banks, financial institutions, and mortgage brokers trust our platform for secure and efficient loan processing.
-              </p>
+              <h4 className="text-muted mb-1">{t.trustedBy.heading1}</h4>
+              <h2 className="text-dark font-weight-bold mb-3">{t.trustedBy.heading2}</h2>
+              <p className="lead text-muted mb-5">{t.trustedBy.desc}</p>
             </div>
           </div>
           
@@ -543,19 +547,19 @@ const MortageApplication: React.FC = () => {
                 <div className="col-md-4 col-6 mb-4">
                   <div className="p-3">
                     <h3 className="text-gradient text-primary font-weight-bold mb-0">15K+</h3>
-                    <p className="text-sm text-muted mb-0">Applications Processed</p>
+                    <p className="text-sm text-muted mb-0">{t.trustedBy.appsProcessed}</p>
                   </div>
                 </div>
                 <div className="col-md-4 col-6 mb-4">
                   <div className="p-3">
                     <h3 className="text-gradient text-primary font-weight-bold mb-0">98%</h3>
-                    <p className="text-sm text-muted mb-0">Approval Rate</p>
+                    <p className="text-sm text-muted mb-0">{t.trustedBy.approvalRate}</p>
                   </div>
                 </div>
                 <div className="col-md-4 col-6 mb-4">
                   <div className="p-3">
                     <h3 className="text-gradient text-primary font-weight-bold mb-0">24h</h3>
-                    <p className="text-sm text-muted mb-0">Average Processing</p>
+                    <p className="text-sm text-muted mb-0">{t.trustedBy.avgProcessing}</p>
                   </div>
                 </div>
               </div>
@@ -571,8 +575,8 @@ const MortageApplication: React.FC = () => {
             <div className="row">
               <div className="col-lg-8 mx-auto">
                 <div className="text-center mb-6">
-                  <h2 className="text-dark font-weight-bold mb-3">Application Form</h2>
-                  <p className="lead text-muted">Please fill out all required information below</p>
+                  <h2 className="text-dark font-weight-bold mb-3">{t.hero.title}</h2>
+                  <p className="lead text-muted">{t.hero.subtitle}</p>
                 </div>
                 
                 <div className="card shadow-lg border-0" style={{ borderRadius: '1rem' }}>
@@ -587,12 +591,12 @@ const MortageApplication: React.FC = () => {
                         <div className="col-12">
                           <h5 className="font-weight-bold text-dark mb-4">
                             <i className="material-icons text-dark me-2">person</i>
-                            Basic Information
+                            {t.form.sectionBasic}
                           </h5>
                         </div>
                         <div className="col-md-6">
                           <div className={`input-group input-group-dynamic mb-4 ${form.consultant ? 'is-filled' : ''}`}>
-                            <label className="form-label">Consultant</label>
+                            <label className="form-label">{t.form.consultant}</label>
                             <input
                               className={`form-control ${getValidationClass('consultant')}`}
                               name="consultant"
@@ -602,13 +606,13 @@ const MortageApplication: React.FC = () => {
                               type="text"
                               data-bs-toggle="tooltip"
                               data-bs-placement="top"
-                              title="Name of the consultant assisting with real estate purchase"
+                              title={t.form.consultantTooltip}
                             />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className={`input-group input-group-dynamic mb-4 ${form.rents ? 'is-filled' : ''}`}>
-                            <label className="form-label">Rents</label>
+                            <label className="form-label">{t.form.rents}</label>
                             <input className={`form-control ${getValidationClass('rents')}`} name="rents" value={form.rents} onChange={handleTopLevelChange} aria-label="Rents..." type="text" />
                           </div>
                         </div>
@@ -619,37 +623,37 @@ const MortageApplication: React.FC = () => {
                         <div className="col-12">
                           <h5 className="font-weight-bold text-dark mb-4">
                             <i className="material-icons text-dark me-2">account_balance</i>
-                            Financial Details
+                            {t.form.sectionFinancial}
                           </h5>
                           {showValidation && !form.financingAmount?.trim() && !form.otherFinancingAmount?.trim() }
                         </div>
                         <div className="col-md-4">
                           <div className={`input-group input-group-dynamic mb-4 ${form.purchaseValue ? 'is-filled' : ''}`}>
-                            <label className="form-label">Purchase Value *</label>
+                            <label className="form-label">{t.form.purchaseValue} *</label>
                             <input className={`form-control ${getValidationClass('purchaseValue')}`} name="purchaseValue" value={form.purchaseValue} onChange={handleTopLevelChange} aria-label="Purchase Value..." type="text" inputMode="decimal" />
                           </div>
                         </div>
                         <div className="col-md-4">
                           <div className={`input-group input-group-dynamic mb-4 ${form.appraisalValue ? 'is-filled' : ''}`}>
-                            <label className="form-label">Appraisal Value *</label>
+                            <label className="form-label">{t.form.appraisalValue} *</label>
                             <input className={`form-control ${getValidationClass('appraisalValue')}`} name="appraisalValue" value={form.appraisalValue} onChange={handleTopLevelChange} aria-label="Appraisal Value..." type="text" inputMode="decimal" />
                           </div>
                         </div>
                         <div className="col-md-4">
                           <div className={`input-group input-group-dynamic mb-4 ${form.financingAmount ? 'is-filled' : ''}`}>
-                            <label className="form-label">Financing Amount *</label>
+                            <label className="form-label">{t.form.financingAmount} *</label>
                             <input className={`form-control ${getValidationClass('financingAmount')}`} name="financingAmount" value={form.financingAmount} onChange={handleTopLevelChange} aria-label="Financing Amount..." type="text" inputMode="decimal" />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className={`input-group input-group-dynamic mb-4 ${form.otherFinancingAmount ? 'is-filled' : ''}`}>
-                            <label className="form-label">Other Financing Amount *</label>
+                            <label className="form-label">{t.form.otherFinancingAmount} *</label>
                             <input className={`form-control ${getValidationClass('otherFinancingAmount')}`} name="otherFinancingAmount" value={form.otherFinancingAmount} onChange={handleTopLevelChange} aria-label="Other Financing Amount..." type="text" inputMode="decimal" />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className={`input-group input-group-dynamic mb-4 ${form.ownCapital ? 'is-filled' : ''}`}>
-                            <label className="form-label">Own Capital</label>
+                            <label className="form-label">{t.form.ownCapital}</label>
                             <input className={`form-control ${getValidationClass('ownCapital')}`} name="ownCapital" value={form.ownCapital} onChange={handleTopLevelChange} aria-label="Own Capital..." type="text" inputMode="decimal" />
                           </div>
                         </div>
@@ -660,10 +664,10 @@ const MortageApplication: React.FC = () => {
                         <div className="col-12">
                           <h5 className="font-weight-bold text-dark mb-4">
                             <i className="material-icons text-dark me-2">comment</i>
-                            Additional Comments
+                            {t.form.comments}
                           </h5>
                           <div className={`input-group input-group-dynamic ${form.comments ? 'is-filled' : ''}`}>
-                            <label className="form-label">Comments</label>
+                            <label className="form-label">{t.form.comments}</label>
                             <textarea className={`form-control ${getValidationClass('comments')}`} name="comments" rows={4} value={form.comments} onChange={handleTopLevelChange} />
                           </div>
                         </div>
@@ -674,7 +678,7 @@ const MortageApplication: React.FC = () => {
                         <div className="col-12">
                           <h5 className="font-weight-bold text-dark mb-4">
                             <i className="material-icons text-dark me-2">group</i>
-                            Proponents
+                            {t.form.proponents}
                           </h5>
                           {form.proponents.map((p, idx) => (
                             <ProponentCard
@@ -685,11 +689,12 @@ const MortageApplication: React.FC = () => {
                               onChange={(field, value, event) => handlePersonChange('proponents', idx, field, value, event)}
                               onRemove={form.proponents.length > 1 ? () => removePerson('proponents', idx) : undefined}
                               showRemove={form.proponents.length > 1}
+                              lang={lang}
                             />
                           ))}
                           <button type="button" className="btn bg-gradient-dark w-100 mb-4" onClick={() => addPerson('proponents')} style={{ borderRadius: '0.75rem', padding: '12px' }}>
                             <i className="material-icons me-2" style={{ verticalAlign: 'middle', fontSize: '18px' }}>add</i>
-                            Add Proponent
+                            {t.form.addProponent}
                           </button>
                         </div>
                       </div>
@@ -707,7 +712,7 @@ const MortageApplication: React.FC = () => {
                             />
                             <label className="form-check-label ms-3 mb-0 font-weight-bold text-dark" htmlFor="hasGuarantors">
                               <i className="material-icons text-sm me-2" style={{ verticalAlign: 'middle', fontSize: '16px' }}>verified_user</i>
-                              This mortgage application has guarantors
+                              {t.form.guarantorsToggle}
                             </label>
                           </div>
 
@@ -716,22 +721,23 @@ const MortageApplication: React.FC = () => {
                             <div className="mt-4">
                               <h5 className="font-weight-bold text-dark mb-4">
                                 <i className="material-icons text-dark me-2" style={{ verticalAlign: 'middle', fontSize: '20px' }}>shield</i>
-                                Guarantors
+                                {t.form.guarantors}
                               </h5>
-                              {form.guarantor.map((g, idx) => (
+                              {form.guarantors.map((g, idx) => (
                                 <GuarantorCard
                                   key={`guarantor-${idx}`}
                                   index={idx}
                                   person={g}
                                   getValidationClass={getValidationClass}
-                                  onChange={(field, value, event) => handlePersonChange('guarantor', idx, field, value, event)}
-                                  onRemove={form.guarantor.length > 1 ? () => removePerson('guarantor', idx) : undefined}
-                                  showRemove={form.guarantor.length > 1}
+                                  onChange={(field, value, event) => handlePersonChange('guarantors', idx, field, value, event)}
+                                  onRemove={form.guarantors.length > 1 ? () => removePerson('guarantors', idx) : undefined}
+                                  showRemove={form.guarantors.length > 1}
+                                  lang={lang}
                                 />
                               ))}
-                              <button type="button" className="btn bg-gradient-warning w-100 mb-4" onClick={() => addPerson('guarantor')} style={{ borderRadius: '0.75rem', padding: '12px' }}>
+                              <button type="button" className="btn bg-gradient-warning w-100 mb-4" onClick={() => addPerson('guarantors')} style={{ borderRadius: '0.75rem', padding: '12px' }}>
                                 <i className="material-icons me-2" style={{ verticalAlign: 'middle', fontSize: '18px' }}>add</i>
-                                Add Guarantor
+                                {t.form.addGuarantor}
                               </button>
                             </div>
                           )}
@@ -751,7 +757,7 @@ const MortageApplication: React.FC = () => {
                         <div className="col-12">
                           <button type="submit" className="btn bg-gradient-dark w-100 btn-lg" style={{ borderRadius: '0.75rem', padding: '15px' }}>
                             <i className="material-icons me-2" style={{ verticalAlign: 'middle', fontSize: '20px' }}>send</i>
-                            Submit Application
+                            {t.form.submit}
                           </button>
                         </div>
                       </div>
@@ -763,7 +769,7 @@ const MortageApplication: React.FC = () => {
                       <div className="card-header bg-gradient-dark text-white" style={{ borderRadius: '1rem 1rem 0 0', color: 'white' }}>
                         <h4 className="card-title mb-0 font-weight-bold" style={{ color: 'white' }}>
                           <i className="material-icons me-2" style={{ color: 'white' }}>check_circle</i>
-                          Application Preview
+                          {t.form.applicationPreview}
                         </h4>
                       </div>
                       <div className="card-body p-4">

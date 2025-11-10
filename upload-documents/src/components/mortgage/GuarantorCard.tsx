@@ -1,4 +1,5 @@
 import React from 'react';
+import mortgageTranslations from '../../assets/mortgage-translations.json';
 import DatePicker, { MinimalEvent } from '../DatePicker';
 
 export interface Guarantor {
@@ -22,18 +23,22 @@ interface GuarantorCardProps {
   ) => void;
   onRemove?: () => void;
   showRemove?: boolean;
+  lang?: 'en' | 'pt';
 }
 
-const GuarantorCard: React.FC<GuarantorCardProps> = ({ index, person, getValidationClass, onChange, onRemove, showRemove }) => {
+const GuarantorCard: React.FC<GuarantorCardProps> = ({ index, person, getValidationClass, onChange, onRemove, showRemove, lang: langProp }) => {
+  const selLangRaw = langProp ?? navigator.language;
+  const lang = (typeof selLangRaw === 'string' && selLangRaw.toLowerCase().startsWith('pt')) ? 'pt' : 'en';
+  const t = mortgageTranslations[lang];
   return (
     <div className="card card-plain border mb-4" style={{ borderRadius: '0.75rem', backgroundColor: '#fff3e0' }}>
       <div className="card-body p-4">
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <h6 className="font-weight-bold text-dark mb-0">Guarantor {index + 1}</h6>
+          <h6 className="font-weight-bold text-dark mb-0">{t.cards.guarantor.title} {index + 1}</h6>
           {showRemove && (
             <button type="button" className="btn btn-outline-warning btn-sm" onClick={onRemove} style={{ borderRadius: '0.5rem' }}>
               <i className="material-icons" style={{ fontSize: '16px', verticalAlign: 'middle' }}>delete</i>
-              Remove
+              {t.cards.guarantor.remove}
             </button>
           )}
         </div>
@@ -42,7 +47,7 @@ const GuarantorCard: React.FC<GuarantorCardProps> = ({ index, person, getValidat
         <div className="row">
           <div className="col-md-4">
             <div className={`input-group input-group-dynamic mb-4 ${person.name ? 'is-filled' : ''}`}>
-              <label className="form-label">Full Name</label>
+              <label className="form-label">{t.labels.fullName}</label>
               <input
                 className={`form-control ${getValidationClass(`guarantor-${index}-name`)}`}
                 value={person.name}
@@ -55,14 +60,14 @@ const GuarantorCard: React.FC<GuarantorCardProps> = ({ index, person, getValidat
           <div className="col-md-4">
             <DatePicker
               value={person.dateOfBirth}
-              placeholder="Date of Birth"
+              placeholder={t.labels.dateOfBirth}
               onChange={(value, event) => onChange('dateOfBirth', value, event)}
               validationClass={getValidationClass(`guarantor-${index}-dateOfBirth`)}
             />
           </div>
           <div className="col-md-4">
             <div className={`input-group input-group-dynamic mb-4 ${person.maritalStatus && person.maritalStatus !== '' ? 'is-filled' : ''}`}>
-              <label className="form-label">Marital Status</label>
+              <label className="form-label">{t.labels.maritalStatus}</label>
               <select
                 className={`form-control ${getValidationClass(`guarantor-${index}-maritalStatus`)}`}
                 value={person.maritalStatus}
@@ -81,11 +86,11 @@ const GuarantorCard: React.FC<GuarantorCardProps> = ({ index, person, getValidat
                 }}
               >
                 <option value=""></option>
-                <option value="single">Single</option>
-                <option value="married">Married</option>
-                <option value="divorced">Divorced</option>
-                <option value="widowed">Widowed</option>
-                <option value="separated">Separated</option>
+                <option value="single">{t.options.maritalStatus.single}</option>
+                <option value="married">{t.options.maritalStatus.married}</option>
+                <option value="divorced">{t.options.maritalStatus.divorced}</option>
+                <option value="widowed">{t.options.maritalStatus.widowed}</option>
+                <option value="separated">{t.options.maritalStatus.separated}</option>
               </select>
             </div>
           </div>
@@ -95,7 +100,7 @@ const GuarantorCard: React.FC<GuarantorCardProps> = ({ index, person, getValidat
         <div className="row">
           <div className="col-md-3">
             <div className={`input-group input-group-dynamic mb-4 ${person.employmentStatus && person.employmentStatus !== '' ? 'is-filled' : ''}`}>
-              <label className="form-label">Employment Status</label>
+              <label className="form-label">{t.labels.employmentStatus}</label>
               <select
                 className={`form-control ${getValidationClass(`guarantor-${index}-employmentStatus`)}`}
                 value={person.employmentStatus}
@@ -114,18 +119,18 @@ const GuarantorCard: React.FC<GuarantorCardProps> = ({ index, person, getValidat
                 }}
               >
                 <option value=""></option>
-                <option value="employed_full_time">Employed Full-Time</option>
-                <option value="employed_part_time">Employed Part-Time</option>
-                <option value="self_employed">Self-Employed</option>
-                <option value="unemployed">Unemployed</option>
-                <option value="retired">Retired</option>
-                <option value="student">Student</option>
+                <option value="employed_full_time">{t.options.employmentStatus.employed_full_time}</option>
+                <option value="employed_part_time">{t.options.employmentStatus.employed_part_time}</option>
+                <option value="self_employed">{t.options.employmentStatus.self_employed}</option>
+                <option value="unemployed">{t.options.employmentStatus.unemployed}</option>
+                <option value="retired">{t.options.employmentStatus.retired}</option>
+                <option value="student">{t.options.employmentStatus.student}</option>
               </select>
             </div>
           </div>
           <div className="col-md-3">
             <div className={`input-group input-group-dynamic mb-4 ${person.responsibilities ? 'is-filled' : ''}`}>
-              <label className="form-label">Responsibilities</label>
+              <label className="form-label">{t.labels.responsibilities}</label>
               <input
                 className={`form-control ${getValidationClass(`guarantor-${index}-responsibilities`)}`}
                 value={person.responsibilities}
@@ -137,7 +142,7 @@ const GuarantorCard: React.FC<GuarantorCardProps> = ({ index, person, getValidat
           </div>
           <div className="col-md-3">
             <div className={`input-group input-group-dynamic mb-4 ${person.incomes ? 'is-filled' : ''}`}>
-              <label className="form-label">Incomes</label>
+              <label className="form-label">{t.labels.incomes}</label>
               <input
                 className={`form-control ${getValidationClass(`guarantor-${index}-incomes`)}`}
                 value={person.incomes}
@@ -149,7 +154,7 @@ const GuarantorCard: React.FC<GuarantorCardProps> = ({ index, person, getValidat
           </div>
           <div className="col-md-3">
             <div className={`input-group input-group-dynamic mb-4 ${person.dependents ? 'is-filled' : ''}`}>
-              <label className="form-label">Dependents</label>
+              <label className="form-label">{t.labels.dependents}</label>
               <input
                 className={`form-control ${getValidationClass(`guarantor-${index}-dependents`)}`}
                 value={person.dependents}

@@ -3,7 +3,6 @@ import { getApplicationForm, submitApplicationForm } from "../domain/Application
 
 import apiRateLimiter from "../../../libraries/gateway/rate-limiter"; // Import rate limiter
 import logger from '../../../libraries/loggers/logger';
-import { log } from "console";
 
 const router = express.Router();
 
@@ -52,7 +51,7 @@ router.post("/submit", async (req: Request, res: Response) => {
     };
     logger.info('Consent data: ' + JSON.stringify(consentData));
 
-    //const result = await submitApplicationForm(token, applicationFormData, consentData);
+    const result = await submitApplicationForm(token, applicationFormData, consentData);
     res.status(200).json({ message: "Application form submitted successfully" });
     return;
   } catch (error: any) {

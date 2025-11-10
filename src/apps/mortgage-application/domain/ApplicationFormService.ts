@@ -3,6 +3,7 @@ import logger from '../../../libraries/loggers/logger';
 import fs from 'fs';
 import { AppError } from '../../../libraries/appError';
 import { getDocumentsByLanguage } from "../../request-documentation/domain/documentService";
+import pubSubService from '../../../libraries/pubsub/pubsubService';
 
 
 
@@ -176,6 +177,32 @@ export async function submitApplicationForm(
   }
 
   await MortgageApplicationRepository.update(updateFields, { where: { request_id: token } });
+
+  // Publish event to Google Cloud Pub/Sub after successful database update
+  try {
+    const mortgageApplicationEvent = {
+      eventType: 'MORTGAGE_APPLICATION_SUBMITTED',
+      timestamp: new Date().toISOString(),
+      requestId: token,
+      customerId: application.dataValues.customer_id,
+      status: 'DONE',
+      applicationData: applicationFormData,
+      consentGiven: consentData?.consentGiven || false,
+      metadata: {
+        language: application.dataValues.lang,
+        userAgent: consentData?.userAgent || undefined,
+        browserLanguage: consentData?.browserLanguage || undefined,
+        applicationType: application.dataValues.application_type,
+        expiryDate: application.dataValues.expiry_date,
+      }
+    };
+
+    await pubSubService.publishMortgageApplicationEvent(mortgageApplicationEvent);
+    logger.info(`Published mortgage application event for request ${token} to Pub/Sub`);
+  } catch (pubSubError) {
+    logger.error('Failed to publish mortgage application event to Pub/Sub:', pubSubError);
+    // Don't throw error here as the main application submission was successful
+  }
 
   logger.info("submitApplicationForm: Application form saved and marked as DONE");
 
