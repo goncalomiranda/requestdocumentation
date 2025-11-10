@@ -165,7 +165,7 @@ const MortageApplication: React.FC = () => {
       if (!proponent.dependents?.trim()) errors[`proponent-${idx}-dependents`] = true;
     });
 
-    // If guarantors exist, all their fields are mandatory
+    // If guarantors exist, their fields are mandatory (except dependents)
     if (form.hasGuarantors) {
       form.guarantors.forEach((guarantor, idx) => {
         if (!guarantor.name?.trim()) errors[`guarantor-${idx}-name`] = true;
@@ -174,7 +174,7 @@ const MortageApplication: React.FC = () => {
         if (!guarantor.incomes?.trim()) errors[`guarantor-${idx}-incomes`] = true;
         if (!guarantor.maritalStatus?.trim()) errors[`guarantor-${idx}-maritalStatus`] = true;
         if (!guarantor.employmentStatus?.trim()) errors[`guarantor-${idx}-employmentStatus`] = true;
-        if (!guarantor.dependents?.trim()) errors[`guarantor-${idx}-dependents`] = true;
+        // Note: dependents is optional for guarantors
       });
     }
 
