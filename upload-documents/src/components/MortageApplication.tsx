@@ -42,7 +42,6 @@ interface Person {
 interface FormState {
   consultant: string;
   purchaseValue: string;
-  appraisalValue: string;
   financingAmount: string;
   otherFinancingAmount: string; // allow empty -> null on submit
   ownCapital: string;
@@ -56,7 +55,6 @@ interface FormState {
 interface SubmittedPayload {
   consultant: string;
   purchaseValue: number;
-  appraisalValue: number;
   financingAmount: number;
   otherFinancingAmount: number | null;
   ownCapital: number;
@@ -95,7 +93,6 @@ const MortageApplication: React.FC = () => {
   const [form, setForm] = useState<FormState>({
     consultant: '',
     purchaseValue: '',
-    appraisalValue: '',
     financingAmount: '',
     otherFinancingAmount: '',
     ownCapital: '',
@@ -148,7 +145,6 @@ const MortageApplication: React.FC = () => {
 
     // Required top-level fields
     if (!form.purchaseValue?.trim()) errors.purchaseValue = true;
-    if (!form.appraisalValue?.trim()) errors.appraisalValue = true;
     
     // Financing validation: either Financing Amount OR Other Financing Amount must be filled
     if (!form.financingAmount?.trim() && !form.otherFinancingAmount?.trim()) {
@@ -332,7 +328,7 @@ const MortageApplication: React.FC = () => {
 
   const handleTopLevelChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    const moneyFields = new Set(['purchaseValue','appraisalValue','financingAmount','otherFinancingAmount','ownCapital']);
+    const moneyFields = new Set(['purchaseValue','financingAmount','otherFinancingAmount','ownCapital']);
     const nextValue = (moneyFields.has(name)) ? sanitizeMoneyInput(value) : value;
     setForm(prev => ({ ...prev, [name]: nextValue }));
     
@@ -425,7 +421,6 @@ const MortageApplication: React.FC = () => {
   const payload = {
       consultant: form.consultant || '',
       purchaseValue: toNumberOrNull(form.purchaseValue) ?? 0,
-      appraisalValue: toNumberOrNull(form.appraisalValue) ?? 0,
       financingAmount: toNumberOrNull(form.financingAmount) ?? 0,
       otherFinancingAmount: toNumberOrNull(form.otherFinancingAmount),
       ownCapital: toNumberOrNull(form.ownCapital) ?? 0,
@@ -631,12 +626,6 @@ const MortageApplication: React.FC = () => {
                           <div className={`input-group input-group-dynamic mb-4 ${form.purchaseValue ? 'is-filled' : ''}`}>
                             <label className="form-label">{t.form.purchaseValue} *</label>
                             <input className={`form-control ${getValidationClass('purchaseValue')}`} name="purchaseValue" value={form.purchaseValue} onChange={handleTopLevelChange} aria-label="Purchase Value..." type="text" inputMode="decimal" />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className={`input-group input-group-dynamic mb-4 ${form.appraisalValue ? 'is-filled' : ''}`}>
-                            <label className="form-label">{t.form.appraisalValue} *</label>
-                            <input className={`form-control ${getValidationClass('appraisalValue')}`} name="appraisalValue" value={form.appraisalValue} onChange={handleTopLevelChange} aria-label="Appraisal Value..." type="text" inputMode="decimal" />
                           </div>
                         </div>
                         <div className="col-md-4">

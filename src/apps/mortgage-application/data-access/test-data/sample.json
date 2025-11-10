@@ -1,7 +1,6 @@
 {
   "consultant": "consult",
   "purchaseValue": 100,
-  "appraisalValue": 200,
   "financingAmount": 300,
   "otherFinancingAmount": 400,
   "ownCapital": 500,
