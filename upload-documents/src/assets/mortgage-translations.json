@@ -17,8 +17,6 @@
     },
     "form": {
       "sectionBasic": "Basic Information",
-      "consultant": "Consultant",
-      "consultantTooltip": "Enter the name of your LVF consultant (optional)",
       "rents": "Rents",
       "sectionFinancial": "Financial Details",
       "purchaseValue": "Purchase Value",
@@ -98,8 +96,6 @@
     },
     "form": {
       "sectionBasic": "Informação Básica",
-      "consultant": "Consultor",
-      "consultantTooltip": "Indique o nome do seu consultor LVF (opcional)",
       "rents": "Rendas",
       "sectionFinancial": "Detalhes Financeiros",
       "purchaseValue": "Valor de Aquisição",

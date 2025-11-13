@@ -40,7 +40,6 @@ interface Person {
 }
 
 interface FormState {
-  consultant: string;
   purchaseValue: string;
   financingAmount: string;
   otherFinancingAmount: string; // allow empty -> null on submit
@@ -76,7 +75,6 @@ const MortageApplication: React.FC = () => {
   const DOCUMENTATION_HOST = import.meta.env.VITE_DOCUMENTATION_HOST || "https://wrongurl.com";
 
   const [form, setForm] = useState<FormState>({
-    consultant: '',
     purchaseValue: '',
     financingAmount: '',
     otherFinancingAmount: '',
@@ -422,7 +420,6 @@ const MortageApplication: React.FC = () => {
     }
     
   const payload = {
-      consultant: form.consultant || '',
       purchaseValue: toNumberOrNull(form.purchaseValue) ?? 0,
       financingAmount: toNumberOrNull(form.financingAmount) ?? 0,
       otherFinancingAmount: toNumberOrNull(form.otherFinancingAmount),
@@ -599,22 +596,6 @@ const MortageApplication: React.FC = () => {
                             <i className="material-icons text-dark me-2">person</i>
                             {t.form.sectionBasic}
                           </h5>
-                        </div>
-                        <div className="col-md-6">
-                          <div className={`input-group input-group-dynamic mb-4 ${form.consultant ? 'is-filled' : ''}`}>
-                            <label className="form-label">{t.form.consultant}</label>
-                            <input
-                              className={`form-control ${getValidationClass('consultant')}`}
-                              name="consultant"
-                              value={form.consultant}
-                              onChange={handleTopLevelChange}
-                              aria-label="Consultant..."
-                              type="text"
-                              data-bs-toggle="tooltip"
-                              data-bs-placement="top"
-                              title={t.form.consultantTooltip}
-                            />
-                          </div>
                         </div>
                         <div className="col-md-6">
                           <div className={`input-group input-group-dynamic mb-4 ${form.rents ? 'is-filled' : ''}`}>

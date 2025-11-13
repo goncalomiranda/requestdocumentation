@@ -25,7 +25,6 @@ interface ApplicationForm {
 
 // Domain model for MortgageApplication data
 interface MortgageApplicationData {
-  consultant: string;
   purchaseValue: number;
   financingAmount: number;
   otherFinancingAmount?: number;
