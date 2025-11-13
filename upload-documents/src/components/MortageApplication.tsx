@@ -40,7 +40,6 @@ interface Person {
 }
 
 interface FormState {
-  consultant: string;
   purchaseValue: string;
   financingAmount: string;
   otherFinancingAmount: string; // allow empty -> null on submit
@@ -76,7 +75,6 @@ const MortageApplication: React.FC = () => {
   const DOCUMENTATION_HOST = import.meta.env.VITE_DOCUMENTATION_HOST || "https://wrongurl.com";
 
   const [form, setForm] = useState<FormState>({
-    consultant: '',
     purchaseValue: '',
     financingAmount: '',
     otherFinancingAmount: '',
@@ -422,7 +420,6 @@ const MortageApplication: React.FC = () => {
     }
     
   const payload = {
-      consultant: form.consultant || '',
       purchaseValue: toNumberOrNull(form.purchaseValue) ?? 0,
       financingAmount: toNumberOrNull(form.financingAmount) ?? 0,
       otherFinancingAmount: toNumberOrNull(form.otherFinancingAmount),
@@ -592,38 +589,6 @@ const MortageApplication: React.FC = () => {
                   
                   <form role="form" id="mortgage-form" method="post" autoComplete="off" onSubmit={onSubmit} ref={formRef}>
                     <div className="card-body p-5">
-                      {/* Basic Information Section */}
-                      <div className="row mb-5">
-                        <div className="col-12">
-                          <h5 className="font-weight-bold text-dark mb-4">
-                            <i className="material-icons text-dark me-2">person</i>
-                            {t.form.sectionBasic}
-                          </h5>
-                        </div>
-                        <div className="col-md-6">
-                          <div className={`input-group input-group-dynamic mb-4 ${form.consultant ? 'is-filled' : ''}`}>
-                            <label className="form-label">{t.form.consultant}</label>
-                            <input
-                              className={`form-control ${getValidationClass('consultant')}`}
-                              name="consultant"
-                              value={form.consultant}
-                              onChange={handleTopLevelChange}
-                              aria-label="Consultant..."
-                              type="text"
-                              data-bs-toggle="tooltip"
-                              data-bs-placement="top"
-                              title={t.form.consultantTooltip}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className={`input-group input-group-dynamic mb-4 ${form.rents ? 'is-filled' : ''}`}>
-                            <label className="form-label">{t.form.rents}</label>
-                            <input className={`form-control ${getValidationClass('rents')}`} name="rents" value={form.rents} onChange={handleTopLevelChange} aria-label="Rents..." type="text" />
-                          </div>
-                        </div>
-                      </div>
-
                       {/* Financial Details Section */}
                       <div className="row mb-5">
                         <div className="col-12">
@@ -643,6 +608,22 @@ const MortageApplication: React.FC = () => {
                           <div className={`input-group input-group-dynamic mb-4 ${form.financingAmount ? 'is-filled' : ''}`}>
                             <label className="form-label">{t.form.financingAmount} *</label>
                             <input className={`form-control ${getValidationClass('financingAmount')}`} name="financingAmount" value={form.financingAmount} onChange={handleTopLevelChange} aria-label="Financing Amount..." type="text" inputMode="decimal" />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className={`input-group input-group-dynamic mb-4 ${form.rents ? 'is-filled' : ''}`}>
+                            <label className="form-label">{t.form.rents}</label>
+                            <input 
+                              className={`form-control ${getValidationClass('rents')}`} 
+                              name="rents" 
+                              value={form.rents} 
+                              onChange={handleTopLevelChange} 
+                              aria-label="Rents..." 
+                              type="text"
+                              data-bs-toggle="tooltip"
+                              data-bs-placement="top"
+                              title={t.form.rentsTooltip}
+                            />
                           </div>
                         </div>
                         <div className="col-md-6">

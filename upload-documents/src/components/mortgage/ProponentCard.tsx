@@ -167,6 +167,9 @@ const ProponentCard: React.FC<ProponentCardProps> = ({ index, person, getValidat
                 onChange={e => onChange('responsibilities', e.target.value, e)}
                 aria-label="Responsibilities..."
                 type="text"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title={t.labels.responsibilitiesTooltip}
               />
             </div>
           </div>
