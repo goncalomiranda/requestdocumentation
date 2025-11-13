@@ -130,3 +130,5 @@ dist
 .pnp.*
 
 src/public
+rgpd_resources
+src/libraries/uploads

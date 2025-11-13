@@ -1,0 +1,42 @@
+/* Validation styles extracted from MortageApplication.tsx */
+.input-group-dynamic .form-control.is-valid {
+  border-bottom-color: #198754 !important;
+  box-shadow: 0 1px 0 0 #198754 !important;
+}
+
+.input-group-dynamic .form-control.is-invalid {
+  border-bottom-color: #dc3545 !important;
+  box-shadow: 0 1px 0 0 #dc3545 !important;
+}
+
+.input-group-static .form-control.is-valid {
+  border-color: #198754 !important;
+  box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;
+}
+
+.input-group-static .form-control.is-invalid {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.form-control.is-valid {
+  background-image: none !important;
+}
+
+.form-control.is-invalid {
+  background-image: none !important;
+}
+
+/* For select dropdowns with custom styling */
+select.form-control.is-valid {
+  border-bottom-color: #198754 !important;
+}
+
+select.form-control.is-invalid {
+  border-bottom-color: #dc3545 !important;
+}
+
+/* Scoped styles for header spacing */
+.mortgage-header { padding-top: 2.5rem; padding-bottom: 1.5rem; }
+@media (min-width: 768px) { .mortgage-header { padding-top: 2rem; padding-bottom: 1rem; } }
+@media (min-width: 1200px) { .mortgage-header { padding-top: 1.5rem; padding-bottom: 1rem; } }

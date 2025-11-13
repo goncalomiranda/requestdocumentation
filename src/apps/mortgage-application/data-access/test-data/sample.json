@@ -1,0 +1,47 @@
+{
+  "consultant": "consult",
+  "purchaseValue": 100,
+  "financingAmount": 300,
+  "otherFinancingAmount": 400,
+  "ownCapital": 500,
+  "comments": " no comments asda sdno comments asda sdno comments asda sdno comments asda sdno comments asda sdno comments asda sdno comments asda sdno comments asda sdno comments asda sdno comments asda sdno comments asda sdno comments asda sdno comments asda sdno comments asda sdno comments asda sdno comments asda sd",
+  "rents": "no rent",
+  "guarantor": [
+    {
+      "name": "antonio miranda",
+      "dateOfBirth": "2025-10-08",
+      "responsibilities": "no",
+      "incomes": "1",
+      "maritalStatus": "single",
+      "employmentStatus": "student",
+      "dependents": "1"
+    }
+  ],
+  "proponents": [
+    {
+      "name": "Goncalo Miranda",
+      "phoneNumber": "416780800",
+      "email": "miranda.gs@gmail.com",
+      "dateOfBirth": "2025-10-23",
+      "responsibilities": "sadas",
+      "incomes": "1",
+      "maritalStatus": "single",
+      "employmentStatus": "employed_full_time",
+      "dependents": "2"
+    },
+    {
+      "name": "Ines Rolo",
+      "phoneNumber": "121212",
+      "email": "ines@gmail.com",
+      "dateOfBirth": "2025-10-17",
+      "responsibilities": "no",
+      "incomes": "1",
+      "maritalStatus": "widowed",
+      "employmentStatus": "self_employed",
+      "dependents": "1"
+    }
+  ],
+  "hasGuarantors": true,
+  "request_id": "d30cedc512af238fbbeca239b2da58c9200059ae",
+  "customerId": "agxzfm1haWxmb29nYWVyNwsSDE9yZ2FuaXphdGlvbiIUbWlyYW5kYS5nc0BnbWFpbC5jb20MCxIEQ2FzZRiAgKWYqtWBCAw"
+}

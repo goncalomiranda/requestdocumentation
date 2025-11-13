@@ -6,6 +6,7 @@ import { getDocumentsByLanguage } from "./documentService";
 
 import { createFile } from '../../../libraries/googledrive/driveapi';
 import streakFiles from '../../../libraries/streak/files';
+import redisClient from '../../../libraries/redis/redis';
 
 export async function uploadDocuments(token: string, files: Express.Multer.File[], consentData?: {
   consentGiven?: boolean;
@@ -102,6 +103,31 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
         updateFields,
         { where: { request_id: token } }
       );
+
+      // Publish event to Redis after successful upload completion
+      // try {
+      //   const uploadCompletedEvent = {
+      //     eventType: 'DOCUMENT_UPLOAD_COMPLETED',
+      //     timestamp: new Date().toISOString(),
+      //     requestId: token,
+      //     customerId: requestedDocumentation.dataValues.customer_id,
+      //     status: 'DONE',
+      //     documentsUploaded: files.length,
+      //     consentGiven: consentData?.consentGiven || false,
+      //     metadata: {
+      //       folder: requestedDocumentation.dataValues.folder,
+      //       language: requestedDocumentation.dataValues.lang,
+      //       userAgent: consentData?.userAgent,
+      //       browserLanguage: consentData?.browserLanguage
+      //     }
+      //   };
+
+      //   await redisClient.publish('document-upload-events', JSON.stringify(uploadCompletedEvent));
+      //   logger.info(`Published document upload completion event for request ${token} to Redis`);
+      // } catch (redisError) {
+      //   logger.error('Failed to publish document upload completion event to Redis:', redisError);
+      //   // Don't throw error here as the main upload process was successful
+      // }
 
     }
 

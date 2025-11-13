@@ -1,0 +1,164 @@
+{
+  "en": {
+    "hero": {
+      "badge": "LVF - Luis Miguel Filipe, Lda",
+      "title": "Mortgage Application",
+      "subtitle": "Complete your mortgage application with LVF's streamlined process. Secure, fast, and designed with your needs in mind by trusted financial experts.",
+      "getStarted": "Get Started",
+      "learnMore": "Learn More"
+    },
+    "trustedBy": {
+      "heading1": "Trusted by over",
+      "heading2": "15,000+ customers",
+      "desc": "Many banks, financial institutions, and mortgage brokers trust our platform for secure and efficient loan processing.",
+      "appsProcessed": "Applications Processed",
+      "approvalRate": "Approval Rate",
+      "avgProcessing": "Average Processing"
+    },
+    "form": {
+      "sectionBasic": "Basic Information",
+      "consultant": "Consultant",
+      "consultantTooltip": "Enter the name of your LVF consultant (optional)",
+      "rents": "Rents",
+      "sectionFinancial": "Financial Details",
+      "purchaseValue": "Purchase Value",
+      "financingAmount": "Financing Amount",
+      "otherFinancingAmount": "Other Financing Amount",
+      "ownCapital": "Own Capital",
+      "comments": "Additional Comments",
+      "proponents": "Proponents",
+      "addProponent": "Add Proponent",
+      "guarantorsToggle": "This mortgage application has guarantors",
+      "guarantors": "Guarantors",
+      "addGuarantor": "Add Guarantor",
+      "submit": "Submit Application",
+      "applicationPreview": "Application Preview"
+    },
+    "modal": {
+      "success": {
+        "title": "Application Submitted Successfully",
+        "message": "Your mortgage application has been submitted and is being processed. You will receive updates via email.",
+        "closeButton": "Close"
+      },
+      "error": {
+        "title": "Submission Failed",
+        "message": "There was a problem submitting your application. Please check your information and try again.",
+        "retryButton": "Try Again",
+        "closeButton": "Close"
+      }
+    },
+    "cards": {
+      "proponent": { "title": "Proponent", "remove": "Remove" },
+      "guarantor": { "title": "Guarantor", "remove": "Remove" }
+    },
+    "labels": {
+      "fullName": "Full Name",
+      "phoneNumber": "Phone Number",
+      "email": "Email",
+      "dateOfBirth": "Date of Birth",
+      "maritalStatus": "Marital Status",
+      "employmentStatus": "Employment Status",
+      "responsibilities": "Responsibilities",
+      "incomes": "Incomes",
+      "dependents": "Dependents"
+    },
+    "options": {
+      "maritalStatus": {
+        "single": "Single",
+        "married": "Married",
+        "divorced": "Divorced",
+        "widowed": "Widowed",
+        "separated": "Separated"
+      },
+      "employmentStatus": {
+        "employed_full_time": "Employed Full-Time",
+        "employed_part_time": "Employed Part-Time",
+        "self_employed": "Self-Employed",
+        "unemployed": "Unemployed",
+        "retired": "Retired",
+        "student": "Student"
+      }
+    }
+  },
+  "pt": {
+    "hero": {
+      "badge": "LVF - Luis Miguel Filipe, Lda",
+      "title": "Candidatura a Crédito",
+      "subtitle": "Complete a sua candidatura a crédito com o processo simplificado da LVF. Seguro, rápido e desenhado a pensar em si.",
+      "getStarted": "Começar",
+      "learnMore": "Saber Mais"
+    },
+    "trustedBy": {
+      "heading1": "Confiado por mais de",
+      "heading2": "15.000+ clientes",
+      "desc": "Muitos bancos, instituições financeiras e intermediários de crédito confiam na nossa plataforma pela segurança e eficiência.",
+      "appsProcessed": "Candidaturas Processadas",
+      "approvalRate": "Taxa de Aprovação",
+      "avgProcessing": "Tempo Médio de Processamento"
+    },
+    "form": {
+      "sectionBasic": "Informação Básica",
+      "consultant": "Consultor",
+      "consultantTooltip": "Indique o nome do seu consultor LVF (opcional)",
+      "rents": "Rendas",
+      "sectionFinancial": "Detalhes Financeiros",
+      "purchaseValue": "Valor de Aquisição",
+      "financingAmount": "Montante de Financiamento",
+      "otherFinancingAmount": "Outro Montante de Financiamento",
+      "ownCapital": "Capital Próprio",
+      "comments": "Comentários Adicionais",
+      "proponents": "Proponentes",
+      "addProponent": "Adicionar Proponente",
+      "guarantorsToggle": "Esta candidatura tem fiadores",
+      "guarantors": "Fiadores",
+      "addGuarantor": "Adicionar Fiador",
+      "submit": "Submeter Candidatura",
+      "applicationPreview": "Pré-visualização da Candidatura"
+    },
+    "modal": {
+      "success": {
+        "title": "Candidatura Submetida com Sucesso",
+        "message": "A sua candidatura a crédito foi submetida e está a ser processada. Receberá atualizações por email.",
+        "closeButton": "Fechar"
+      },
+      "error": {
+        "title": "Falha na Submissão",
+        "message": "Ocorreu um problema ao submeter a sua candidatura. Verifique a informação e tente novamente.",
+        "retryButton": "Tentar Novamente",
+        "closeButton": "Fechar"
+      }
+    },
+    "cards": {
+      "proponent": { "title": "Proponente", "remove": "Remover" },
+      "guarantor": { "title": "Fiador", "remove": "Remover" }
+    },
+    "labels": {
+      "fullName": "Nome Completo",
+      "phoneNumber": "Telemóvel",
+      "email": "Email",
+      "dateOfBirth": "Data de Nascimento",
+      "maritalStatus": "Estado Civil",
+      "employmentStatus": "Situação Profissional",
+      "responsibilities": "Responsabilidades",
+      "incomes": "Rendimentos",
+      "dependents": "Dependentes"
+    },
+    "options": {
+      "maritalStatus": {
+        "single": "Solteiro(a)",
+        "married": "Casado(a)",
+        "divorced": "Divorciado(a)",
+        "widowed": "Viúvo(a)",
+        "separated": "Separado(a)"
+      },
+      "employmentStatus": {
+        "employed_full_time": "Empregado(a) a Tempo Inteiro",
+        "employed_part_time": "Empregado(a) a Tempo Parcial",
+        "self_employed": "Trabalhador(a) Independente",
+        "unemployed": "Desempregado(a)",
+        "retired": "Reformado(a)",
+        "student": "Estudante"
+      }
+    }
+  }
+}

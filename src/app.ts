@@ -2,14 +2,22 @@ import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import path from "path";
 import documentation from './apps/request-documentation/api/routes';
+import documentationUpdate from './apps/request-documentation/api/requestdocumentationupdate';
 import uploadDocuments from './apps/request-documentation/api/getdocumentuploadroute';
+import applicationForm from './apps/mortgage-application/api/mortgage-app-routes';
+import applicationFormCustomers from './apps/mortgage-application/api/mortgage-app-customers';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './libraries/gateway/swagger'; // Path to your swagger specification
 import applySecurityMiddleware from './libraries/gateway/security';
 import logger from './libraries/loggers/logger'; // Logger
 import sequelize from "./libraries/data-access/db-config"; // Sequelize instance
 import SchedulerManager from './apps/schedulers/schedulerManager'; // Import scheduler manager
+import './libraries/redis/redis'; // Initialize Redis connection
 
+// Import all models to ensure they are defined before sync
+import './libraries/gateway/authenticators/data-access/Tenant'; // Import Tenant model
+import './apps/mortgage-application/data-access/MortgageApplicationRepository'; // Import ApplicationForm model
+import './apps/request-documentation/data-access/RequestDocumentation'; // Import other models if needed
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,6 +33,10 @@ app.use(bodyParser.json());
 // Routes
 app.use('/document-requests', documentation);
 app.use('/request-documentation', uploadDocuments);
+app.use('/request-documentation/status', documentationUpdate);
+app.use('/application-form', applicationForm);
+app.use('/mortgage-application/customers', applicationFormCustomers);
+
 
 // Serve Swagger UI globally at /docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

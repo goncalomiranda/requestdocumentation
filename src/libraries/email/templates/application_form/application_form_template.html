@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{subject}}</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #343a40;
+        font-family: Helvetica, Arial, sans-serif;
+        color: #ffffff;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #343a40;
+        padding: 20px;
+      }
+      .header-img {
+        width: 100%;
+        height: auto;
+        display: block;
+        border: 0;
+      }
+      .title {
+        font-size: 24px;
+        text-align: center;
+        margin-top: 20px;
+        font-weight: bold;
+        color: #ffffff;
+      }
+      .body-text {
+        font-size: 16px;
+        line-height: 1.6;
+        margin-top: 30px;
+        color: #ffffff !important;
+      }
+      .signature {
+        background-color: #f8f9fa;
+        color: #343a40;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 40px;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .signature a {
+        color: #007bff;
+        text-decoration: none;
+      }
+      .footer {
+        font-size: 12px;
+        text-align: center;
+        color: #cccccc;
+        margin-top: 40px;
+      }
+      .upload-btn {
+        display: inline-block;
+        padding: 14px 32px;
+        background-color: #ffffff;
+        color: #343a40 !important;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: background 0.2s;
+        margin: 32px 0;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <img
+        src="http://www.lvf.pt/assets/email_logo.png"
+        alt="Logótipo LVF"
+        class="header-img"
+      />
+
+      <div class="title">{{title}}</div>
+
+      <div class="body-text">
+        <p>{{greeting}}</p>
+        <p>{{body}}</p>
+        <div style="text-align: center">
+          <a href="{{uniquelink}}" class="upload-btn"> {{buttonLabel}} </a>
+        </div>
+      </div>
+
+      <div class="signature">
+        <div>Luís Varela Filipe</div>
+        <div>Intermediário de crédito</div>
+        <div><a href="mailto:luis.filipe@lvf.pt">luis.filipe@lvf.pt</a></div>
+        <div>+351 963 569 259</div>
+        <div><a href="https://www.lvf.pt" target="_blank">www.lvf.pt</a></div>
+      </div>
+
+      <div class="footer">{{footer}}</div>
+    </div>
+  </body>
+</html>
