@@ -52,21 +52,6 @@ interface FormState {
   hasGuarantors: boolean;
 }
 
-interface SubmittedPayload {
-  consultant: string;
-  purchaseValue: number;
-  financingAmount: number;
-  otherFinancingAmount: number | null;
-  ownCapital: number;
-  comments: string;
-  rents: string;
-  guarantors: Person[];
-  proponents: Person[];
-  hasGuarantors: boolean;
-  request_id?: string;
-  customerId?: string;
-}
-
 const emptyPerson = (): Person => ({
   name: '',
   phoneNumber: '',
@@ -103,9 +88,11 @@ const MortageApplication: React.FC = () => {
     hasGuarantors: false,
   });
 
-  const [submitted, setSubmitted] = useState<SubmittedPayload | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, boolean>>({});
   const [showValidation, setShowValidation] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [modalType, setModalType] = useState<'success' | 'error'>('success');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const formRef = useRef<HTMLFormElement>(null);
   const applicationSectionRef = useRef<HTMLElement>(null);
 
@@ -238,6 +225,22 @@ const MortageApplication: React.FC = () => {
       behavior: 'smooth',
       block: 'start'
     });
+  };
+
+  const closeModal = () => {
+    if (modalType === 'success') {
+      // For success modal, reload page to invalidate token
+      window.location.reload();
+    } else {
+      // For error modal, just close
+      setShowModal(false);
+    }
+  };
+
+  const retrySubmit = () => {
+    setShowModal(false);
+    setShowValidation(false);
+    setFormErrors({});
   };
 
   useEffect(() => {
@@ -442,6 +445,7 @@ const MortageApplication: React.FC = () => {
     };
     // Submit to backend
     const submit = async () => {
+      setIsSubmitting(true);
       try {
         const reqId = documentation?.request_id || '';
         const base = import.meta.env.VITE_DOCUMENTATION_HOST || '';
@@ -463,11 +467,18 @@ const MortageApplication: React.FC = () => {
           const errMsg = hasErrorKey(data) ? data.error : `Submit failed (${res.status})`;
           throw new Error(errMsg);
         }
-        setSubmitted(payload as SubmittedPayload);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setModalType('success');
+        setShowModal(true);
+        // After showing success modal briefly, reload page to invalidate token
+        setTimeout(() => {
+          window.location.reload();
+        }, 10000); // Show success modal for 2 seconds before reload
       } catch (err) {
         console.error('Submit error', err);
-        alert('There was a problem submitting your application. Please try again.');
+        setModalType('error');
+        setShowModal(true);
+      } finally {
+        setIsSubmitting(false);
       }
     };
     submit();
@@ -744,33 +755,63 @@ const MortageApplication: React.FC = () => {
                           </div>
                         </div>
                         <div className="col-12">
-                          <button type="submit" className="btn bg-gradient-dark w-100 btn-lg" style={{ borderRadius: '0.75rem', padding: '15px' }}>
-                            <i className="material-icons me-2" style={{ verticalAlign: 'middle', fontSize: '20px' }}>send</i>
-                            {t.form.submit}
+                          <button type="submit" className="btn bg-gradient-dark w-100 btn-lg" style={{ borderRadius: '0.75rem', padding: '15px' }} disabled={isSubmitting}>
+                            {isSubmitting ? (
+                              <>
+                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                Submitting...
+                              </>
+                            ) : (
+                              <>
+                                <i className="material-icons me-2" style={{ verticalAlign: 'middle', fontSize: '20px' }}>send</i>
+                                {t.form.submit}
+                              </>
+                            )}
                           </button>
                         </div>
                       </div>
                     </div>
                   </form>
-                  
-                  {submitted && (
-                    <div className="card mt-4 border-0 shadow" style={{ borderRadius: '1rem' }}>
-                      <div className="card-header bg-gradient-dark text-white" style={{ borderRadius: '1rem 1rem 0 0', color: 'white' }}>
-                        <h4 className="card-title mb-0 font-weight-bold" style={{ color: 'white' }}>
-                          <i className="material-icons me-2" style={{ color: 'white' }}>check_circle</i>
-                          {t.form.applicationPreview}
-                        </h4>
-                      </div>
-                      <div className="card-body p-4">
-                        <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', margin: 0, backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '0.5rem', fontSize: '14px' }}>{JSON.stringify(submitted, null, 2)}</pre>
-                      </div>
-                    </div>
-                  )}
+
                 </div>
               </div>
             </div>
           </div>
         </section>
+      )}
+
+      {/* Modal for Success/Error Feedback */}
+      {showModal && (
+        <div className="modal fade show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content" style={{ borderRadius: '1rem', border: 'none' }}>
+              <div className={`modal-header ${modalType === 'success' ? 'bg-gradient-success' : 'bg-gradient-danger'} text-white`} style={{ borderRadius: '1rem 1rem 0 0' }}>
+                <h4 className="modal-title text-white font-weight-bold">
+                  <i className={`material-icons me-2 ${modalType === 'success' ? 'text-success' : 'text-danger'}`} style={{ color: 'white !important' }}>
+                    {modalType === 'success' ? 'check_circle' : 'error'}
+                  </i>
+                  {modalType === 'success' ? t.modal.success.title : t.modal.error.title}
+                </h4>
+                <button type="button" className="btn-close btn-close-white" onClick={closeModal} aria-label="Close"></button>
+              </div>
+              <div className="modal-body p-4">
+                <p className="mb-0 text-muted lead">
+                  {modalType === 'success' ? t.modal.success.message : t.modal.error.message}
+                </p>
+              </div>
+              <div className="modal-footer border-0 pt-0">
+                {modalType === 'error' && (
+                  <button type="button" className="btn bg-gradient-primary me-2" onClick={retrySubmit}>
+                    {t.modal.error.retryButton}
+                  </button>
+                )}
+                <button type="button" className="btn btn-outline-secondary" onClick={closeModal}>
+                  {modalType === 'success' ? t.modal.success.closeButton : t.modal.error.closeButton}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       <Footer />
