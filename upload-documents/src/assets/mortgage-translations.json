@@ -16,8 +16,8 @@
       "avgProcessing": "Average Processing"
     },
     "form": {
-      "sectionBasic": "Basic Information",
       "rents": "Rents",
+      "rentsTooltip": "Any rent that proponents are paying, like house renting",
       "sectionFinancial": "Financial Details",
       "purchaseValue": "Purchase Value",
       "financingAmount": "Financing Amount",
@@ -57,6 +57,7 @@
       "maritalStatus": "Marital Status",
       "employmentStatus": "Employment Status",
       "responsibilities": "Responsibilities",
+      "responsibilitiesTooltip": "Enter existing loans, credit cards, or other financial obligations (e.g., personal loan €500/month, credit card €200/month)",
       "incomes": "Incomes",
       "dependents": "Dependents"
     },
@@ -95,8 +96,8 @@
       "avgProcessing": "Tempo Médio de Processamento"
     },
     "form": {
-      "sectionBasic": "Informação Básica",
       "rents": "Rendas",
+      "rentsTooltip": "Qualquer renda que os proponentes estejam a pagar, como aluguer de casa",
       "sectionFinancial": "Detalhes Financeiros",
       "purchaseValue": "Valor de Aquisição",
       "financingAmount": "Montante de Financiamento",
@@ -136,6 +137,7 @@
       "maritalStatus": "Estado Civil",
       "employmentStatus": "Situação Profissional",
       "responsibilities": "Responsabilidades",
+      "responsibilitiesTooltip": "Indique empréstimos existentes, cartões de crédito ou outras obrigações financeiras (ex: empréstimo pessoal €500/mês, cartão de crédito €200/mês)",
       "incomes": "Rendimentos",
       "dependents": "Dependentes"
     },
