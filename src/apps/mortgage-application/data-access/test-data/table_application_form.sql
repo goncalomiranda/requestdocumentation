@@ -3,7 +3,6 @@ CREATE TABLE `ApplicationForm` (
   `request_id` VARCHAR(255) NOT NULL PRIMARY KEY,
   `customer_id` VARCHAR(100) NOT NULL,
   `unique_link` VARCHAR(100) NOT NULL,
-  `requested_documents` JSON NOT NULL,
   `application_form` JSON NULL,
   `application_form_version` VARCHAR(20) NULL DEFAULT '1.0',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -18,10 +17,6 @@ CREATE TABLE `ApplicationForm` (
   `consentTimezone` VARCHAR(64) NULL,
   `userAgent` VARCHAR(255) NULL,
   `browserLanguage` VARCHAR(32) NULL,
-  `consentA` BOOLEAN NULL,
-  `consentB` BOOLEAN NULL,
-  `consentC` BOOLEAN NULL,
-  `consentD` BOOLEAN NULL,
 
   CONSTRAINT `fk_applicationform_tenant`
     FOREIGN KEY (`tenant_id`)

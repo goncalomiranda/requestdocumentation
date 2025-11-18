@@ -49,6 +49,7 @@ interface FormState {
   guarantors: Person[];
   proponents: Person[];
   hasGuarantors: boolean;
+  consentGiven: boolean;
 }
 
 const emptyPerson = (): Person => ({
@@ -84,6 +85,7 @@ const MortageApplication: React.FC = () => {
     guarantors: [],
     proponents: [emptyPerson()],
     hasGuarantors: false,
+    consentGiven: false, // Users must explicitly consent by checking the checkbox
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, boolean>>({});
@@ -124,6 +126,12 @@ const MortageApplication: React.FC = () => {
     }
   }, [token, fetchDocumentation]);
 
+  // Email validation helper
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email.trim());
+  };
+
   // Validation functions
   const validateForm = () => {
     const errors: Record<string, boolean> = {};
@@ -137,11 +145,20 @@ const MortageApplication: React.FC = () => {
       errors.otherFinancingAmount = true;
     }
 
+    // Consent validation: user must agree to terms and conditions
+    if (!form.consentGiven) {
+      errors.consentGiven = true;
+    }
+
     // All proponent fields are mandatory
     form.proponents.forEach((proponent, idx) => {
       if (!proponent.name?.trim()) errors[`proponent-${idx}-name`] = true;
       if (!proponent.phoneNumber?.trim()) errors[`proponent-${idx}-phoneNumber`] = true;
-      if (!proponent.email?.trim()) errors[`proponent-${idx}-email`] = true;
+      if (!proponent.email?.trim()) {
+        errors[`proponent-${idx}-email`] = true;
+      } else if (!isValidEmail(proponent.email)) {
+        errors[`proponent-${idx}-email`] = true;
+      }
       if (!proponent.dateOfBirth?.trim()) errors[`proponent-${idx}-dateOfBirth`] = true;
       if (!proponent.responsibilities?.trim()) errors[`proponent-${idx}-responsibilities`] = true;
       if (!proponent.incomes?.trim()) errors[`proponent-${idx}-incomes`] = true;
@@ -181,6 +198,15 @@ const MortageApplication: React.FC = () => {
       } else {
         return ''; // Remove validation styling once user fills either field
       }
+    }
+
+    // For consent field - show error if consent not given
+    if (fieldName === 'consentGiven') {
+      const hasError = formErrors[fieldName];
+      if (hasError && !form.consentGiven) {
+        return 'is-invalid';
+      }
+      return '';
     }
     
     // For regular fields, only show red if field was marked as error AND is still empty
@@ -391,6 +417,14 @@ const MortageApplication: React.FC = () => {
     }));
   };
 
+  const handleConsentToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const consentGiven = e.target.checked;
+    setForm(prev => ({
+      ...prev,
+      consentGiven
+    }));
+  };
+
   const addPerson = (section: 'guarantors' | 'proponents') => {
     setForm(prev => ({ ...prev, [section]: [...prev[section], emptyPerson()] }));
   };
@@ -439,6 +473,12 @@ const MortageApplication: React.FC = () => {
       hasGuarantors: form.hasGuarantors,
       request_id: documentation?.request_id,
       customerId: customerId,
+      consentGiven: form.consentGiven,
+      consentVersion: "1.0",
+      givenAt: new Date().toISOString(),
+      consentTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+      userAgent: navigator.userAgent || null,
+      browserLanguage: navigator.language || null,
     };
     // Submit to backend
     const submit = async () => {
@@ -728,12 +768,24 @@ const MortageApplication: React.FC = () => {
                       {/* Terms and Submit */}
                       <div className="row">
                         <div className="col-12">
-                          <div className="form-check form-switch mb-4 d-flex align-items-center">
-                            <input className="form-check-input" type="checkbox" id="flexSwitchCheckDefault" defaultChecked />
-                            <label className="form-check-label ms-3 mb-0" htmlFor="flexSwitchCheckDefault">
+                          <div className={`form-check form-switch mb-4 d-flex align-items-center ${getValidationClass('consentGiven') ? 'border border-danger rounded p-2' : ''}`}>
+                            <input 
+                              className={`form-check-input ${getValidationClass('consentGiven')}`}
+                              type="checkbox" 
+                              id="flexSwitchCheckDefault" 
+                              checked={form.consentGiven}
+                              onChange={handleConsentToggle}
+                            />
+                            <label className={`form-check-label ms-3 mb-0 ${getValidationClass('consentGiven') ? 'text-danger' : ''}`} htmlFor="flexSwitchCheckDefault">
                               I agree to the <a href="#" className="text-dark font-weight-bold" onClick={e => e.preventDefault()}><u>Terms and Conditions</u></a>.
                             </label>
                           </div>
+                          {showValidation && formErrors.consentGiven && (
+                            <div className="text-danger small mb-2">
+                              <i className="material-icons text-sm me-1" style={{ verticalAlign: 'middle', fontSize: '14px' }}>error</i>
+                              You must agree to the Terms and Conditions to continue.
+                            </div>
+                          )}
                         </div>
                         <div className="col-12">
                           <button type="submit" className="btn bg-gradient-dark w-100 btn-lg" style={{ borderRadius: '0.75rem', padding: '15px' }} disabled={isSubmitting}>

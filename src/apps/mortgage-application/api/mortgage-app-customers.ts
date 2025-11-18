@@ -6,6 +6,7 @@ import logger from '../../../libraries/loggers/logger';
 
 const router = express.Router();
 
+// path: /mortgage-application/customers
 
 router.use(apiRateLimiter);
 
@@ -19,7 +20,7 @@ router.get("/", async (req: Request, res: Response) => {
       const documents = await getApplicationForm(token);
       res.json(documents);
     } catch (error: any) {
-      logger.error('Error fetching documents: ' + error.message);
+      logger.error('Error fetching app form: ' + error.message);
       res.status(500).json({ error: "Internal server error" });
     }
   } else {
@@ -40,16 +41,16 @@ router.post("/submit", async (req: Request, res: Response) => {
 
   try {
     const applicationFormData = req.body?.application_form ?? req.body;
-    logger.info('Application form data: ' + JSON.stringify(applicationFormData));
+    logger.debug('Application form data: ' + JSON.stringify(applicationFormData));
     const consentData = {
-      consentGiven: req.body?.consentGiven,
-      consentVersion: req.body?.consentVersion,
-      givenAt: req.body?.givenAt ? new Date(req.body.givenAt) : undefined,
-      consentTimezone: req.body?.consentTimezone,
-      userAgent: req.headers['user-agent'] as string | undefined,
-      browserLanguage: req.headers['accept-language'] as string | undefined,
+      consentGiven: applicationFormData?.consentGiven,
+      consentVersion: applicationFormData?.consentVersion,
+      givenAt: applicationFormData?.givenAt ? new Date(applicationFormData.givenAt) : undefined,
+      consentTimezone: applicationFormData?.consentTimezone,
+      userAgent: applicationFormData?.userAgent,
+      browserLanguage: applicationFormData?.browserLanguage,
     };
-    logger.info('Consent data: ' + JSON.stringify(consentData));
+    logger.debug('Consent data: ' + JSON.stringify(consentData));
 
     const result = await submitApplicationForm(token, applicationFormData, consentData);
     res.status(200).json({ message: "Application form submitted successfully" });

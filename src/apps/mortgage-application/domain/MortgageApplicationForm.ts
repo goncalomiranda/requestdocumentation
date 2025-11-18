@@ -27,7 +27,7 @@ export async function requestApplicationForm(applicationForm: ApplicationForm, t
     const uniqueLink =
         process.env.NODE_ENV === "production"
             ? `https://${baseUrl}/mortgage-application?token=${token}`
-            : `http://${baseUrl}:3001/mortgage-application?token=${token}`;
+            : `http://${baseUrl}:5173/mortgage-application?token=${token}`;
 
     // Prepare data to be saved
     const requestData = {
@@ -35,13 +35,11 @@ export async function requestApplicationForm(applicationForm: ApplicationForm, t
         request_id: token, // or `crypto.randomUUID()` for a UUID
         customer_id: applicationForm.customer.id,
         unique_link: uniqueLink,
-        requested_documents: applicationForm.documents,
         application_form_version: "1.0",
         tenant_id: tenant_id,
         created_at: new Date(),
         expiry_date: expiryDate,
         lang: applicationForm.customer.languagePreference,
-        folder: applicationForm.customer.folder,
         status: "ACTIVE",
     };
 

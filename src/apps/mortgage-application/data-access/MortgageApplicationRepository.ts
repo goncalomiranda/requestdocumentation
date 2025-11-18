@@ -23,10 +23,6 @@ const MortageApplication = dbaccess.define(
       type: DataTypes.STRING(100),
       allowNull: false,
     },
-    requested_documents: {
-      type: DataTypes.JSON,
-      allowNull: false,
-    },
     application_form: {
       type: DataTypes.JSON,
       allowNull: true,
@@ -50,10 +46,6 @@ const MortageApplication = dbaccess.define(
       allowNull: false,
     },
     lang: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
-    },
-    folder: {
       type: DataTypes.STRING(100),
       allowNull: false,
     },
@@ -89,22 +81,6 @@ const MortageApplication = dbaccess.define(
     },
     browserLanguage: {
       type: DataTypes.STRING(32),
-      allowNull: true,
-    },
-    consentA: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true,
-    },
-    consentB: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true,
-    },
-    consentC: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true,
-    },
-    consentD: {
-      type: DataTypes.BOOLEAN,
       allowNull: true,
     },
   },

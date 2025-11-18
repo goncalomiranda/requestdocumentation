@@ -20,8 +20,6 @@ export async function getApplicationForm(token: string = "") {
   if (mortgageApplication) {
     logger.info("Mortage Application found.");
     logger.debug("Mortage Application found: " + JSON.stringify(mortgageApplication));
-    const documentTypes = await getDocumentsByLanguage(mortgageApplication.get("lang") as string);
-    logger.info("documentTypes: " + JSON.stringify(documentTypes));
 
     //check if documentation request is expired
     if (isRequestExpired(mortgageApplication.dataValues.expiry_date)) {
@@ -46,36 +44,27 @@ export async function getApplicationForm(token: string = "") {
     }
 
 
-    //check if documentation request is alreay done or expired
+    //check if mortgageApplication request is alreay done or expired
     if (
       mortgageApplication.dataValues.status === "DONE" ||
       mortgageApplication.dataValues.status === "EXPIRED"
     ) {
-      logger.error("Status not available to request:");
+      logger.error("Status not available");
       throw new AppError("G2", "Mortage Application not available", true);
     }
 
-    const parsedDocuments = JSON.parse(mortgageApplication.dataValues.requested_documents.trim());
-
-    const finalDocuments = parsedDocuments.map((doc: any) => {
-      const description = documentTypes.documents.find(d => d.key === doc.key);
-      return {
-        key: doc.key,
-        value: description ? description.value : "", // Default to empty string if not found
-        quantity: doc.quantity
-      };
-    });
 
 
     // Transform the JSON string field into an object
-    const { requested_documents, tenant_id, ...rest } = mortgageApplication.dataValues;
+    const { tenant_id, ...rest } = mortgageApplication.dataValues;
 
     const transformedDocumentation = {
-      ...rest, // Includes all other fields except requested_documents
-      documents: finalDocuments // Parse and add as "documents"
+      ...rest
     };
 
     //throw new AppError("G12", "Error", true);
+
+    logger.debug("Transformed Documentation: " + JSON.stringify(transformedDocumentation));
 
     return transformedDocumentation;
 
@@ -87,6 +76,47 @@ export async function getApplicationForm(token: string = "") {
 
 }
 
+
+export async function getApplicationFormByUser(customerId: string = "") {
+
+  const mortgageApplication = await MortgageApplicationRepository.findAll({
+    where: {
+      customer_id: customerId,
+      application_type: "MORTGAGE"
+    },
+    attributes: [
+      'application_type',
+      'request_id',
+      'customer_id',
+      'application_form_version',
+      'created_at',
+      'expiry_date',
+      'status',
+      'lang',
+      'consentGiven',
+      'consentVersion',
+      'givenAt',
+      'consentTimezone',
+      'userAgent',
+      'browserLanguage'
+    ]
+  });
+
+  if (mortgageApplication) {
+    logger.info("Mortage Application found.");
+    logger.debug("Mortage Application found: " + JSON.stringify(mortgageApplication));
+
+    return mortgageApplication;
+
+
+  } else {
+    logger.warn("Mortage Application not found.");
+    throw new AppError("G3", "Mortage Application not found.", true);
+  }
+
+}
+
+
 function isRequestExpired(expiry_date: string) {
   // Check if the documentation is valid
   const newExpiryDate = new Date(expiry_date); // Parse expiry_date into a Date object
@@ -94,18 +124,6 @@ function isRequestExpired(expiry_date: string) {
   return newExpiryDate < now;
 }
 
-const deleteFiles = (files: any) => {
-  files.forEach((file: any) => {
-    logger.debug(file.path);
-    fs.unlink(file.path, (err) => {
-      if (err) {
-        logger.error(`Error deleting file ${file.path}:`, err);
-      } else {
-        logger.info(`Successfully deleted file ${file.path}`);
-      }
-    });
-  });
-};
 
 // Persist submitted application form for a given token and mark as DONE
 export async function submitApplicationForm(
@@ -118,10 +136,6 @@ export async function submitApplicationForm(
     consentTimezone?: string | null;
     userAgent?: string | null;
     browserLanguage?: string | null;
-    consentA?: boolean;
-    consentB?: boolean;
-    consentC?: boolean;
-    consentD?: boolean;
   }
 ) {
   if (!token) {
@@ -134,7 +148,7 @@ export async function submitApplicationForm(
   });
 
   if (!application) {
-    logger.warn("submitApplicationForm: Mortgage Application not found.");
+    logger.error("submitApplicationForm: Mortgage Application not found.");
     throw new AppError("G3", "Mortage Application not found.", true);
   }
 
@@ -170,10 +184,6 @@ export async function submitApplicationForm(
     if (consentData.consentTimezone) updateFields.consentTimezone = consentData.consentTimezone;
     if (consentData.userAgent) updateFields.userAgent = consentData.userAgent;
     if (consentData.browserLanguage) updateFields.browserLanguage = consentData.browserLanguage;
-    if (consentData.consentA !== undefined) updateFields.consentA = consentData.consentA;
-    if (consentData.consentB !== undefined) updateFields.consentB = consentData.consentB;
-    if (consentData.consentC !== undefined) updateFields.consentC = consentData.consentC;
-    if (consentData.consentD !== undefined) updateFields.consentD = consentData.consentD;
   }
 
   await MortgageApplicationRepository.update(updateFields, { where: { request_id: token } });

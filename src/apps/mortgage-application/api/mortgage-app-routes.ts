@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import { ApplicationForm } from '../domain/models/MortgageAppModel';
 import { requestApplicationForm } from "../domain/MortgageApplicationForm";
-import { getApplicationForm } from "../domain/ApplicationFormService";
+import { getApplicationForm, getApplicationFormByUser } from "../domain/ApplicationFormService";
 import { apiKeyMiddleware } from "../../../libraries/gateway/authenticators/api/authenticator";
 import apiRateLimiter from "../../../libraries/gateway/rate-limiter"; // Import rate limiter
 import logger from '../../../libraries/loggers/logger';
@@ -36,20 +36,22 @@ router.post("/", async (req: Request & { tenantId?: string }, res: Response) => 
   }
 });
 
-// Define the route to fetch documents
-router.get("/", async (req: Request, res: Response) => {
-  logger.info('Fetching application form page...');
-  const token = req.query.token as string | undefined;
+// Define the route to fetch all requested applications forms by user
+router.get("/", async (req: Request & { tenantId?: string }, res: Response) => {
+  logger.info('Fetching application form api...');
 
-  if (token) {
+  const customerId = req.headers.customer as string;
+
+  if (req.tenantId && customerId) {
     try {
-      const documents = await getApplicationForm(token);
+      const documents = await getApplicationFormByUser(customerId);
       res.json(documents);
     } catch (error: any) {
       logger.error('Error fetching documents: ' + error.message);
       res.status(500).json({ error: "Internal server error" });
     }
   } else {
+    logger.error('Missing data in request');
     res.status(500).json({ error: "Internal server error" });
   }
 });

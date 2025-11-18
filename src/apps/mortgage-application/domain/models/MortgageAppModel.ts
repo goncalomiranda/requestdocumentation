@@ -20,7 +20,6 @@ interface DocumentRequest {
 interface ApplicationForm {
   type: string
   customer: Customer;
-  documents: DocumentRequest[];
 }
 
 // Domain model for MortgageApplication data
