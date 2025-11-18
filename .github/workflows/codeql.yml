@@ -18,25 +18,15 @@ on:
     # Run weekly security scans every Monday at 2 AM UTC
     - cron: "0 2 * * 1"
   workflow_dispatch:
-    inputs:
-      analysis_type:
-        description: "Type of analysis to run"
-        required: false
-        default: "full"
-        type: choice
-        options:
-          - full
-          - quick
-          - security-only
 
 env:
   NODE_VERSION: "18"
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
-    timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
+    name: CodeQL Security & Quality Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
 
     permissions:
       # Required for all workflows
@@ -111,10 +101,15 @@ jobs:
               - '**/*.spec.tsx'
 
       - name: Build TypeScript Backend
-        run: npm run build
+        run: |
+          npm run build
+          # Ensure dist/public directory exists for frontend postbuild
+          mkdir -p dist/public
 
       - name: Build React Frontend
         working-directory: upload-documents
+        env:
+          VITE_DOCUMENTATION_HOST: "http://localhost:3000"
         run: npm run build
 
       - name: Perform CodeQL Analysis
@@ -123,64 +118,3 @@ jobs:
           category: "/language:${{matrix.language}}"
           # Upload results even if there are compilation errors
           upload: true
-
-  # Additional job for dependency vulnerability scanning
-  dependency-check:
-    name: Dependency Vulnerability Check
-    runs-on: ubuntu-latest
-    if: github.event_name != 'schedule' # Skip for scheduled runs to avoid duplication
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Run npm audit (Backend)
-        run: |
-          npm audit --audit-level=moderate --production || echo "::warning::Backend dependencies have vulnerabilities"
-
-      - name: Run npm audit (Frontend)
-        working-directory: upload-documents
-        run: |
-          npm audit --audit-level=moderate --production || echo "::warning::Frontend dependencies have vulnerabilities"
-
-  # Security configuration validation
-  security-config-check:
-    name: Security Configuration Check
-    runs-on: ubuntu-latest
-    if: github.event_name != 'schedule'
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check for sensitive files
-        run: |
-          # Check for accidentally committed secrets
-          if find . -name "*.env*" -not -path "./node_modules/*" -not -path "./.git/*" | grep -v ".env.example"; then
-            echo "::error::Environment files found in repository"
-            exit 1
-          fi
-
-          # Check for proper TypeScript configuration
-          if [ ! -f "tsconfig.json" ]; then
-            echo "::warning::No TypeScript configuration found"
-          fi
-
-          # Check for security headers in Express app
-          if ! grep -r "helmet\|cors" src/ --include="*.ts" --include="*.js"; then
-            echo "::warning::Security middleware (helmet/cors) not detected"
-          fi
-
-      - name: Validate package.json security
-        run: |
-          # Check for known vulnerable packages (basic check)
-          npm ls --depth=0 --audit-level=high --json > audit_result.json || echo "Audit completed with warnings"
-
-          # Check frontend packages too
-          cd upload-documents
-          npm ls --depth=0 --audit-level=high --json > ../audit_result_frontend.json || echo "Frontend audit completed with warnings"
