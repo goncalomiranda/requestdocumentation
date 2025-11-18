@@ -1,0 +1,156 @@
+# Dependabot configuration for comprehensive dependency management
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # Backend Dependencies (Node.js/TypeScript)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "Europe/Lisbon"
+    open-pull-requests-limit: 5
+    assignees:
+      - "goncalomiranda"
+    commit-message:
+      prefix: "deps(backend)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "backend"
+    # Group updates for better PR management
+    groups:
+      # Security updates (high priority)
+      security-updates:
+        patterns:
+          - "@types/*"
+          - "express*"
+          - "helmet*"
+          - "cors*"
+          - "mysql2*"
+          - "sequelize*"
+        update-types:
+          - "patch"
+          - "minor"
+      # TypeScript and build tools
+      build-tools:
+        patterns:
+          - "typescript"
+          - "ts-node"
+          - "@types/*"
+          - "nodemon"
+        update-types:
+          - "minor"
+          - "patch"
+      # Database and ORM
+      database:
+        patterns:
+          - "mysql2"
+          - "sequelize"
+          - "redis"
+        update-types:
+          - "minor"
+          - "patch"
+    # Ignore major version updates for critical packages
+    ignore:
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "express"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "sequelize"
+        update-types: ["version-update:semver-major"]
+
+  # Frontend Dependencies (React/Vite)
+  - package-ecosystem: "npm"
+    directory: "/upload-documents"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+      timezone: "Europe/Lisbon"
+    open-pull-requests-limit: 5
+    assignees:
+      - "goncalomiranda"
+    commit-message:
+      prefix: "deps(frontend)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "frontend"
+    # Group frontend updates
+    groups:
+      # React ecosystem
+      react-ecosystem:
+        patterns:
+          - "react*"
+          - "@types/react*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Build tools and bundlers
+      build-tools:
+        patterns:
+          - "vite*"
+          - "@vitejs/*"
+          - "typescript"
+          - "eslint*"
+        update-types:
+          - "minor"
+          - "patch"
+      # UI and styling
+      ui-libraries:
+        patterns:
+          - "bootstrap"
+          - "material-icons"
+          - "flatpickr"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions Dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Lisbon"
+    open-pull-requests-limit: 3
+    assignees:
+      - "goncalomiranda"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    groups:
+      # GitHub Actions
+      actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Docker Dependencies (if you add Docker later)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    assignees:
+      - "goncalomiranda"
+    commit-message:
+      prefix: "docker"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "docker"
