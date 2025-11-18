@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@types/flatpickr": "^3.0.2",
+    "@types/flatpickr": "^3.1.4",
     "axios": "^1.7.9",
     "bootstrap": "^5.2.3",
     "flatpickr": "^4.6.13",
