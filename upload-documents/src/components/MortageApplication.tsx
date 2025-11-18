@@ -777,13 +777,13 @@ const MortageApplication: React.FC = () => {
                               onChange={handleConsentToggle}
                             />
                             <label className={`form-check-label ms-3 mb-0 ${getValidationClass('consentGiven') ? 'text-danger' : ''}`} htmlFor="flexSwitchCheckDefault">
-                              I agree to the <a href="#" className="text-dark font-weight-bold" onClick={e => e.preventDefault()}><u>Terms and Conditions</u></a>.
+                              {t.form.termsAndConditionsPrefix} <a href="#" className="text-dark font-weight-bold" onClick={e => e.preventDefault()}><u>{t.form.termsAndConditionsLink}</u></a>.
                             </label>
                           </div>
                           {showValidation && formErrors.consentGiven && (
                             <div className="text-danger small mb-2">
                               <i className="material-icons text-sm me-1" style={{ verticalAlign: 'middle', fontSize: '14px' }}>error</i>
-                              You must agree to the Terms and Conditions to continue.
+                              {t.form.termsAndConditionsError}
                             </div>
                           )}
                         </div>

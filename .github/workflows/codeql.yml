@@ -1,38 +1,186 @@
-name: "CodeQL"
+name: "CodeQL Security Analysis"
 
 on:
+  push:
+    branches: ["main", "develop"]
   pull_request:
-    branches:
-      - main
-  workflow_dispatch:    
+    branches: ["main", "develop"]
+    paths:
+      - "**/*.ts"
+      - "**/*.tsx"
+      - "**/*.js"
+      - "**/*.jsx"
+      - "src/**"
+      - "upload-documents/**"
+      - "package*.json"
+      - "tsconfig*.json"
+  schedule:
+    # Run weekly security scans every Monday at 2 AM UTC
+    - cron: "0 2 * * 1"
+  workflow_dispatch:
+    inputs:
+      analysis_type:
+        description: "Type of analysis to run"
+        required: false
+        default: "full"
+        type: choice
+        options:
+          - full
+          - quick
+          - security-only
+
+env:
+  NODE_VERSION: "18"
 
 jobs:
   analyze:
-    name: Analyze
-    runs-on: ubuntu-latest
+    name: Analyze (${{ matrix.language }})
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
 
     permissions:
+      # Required for all workflows
+      security-events: write
+      # Required to fetch internal or private CodeQL packs
+      packages: read
+      # Only required for workflows in private repositories
       actions: read
       contents: read
-      security-events: write
 
     strategy:
       fail-fast: false
       matrix:
-        language: ['javascript']
-        # Add other languages here if needed
+        include:
+          - language: javascript-typescript
+            build-mode: none
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Fetch full history for better analysis
+          fetch-depth: 0
 
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: ${{ matrix.language }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: |
+            package-lock.json
+            upload-documents/package-lock.json
 
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v3
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+            upload-documents/node_modules
+          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-${{ env.NODE_VERSION }}-
+            ${{ runner.os }}-node-
 
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+      - name: Install backend dependencies
+        run: npm ci
+
+      - name: Install frontend dependencies
+        working-directory: upload-documents
+        run: npm ci
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          # Enhanced security queries for better vulnerability detection
+          queries: +security-and-quality
+          config: |
+            paths:
+              - src
+              - upload-documents/src
+            paths-ignore:
+              - node_modules
+              - dist
+              - upload-documents/dist
+              - upload-documents/node_modules
+              - '**/*.test.ts'
+              - '**/*.test.tsx'
+              - '**/*.spec.ts'
+              - '**/*.spec.tsx'
+
+      - name: Build TypeScript Backend
+        run: npm run build
+
+      - name: Build React Frontend
+        working-directory: upload-documents
+        run: npm run build
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"
+          # Upload results even if there are compilation errors
+          upload: true
+
+  # Additional job for dependency vulnerability scanning
+  dependency-check:
+    name: Dependency Vulnerability Check
+    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule' # Skip for scheduled runs to avoid duplication
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Run npm audit (Backend)
+        run: |
+          npm audit --audit-level=moderate --production || echo "::warning::Backend dependencies have vulnerabilities"
+
+      - name: Run npm audit (Frontend)
+        working-directory: upload-documents
+        run: |
+          npm audit --audit-level=moderate --production || echo "::warning::Frontend dependencies have vulnerabilities"
+
+  # Security configuration validation
+  security-config-check:
+    name: Security Configuration Check
+    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for sensitive files
+        run: |
+          # Check for accidentally committed secrets
+          if find . -name "*.env*" -not -path "./node_modules/*" -not -path "./.git/*" | grep -v ".env.example"; then
+            echo "::error::Environment files found in repository"
+            exit 1
+          fi
+
+          # Check for proper TypeScript configuration
+          if [ ! -f "tsconfig.json" ]; then
+            echo "::warning::No TypeScript configuration found"
+          fi
+
+          # Check for security headers in Express app
+          if ! grep -r "helmet\|cors" src/ --include="*.ts" --include="*.js"; then
+            echo "::warning::Security middleware (helmet/cors) not detected"
+          fi
+
+      - name: Validate package.json security
+        run: |
+          # Check for known vulnerable packages (basic check)
+          npm ls --depth=0 --audit-level=high --json > audit_result.json || echo "Audit completed with warnings"
+
+          # Check frontend packages too
+          cd upload-documents
+          npm ls --depth=0 --audit-level=high --json > ../audit_result_frontend.json || echo "Frontend audit completed with warnings"

@@ -30,7 +30,10 @@
       "guarantors": "Guarantors",
       "addGuarantor": "Add Guarantor",
       "submit": "Submit Application",
-      "applicationPreview": "Application Preview"
+      "applicationPreview": "Application Preview",
+      "termsAndConditionsPrefix": "I agree to the",
+      "termsAndConditionsLink": "Terms and Conditions",
+      "termsAndConditionsError": "You must agree to the Terms and Conditions to continue."
     },
     "modal": {
       "success": {
@@ -110,7 +113,10 @@
       "guarantors": "Fiadores",
       "addGuarantor": "Adicionar Fiador",
       "submit": "Submeter Candidatura",
-      "applicationPreview": "Pré-visualização da Candidatura"
+      "applicationPreview": "Pré-visualização da Candidatura",
+      "termsAndConditionsPrefix": "Concordo com os",
+      "termsAndConditionsLink": "Termos e Condições",
+      "termsAndConditionsError": "Deve concordar com os Termos e Condições para continuar."
     },
     "modal": {
       "success": {
