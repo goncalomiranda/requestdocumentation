@@ -1,0 +1,55 @@
+{
+  "purchaseValue": 100,
+  "financingAmount": 50,
+  "otherFinancingAmount": null,
+  "ownCapital": 100000001,
+  "comments": "so um teste",
+  "rents": "100. 100, 20",
+  "guarantors": [
+    {
+      "name": "Antonio Rolo Miranda",
+      "dateOfBirth": "2021-09-28",
+      "responsibilities": "nadaaaa",
+      "incomes": "300",
+      "maritalStatus": "single",
+      "employmentStatus": "student",
+      "dependents": "0"
+    },
+    {
+      "name": "Paul Atreides",
+      "dateOfBirth": "2025-11-11",
+      "responsibilities": "asdasd",
+      "incomes": "1111",
+      "maritalStatus": "single",
+      "employmentStatus": "unemployed",
+      "dependents": "0"
+    }
+  ],
+  "proponents": [
+    {
+      "name": "Goncalo 1",
+      "phoneNumber": "4167315707",
+      "email": "miranda.gs@gmail.com",
+      "dateOfBirth": "1983-06-18",
+      "responsibilities": "uiiii",
+      "incomes": "100",
+      "maritalStatus": "married",
+      "employmentStatus": "employed_full_time",
+      "dependents": "1"
+    },
+    {
+      "name": "Ines Rolo",
+      "phoneNumber": "4167315709",
+      "email": "inesrolo@gmail.com",
+      "dateOfBirth": "1982-03-20",
+      "responsibilities": "muitas",
+      "incomes": "200",
+      "maritalStatus": "married",
+      "employmentStatus": "employed_full_time",
+      "dependents": "1"
+    }
+  ],
+  "hasGuarantors": true,
+  "request_id": "d30cedc512af238fbbeca239b2da58c9200059ae",
+  "customerId": "agxzfm1haWxmb29nYWVyNwsSDE9yZ2FuaXphdGlvbiIUbWlyYW5kYS5nc0BnbWFpbC5jb20MCxIEQ2FzZRiAgKWYqtWBCAw"
+}

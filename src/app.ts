@@ -11,6 +11,7 @@ import swaggerSpec from './libraries/gateway/swagger'; // Path to your swagger s
 import applySecurityMiddleware from './libraries/gateway/security';
 import logger from './libraries/loggers/logger'; // Logger
 import sequelize from "./libraries/data-access/db-config"; // Sequelize instance
+import sharedSequelize from "./libraries/data-access/sharedDatabase"; // Shared database for OAuth tokens
 import SchedulerManager from './apps/schedulers/schedulerManager'; // Import scheduler manager
 import './libraries/redis/redis'; // Initialize Redis connection
 
@@ -18,6 +19,7 @@ import './libraries/redis/redis'; // Initialize Redis connection
 import './libraries/gateway/authenticators/data-access/Tenant'; // Import Tenant model
 import './apps/mortgage-application/data-access/MortgageApplicationRepository'; // Import ApplicationForm model
 import './apps/request-documentation/data-access/RequestDocumentation'; // Import other models if needed
+import './libraries/data-access/models/SharedPreference'; // Import SharedPreference model for OAuth tokens
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -50,10 +52,13 @@ app.get("*", (req, res) => {
 });
 
 // 🔹 Sync DB and start schedulers before starting the server
-sequelize
-  .sync()
+Promise.all([
+  sequelize.sync(),
+  sharedSequelize.sync()
+])
   .then(async () => {
-    logger.info("Database synchronized successfully!");
+    logger.info("✅ Main database synchronized successfully!");
+    logger.info("✅ Shared database synchronized successfully!");
 
     // Start all schedulers after database sync
     try {
@@ -69,7 +74,7 @@ sequelize
     });
   })
   .catch((err) => {
-    logger.error("Error syncing database:", err);
+    logger.error("Error syncing databases:", err);
   });
 
 // Graceful shutdown handling
