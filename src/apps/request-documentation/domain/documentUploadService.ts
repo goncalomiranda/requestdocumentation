@@ -28,7 +28,7 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
     throw new AppError("U1", "Bad Request", true);
   }
 
-  logger.info("token: " + token);
+  logger.debug("token: " + token);
 
   const requestedDocumentation = await RequestedDocumentation.findOne({
     where: {
@@ -52,16 +52,20 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
     // Save documents to Google Drive
     const docIds = [];
     for (const file of files) {
+      logger.info("0000: ");
       const matches = file.fieldname.match(/documents\[([^\]]+)\]/);
       const documentType = matches ? matches[1] : null;
 
       if (!documentType) {
+        logger.info("0: ");
         logger.error(
           `Document type could not be extracted from fieldname: ${file.fieldname}`
         );
         continue; // Skip this file
       }
 
+
+      logger.info("1: " + documentType);
       const customMetadata = { documentType: documentType };
       const fileStream = fs.createReadStream(file.path);
       const driveDoc = await createFile(
@@ -71,7 +75,7 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
         fileStream,
         customMetadata
       );
-
+      logger.info("2: " + documentType);
       docIds.push({
         driveBoxKey: requestedDocumentation.dataValues.customer_id,
         driveFileId: driveDoc.fileId,
@@ -80,56 +84,34 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
       //console.log("File uploaded to Google Drive: ", requestedDocumentation.dataValues.customer_id);
 
       logger.info("files to be added in streak: " + JSON.stringify(docIds));
-
-
-      streakFiles.addFilesToBox(docIds);
-
-      // Build update fields for status and GDPR consent
-      const updateFields: any = { status: "DONE" };
-      if (consentData) {
-        if (consentData.consentGiven !== undefined) updateFields.consentGiven = consentData.consentGiven;
-        if (consentData.consentVersion) updateFields.consentVersion = consentData.consentVersion;
-        if (consentData.givenAt) updateFields.givenAt = consentData.givenAt;
-        if (consentData.consentTimezone) updateFields.consentTimezone = consentData.consentTimezone;
-        if (consentData.userAgent) updateFields.userAgent = consentData.userAgent;
-        if (consentData.browserLanguage) updateFields.browserLanguage = consentData.browserLanguage;
-        if (consentData.consentA !== undefined) updateFields.consentA = consentData.consentA;
-        if (consentData.consentB !== undefined) updateFields.consentB = consentData.consentB;
-        if (consentData.consentC !== undefined) updateFields.consentC = consentData.consentC;
-        if (consentData.consentD !== undefined) updateFields.consentD = consentData.consentD;
-      }
-
-      await RequestedDocumentation.update(
-        updateFields,
-        { where: { request_id: token } }
-      );
-
-      // Publish event to Redis after successful upload completion
-      // try {
-      //   const uploadCompletedEvent = {
-      //     eventType: 'DOCUMENT_UPLOAD_COMPLETED',
-      //     timestamp: new Date().toISOString(),
-      //     requestId: token,
-      //     customerId: requestedDocumentation.dataValues.customer_id,
-      //     status: 'DONE',
-      //     documentsUploaded: files.length,
-      //     consentGiven: consentData?.consentGiven || false,
-      //     metadata: {
-      //       folder: requestedDocumentation.dataValues.folder,
-      //       language: requestedDocumentation.dataValues.lang,
-      //       userAgent: consentData?.userAgent,
-      //       browserLanguage: consentData?.browserLanguage
-      //     }
-      //   };
-
-      //   await redisClient.publish('document-upload-events', JSON.stringify(uploadCompletedEvent));
-      //   logger.info(`Published document upload completion event for request ${token} to Redis`);
-      // } catch (redisError) {
-      //   logger.error('Failed to publish document upload completion event to Redis:', redisError);
-      //   // Don't throw error here as the main upload process was successful
-      // }
-
     }
+
+    // Add files to Streak if any were uploaded
+    if (docIds.length > 0) {
+      streakFiles.addFilesToBox(docIds);
+    }
+
+    // Build update fields for status and GDPR consent
+    // This runs regardless of whether files were uploaded (handles RGPD-only case)
+    const updateFields: any = { status: "DONE" };
+    if (consentData) {
+      if (consentData.consentGiven !== undefined) updateFields.consentGiven = consentData.consentGiven;
+      if (consentData.consentVersion) updateFields.consentVersion = consentData.consentVersion;
+      if (consentData.givenAt) updateFields.givenAt = consentData.givenAt;
+      if (consentData.consentTimezone) updateFields.consentTimezone = consentData.consentTimezone;
+      if (consentData.userAgent) updateFields.userAgent = consentData.userAgent;
+      if (consentData.browserLanguage) updateFields.browserLanguage = consentData.browserLanguage;
+      if (consentData.consentA !== undefined) updateFields.consentA = consentData.consentA;
+      if (consentData.consentB !== undefined) updateFields.consentB = consentData.consentB;
+      if (consentData.consentC !== undefined) updateFields.consentC = consentData.consentC;
+      if (consentData.consentD !== undefined) updateFields.consentD = consentData.consentD;
+    }
+
+    // Update the request status and consent data
+    await RequestedDocumentation.update(
+      updateFields,
+      { where: { request_id: token } }
+    );
 
   }
 

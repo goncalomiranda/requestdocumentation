@@ -119,7 +119,9 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
 
   const allFilesSelected = useMemo(() => {
     const filled = Object.values(selectedFiles).filter(Boolean).length;
-    return requiredFileCount > 0 && filled === requiredFileCount;
+    // If no upload documents required (only RGPD), consider files selected as true
+    if (requiredFileCount === 0) return true;
+    return filled === requiredFileCount;
   }, [selectedFiles, requiredFileCount]);
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
