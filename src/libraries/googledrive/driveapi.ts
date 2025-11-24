@@ -61,7 +61,7 @@ async function getAuthenticatedClient() {
 interface FileMetadata {
   name: string;
   parents?: string[];
-  properties?: Record<string, any>;
+  appProperties?: Record<string, any>;
 }
 
 interface CreateFileResponse {
@@ -96,7 +96,7 @@ export const createFile = async (
     const fileMetadata: FileMetadata = {
       name: fileName,
       parents: [parentFolderId],
-      properties: customMetadata || {},
+      appProperties: customMetadata || {},
     };
 
     const media = {
@@ -135,39 +135,5 @@ export const createFile = async (
     }
 
     throw new Error(`Failed to create file: ${error?.message || 'Unknown error'}`);
-  }
-};
-
-export const fetchFilesByIds = async (
-  driveIds: string[]
-): Promise<{ id: string; name: string; properties?: Record<string, any> }[]> => {
-  if (!Array.isArray(driveIds) || driveIds.length === 0) {
-    throw new Error("A non-empty array of Drive IDs is required.");
-  }
-
-  try {
-    // Get authenticated client
-    const auth = await getAuthenticatedClient();
-    const drive = google.drive({ version: "v3", auth });
-
-    const fileDetails = [];
-
-    for (const driveId of driveIds) {
-      const file = await drive.files.get({
-        fileId: driveId,
-        fields: "id, name, properties",
-      });
-
-      fileDetails.push({
-        id: file.data.id || "",
-        name: file.data.name || "",
-        properties: file.data.properties || {},
-      });
-    }
-
-    return fileDetails;
-  } catch (error) {
-    logger.error("Error fetching files", error);
-    throw new Error("Failed to fetch files.");
   }
 };
