@@ -8,6 +8,37 @@ import { createFile } from '../../../libraries/googledrive/driveapi';
 import streakFiles from '../../../libraries/streak/files';
 import redisClient from '../../../libraries/redis/redis';
 
+/**
+ * Publish RGPD consent event to Redis pub/sub
+ * This function handles errors gracefully and doesn't interrupt the main flow
+ */
+async function publishRgpdConsentEvent(data: {
+  customerId: string;
+  requestId: string;
+  allConsentsGiven: boolean;
+}) {
+  try {
+    const channel = 'rgpd-consent-events';
+    const message = JSON.stringify({
+      event: 'rgpd_consent_given',
+      timestamp: new Date().toISOString(),
+      customerId: data.customerId,
+      requestId: data.requestId,
+      allConsentsGiven: data.allConsentsGiven,
+    });
+
+    await redisClient.publish(channel, message);
+    logger.info(`✅ RGPD consent event published to ${channel} for customer ${data.customerId}`);
+  } catch (error) {
+    // Log error but don't throw - this should not interrupt the main flow
+    logger.error('❌ Failed to publish RGPD consent event to Redis:', error);
+    logger.error('Event details:', {
+      customerId: data.customerId,
+      requestId: data.requestId,
+    });
+  }
+}
+
 export async function uploadDocuments(token: string, files: Express.Multer.File[], consentData?: {
   consentGiven?: boolean;
   consentVersion?: string | null;
@@ -112,6 +143,25 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
       updateFields,
       { where: { request_id: token } }
     );
+
+    // Check if all RGPD consents were given (all A, B, C, D are true)
+    if (
+      consentData &&
+      consentData.consentGiven === true &&
+      consentData.consentA === true &&
+      consentData.consentB === true &&
+      consentData.consentC === true &&
+      consentData.consentD === true
+    ) {
+      logger.info('🛡️ All RGPD consents given - publishing event to Redis');
+
+      // Publish event to Redis pub/sub (non-blocking, errors are logged internally)
+      await publishRgpdConsentEvent({
+        customerId: requestedDocumentation.dataValues.customer_id,
+        requestId: token,
+        allConsentsGiven: true,
+      });
+    }
 
   }
 

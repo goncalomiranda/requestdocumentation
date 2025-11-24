@@ -777,7 +777,7 @@ const MortageApplication: React.FC = () => {
                               onChange={handleConsentToggle}
                             />
                             <label className={`form-check-label ms-3 mb-0 ${getValidationClass('consentGiven') ? 'text-danger' : ''}`} htmlFor="flexSwitchCheckDefault">
-                              {t.form.termsAndConditionsPrefix} <a href="#" className="text-dark font-weight-bold" onClick={e => e.preventDefault()}><u>{t.form.termsAndConditionsLink}</u></a>.
+                              {t.form.termsAndConditionsPrefix} <a href={`https://www.lvf.pt/terms/${lang.toUpperCase()}`} className="text-dark font-weight-bold" target="_blank" rel="noopener noreferrer"><u>{t.form.termsAndConditionsLink}</u></a>.
                             </label>
                           </div>
                           {showValidation && formErrors.consentGiven && (
