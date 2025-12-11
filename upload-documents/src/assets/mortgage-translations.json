@@ -32,8 +32,8 @@
       "submit": "Submit Application",
       "applicationPreview": "Application Preview",
       "termsAndConditionsPrefix": "I agree to the",
-      "termsAndConditionsLink": "Terms and Conditions",
-      "termsAndConditionsError": "You must agree to the Terms and Conditions to continue."
+      "termsAndConditionsLink": "Prior Information Duties",
+      "termsAndConditionsError": "You must agree to the Prior Information Duties to continue."
     },
     "modal": {
       "success": {
@@ -115,8 +115,8 @@
       "submit": "Submeter Candidatura",
       "applicationPreview": "Pré-visualização da Candidatura",
       "termsAndConditionsPrefix": "Concordo com os",
-      "termsAndConditionsLink": "Termos e Condições",
-      "termsAndConditionsError": "Deve concordar com os Termos e Condições para continuar."
+      "termsAndConditionsLink": "Deveres de Informação Prévia",
+      "termsAndConditionsError": "Deve concordar com os Deveres de Informação Prévia para continuar."
     },
     "modal": {
       "success": {
