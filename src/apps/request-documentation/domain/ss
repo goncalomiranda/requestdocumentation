@@ -1,0 +1,122 @@
+[
+  {
+    "id": "2ee23fd3-94cd-11f0-ae7d-bc24112798be",
+    "doc_key": "bank_statements_3m",
+    "translations": [
+      {
+        "value": "Extractos Bancários dos Últimos 3 Meses (com evidência do pagamento dos vencimentos)",
+        "documentId": "2ee23fd3-94cd-11f0-ae7d-bc24112798be"
+      }
+    ]
+  },
+  {
+    "id": "2ee2193f-94cd-11f0-ae7d-bc24112798be",
+    "doc_key": "citizenship_card",
+    "translations": [
+      {
+        "value": "Cartão de Cidadão",
+        "documentId": "2ee2193f-94cd-11f0-ae7d-bc24112798be"
+      }
+    ]
+  },
+  {
+    "id": "2ee23e79-94cd-11f0-ae7d-bc24112798be",
+    "doc_key": "crbp_map",
+    "translations": [
+      {
+        "value": "Mapa da Central de Responsabilidades do Banco de Portugal (CRBP)",
+        "documentId": "2ee23e79-94cd-11f0-ae7d-bc24112798be"
+      }
+    ]
+  },
+  {
+    "id": "2ee23ecc-94cd-11f0-ae7d-bc24112798be",
+    "doc_key": "credit_report",
+    "translations": [
+      {
+        "value": "Relatório de Crédito",
+        "documentId": "2ee23ecc-94cd-11f0-ae7d-bc24112798be"
+      }
+    ]
+  },
+  {
+    "id": "2ee23cba-94cd-11f0-ae7d-bc24112798be",
+    "doc_key": "driver_license",
+    "translations": [
+      {
+        "value": "Carta de Condução",
+        "documentId": "2ee23cba-94cd-11f0-ae7d-bc24112798be"
+      }
+    ]
+  },
+  {
+    "id": "2ee23f2a-94cd-11f0-ae7d-bc24112798be",
+    "doc_key": "employment_contract",
+    "translations": [
+      {
+        "value": "Contrato de Trabalho ou Declaração da Entidade Empregadora",
+        "documentId": "2ee23f2a-94cd-11f0-ae7d-bc24112798be"
+      }
+    ]
+  },
+  {
+    "id": "2ee23dc3-94cd-11f0-ae7d-bc24112798be",
+    "doc_key": "identification",
+    "translations": [
+      {
+        "value": "Identificação (Cartão do Cidadão)",
+        "documentId": "2ee23dc3-94cd-11f0-ae7d-bc24112798be"
+      }
+    ]
+  },
+  {
+    "id": "2ee23f81-94cd-11f0-ae7d-bc24112798be",
+    "doc_key": "own_capital_proof",
+    "translations": [
+      {
+        "value": "Prova da Existência dos Capitais Próprios a Aportar",
+        "documentId": "2ee23f81-94cd-11f0-ae7d-bc24112798be"
+      }
+    ]
+  },
+  {
+    "id": "2ee23b05-94cd-11f0-ae7d-bc24112798be",
+    "doc_key": "passport",
+    "translations": [
+      {
+        "value": "Passaporte",
+        "documentId": "2ee23b05-94cd-11f0-ae7d-bc24112798be"
+      }
+    ]
+  },
+  {
+    "id": "2ee24023-94cd-11f0-ae7d-bc24112798be",
+    "doc_key": "rgpd",
+    "translations": [
+      {
+        "value": "Formulário de Consentimento RGPD",
+        "documentId": "2ee24023-94cd-11f0-ae7d-bc24112798be"
+      }
+    ]
+  },
+  {
+    "id": "2ee23d5e-94cd-11f0-ae7d-bc24112798be",
+    "doc_key": "salary_slip",
+    "translations": [
+      {
+        "value": "Recibo de Vencimento",
+        "documentId": "2ee23d5e-94cd-11f0-ae7d-bc24112798be"
+      }
+    ]
+  },
+  {
+    "id": "2ee23e23-94cd-11f0-ae7d-bc24112798be",
+    "doc_key": "tax_declaration",
+    "translations": [
+      {
+        "value": "Última Declaração de Impostos",
+        "documentId": "2ee23e23-94cd-11f0-ae7d-bc24112798be"
+      }
+    ]
+  }
+]

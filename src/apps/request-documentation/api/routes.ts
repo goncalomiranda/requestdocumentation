@@ -1,5 +1,5 @@
-import express, { Request, Response } from "express";
-import { getDocumentsByLanguage } from "../domain/documentService";
+import express, { Request, Response, RequestHandler } from "express";
+import { getDocumentsByLanguage, createDocumentType, deleteDocumentType } from "../domain/documentService";
 import { getRequestedDocumentation } from "../domain/DocumentationRequest";
 import { requestDocumentation } from "../domain/requestdocumentation";
 import { getNewsfeed } from "../domain/newsfeedService";
@@ -28,6 +28,63 @@ router.get("/documents", async (req: Request & { tenantId?: string }, res: Respo
     res.json(documents);
   } catch (error: any) {
     logger.error('Error fetching documents: ' + error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Define the route to create a new document type
+router.post("/documents", async (req: Request & { tenantId?: string }, res: Response) => {
+  logger.info('Creating new document type...');
+  try {
+    const { doc_key, translations } = req.body;
+
+    // Validate required fields
+    if (!doc_key || !translations || !translations.en || !translations.pt) {
+      res.status(400).json({
+        error: "Bad request",
+        message: "doc_key and translations (en, pt) are required"
+      });
+      return;
+    }
+
+    const newDocument = await createDocumentType(doc_key, translations);
+    res.status(201).json(newDocument);
+  } catch (error: any) {
+    logger.error('Error creating document type: ' + error.message);
+
+    if (error.message.includes('already exists')) {
+      res.status(409).json({ error: error.message });
+      return;
+    }
+
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Define the route to delete a document type
+router.delete("/documents/:doc_key", async (req: Request & { tenantId?: string }, res: Response) => {
+  logger.info('Deleting document type...');
+  try {
+    const { doc_key } = req.params;
+
+    if (!doc_key) {
+      res.status(400).json({
+        error: "Bad request",
+        message: "doc_key is required"
+      });
+      return;
+    }
+
+    const result = await deleteDocumentType(doc_key);
+    res.status(200).json(result);
+  } catch (error: any) {
+    logger.error('Error deleting document type: ' + error.message);
+
+    if (error.message.includes('not found')) {
+      res.status(404).json({ error: error.message });
+      return;
+    }
+
     res.status(500).json({ error: "Internal server error" });
   }
 });

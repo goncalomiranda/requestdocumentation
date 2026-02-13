@@ -285,7 +285,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
       </div>
 
       {/* Trusted By Section */}
-      <section className="py-5" style={{ backgroundColor: '#ffffff' }}>
+      {/* <section className="py-5" style={{ backgroundColor: '#ffffff' }}>
         <div className="container">
           <div className="row">
             <div className="col-lg-6 mx-auto text-center">
@@ -319,7 +319,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
           </div>
           
         </div>
-      </section>
+      </section> */}
 
       {/* Main Content */}
       {token && documentation && (

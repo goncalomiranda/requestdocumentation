@@ -574,7 +574,7 @@ const MortageApplication: React.FC = () => {
       </header>
       
       {/* Trusted By Section */}
-      <section className="py-5" style={{ backgroundColor: '#ffffff' }}>
+      {/* <section className="py-5" style={{ backgroundColor: '#ffffff' }}>
         <div className="container">
           <div className="row">
             <div className="col-lg-6 mx-auto text-center">
@@ -609,7 +609,7 @@ const MortageApplication: React.FC = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
       
       {/* Only show application section if token exists AND documentation was successfully loaded */}
       {token && documentation && (
