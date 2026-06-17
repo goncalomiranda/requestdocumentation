@@ -34,6 +34,7 @@ const sendWelcomeEmail = async ({
       to,
       subject,
       html: emailHtml,
+      cc: process.env.SMTP_CC,
     });
 
     logger.info(`Email sent via Nodemailer: ${info.messageId}`);
