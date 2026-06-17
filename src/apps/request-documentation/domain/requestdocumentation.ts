@@ -26,7 +26,7 @@ export async function requestDocumentation(DocumentationRequest: DocumentationRe
   const uniqueLink =
     process.env.NODE_ENV === "production"
       ? `https://${baseUrl}/upload?token=${token}`
-      : `http://${baseUrl}:3001/document/upload?token=${token}`;
+      : `http://${baseUrl}:3000/upload?token=${token}`;
 
   // Prepare data to be saved
   const requestData = {

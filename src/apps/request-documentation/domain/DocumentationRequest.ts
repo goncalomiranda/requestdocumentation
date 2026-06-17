@@ -11,6 +11,7 @@ export async function getRequestedDocumentation(tenantId: string, customerId: st
     attributes: [
       "request_id",
       "customer_id",
+      "unique_link",
       "requested_documents",
       "created_at",
       "expiry_date",
@@ -39,6 +40,7 @@ export async function getRequestedDocumentation(tenantId: string, customerId: st
     const response: any = {
       request_id: doc.request_id,
       customer_id: doc.customer_id,
+      unique_link: doc.unique_link,
       requested_documents: JSON.parse(doc.requested_documents),
       created_at: doc.created_at,
       expiry_date: doc.expiry_date,
