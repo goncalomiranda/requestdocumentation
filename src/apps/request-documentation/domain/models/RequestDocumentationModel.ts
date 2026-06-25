@@ -11,6 +11,7 @@ interface Customer {
 interface DocumentRequest {
   key: string;
   quantity: number;
+  notes?: string;
 }
 
 // Domain model for the entire request body

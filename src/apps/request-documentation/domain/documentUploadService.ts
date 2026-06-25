@@ -225,7 +225,8 @@ export async function getDocumentsToUpload(token: string = "") {
       return {
         key: doc.key,
         value: description ? description.value : "", // Default to empty string if not found
-        quantity: doc.quantity
+        quantity: doc.quantity,
+        notes: doc.notes ?? null,
       };
     });
 
