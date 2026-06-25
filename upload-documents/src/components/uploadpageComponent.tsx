@@ -7,6 +7,7 @@ interface Document {
   key: string;
   value: string;
   quantity: number;
+  notes?: string | null;
 }
 
 interface Documentation {
@@ -224,8 +225,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
   };
 
   const handleSuccessClose = () => {
-    setUploadSuccess(null);
-    //fetchDocumentation("abc"); // Refresh the page data after closing the modal
+    window.location.reload();
   };
 
   // Check if any document with key 'rgpd' is present
@@ -347,10 +347,25 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                                 <div>
                                   <h5 className="mb-0 font-weight-bold" style={{ color: 'white' }}>{doc.value}</h5>
                                   <small className="opacity-8" style={{ color: 'white' }}>Required: {doc.quantity} file{doc.quantity > 1 ? 's' : ''}</small>
+                                  {doc.notes && (
+                                    <p className="mb-0 mt-2" style={{ color: 'white', opacity: 0.85 }}>{doc.notes}</p>
+                                  )}
                                 </div>
                               </div>
                             </div>
                             <div className="card-body p-4">
+                              {doc.notes && (
+                                <div className="mb-4" style={{ backgroundColor: '#fff8e1', border: '2px solid #ffcc80', borderRadius: '0.75rem', padding: '0.9rem' }}>
+                                  <div className="d-flex align-items-start">
+                                    <i className="material-icons me-2" style={{ color: '#d17a00' }}>priority_high</i>
+                                    <div>
+                                      <p className="mb-1" style={{ color: '#7a4a00', fontWeight: 700 }}>{translations.documentNotes?.title || 'Important note for this document'}</p>
+                                      <p className="mb-0" style={{ color: '#7a4a00' }}>{doc.notes}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+
                               {[...Array(doc.quantity)].map((_, i) => (
                                 <div className="mb-3" key={i}>
                                   <label htmlFor={`upload_${index}_${i}`} className="form-label font-weight-bold text-dark mb-2">
