@@ -100,7 +100,7 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
       const customMetadata = { documentType: documentType };
       const fileStream = fs.createReadStream(file.path);
       const driveDoc = await createFile(
-        file.originalname,
+        file.filename || file.originalname,
         requestedDocumentation.dataValues.folder, // Use folder from requestedDocumentation
         file.mimetype,
         fileStream,
