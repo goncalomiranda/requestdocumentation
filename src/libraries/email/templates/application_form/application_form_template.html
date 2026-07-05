@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -36,6 +36,12 @@
         line-height: 1.6;
         margin-top: 30px;
         color: #ffffff !important;
+      }
+      .body-text p {
+        margin: 0 0 18px;
+      }
+      .body-text p:last-child {
+        margin-bottom: 0;
       }
       .signature {
         background-color: #f8f9fa;
@@ -83,10 +89,11 @@
 
       <div class="body-text">
         <p>{{greeting}}</p>
-        <p>{{body}}</p>
+        {{bodyBeforeButton}}
         <div style="text-align: center">
           <a href="{{uniquelink}}" class="upload-btn"> {{buttonLabel}} </a>
         </div>
+        {{bodyAfterButton}}
       </div>
 
       <div class="signature">

@@ -11,6 +11,15 @@ import { application } from 'express';
 // Load environment variables from .env file
 dotenv.config();
 
+function formatEmailParagraphs(content: string) {
+    return content
+        .split(/\n\s*\n/)
+        .map((paragraph) => paragraph.trim())
+        .filter(Boolean)
+        .map((paragraph) => `<p>${paragraph}</p>`)
+        .join("");
+}
+
 export async function requestApplicationForm(applicationForm: ApplicationForm, tenant_id: string) {
 
     // Generate a unique encrypted token for the link
@@ -27,7 +36,7 @@ export async function requestApplicationForm(applicationForm: ApplicationForm, t
     const uniqueLink =
         process.env.NODE_ENV === "production"
             ? `https://${baseUrl}/mortgage-application?token=${token}`
-            : `http://${baseUrl}:5173/mortgage-application?token=${token}`;
+            : `http://${baseUrl}:3000/mortgage-application?token=${token}`;
 
     // Prepare data to be saved
     const requestData = {
@@ -60,10 +69,14 @@ export async function requestApplicationForm(applicationForm: ApplicationForm, t
         const templateDataJson = JSON.parse(templateDataRaw);
         const templateData = templateDataJson[lang];
 
-        // Replace {{name}} in the title with the customer's name
+        // Replace {{name}} in the title with the customer's name when present
         const processedTitle = templateData.title.replace(/{{name}}/g, applicationForm.customer.name);
-        // Replace {{expiryDate}} in the body with the formatted expiry date
-        const processedBody = templateData.body.replace(/{{expiryDate}}/g, formatDate(expiryDate));
+        const processedBodyBeforeButton = formatEmailParagraphs(
+            templateData.bodyBeforeButton.replace(/{{expiryDate}}/g, formatDate(expiryDate))
+        );
+        const processedBodyAfterButton = formatEmailParagraphs(
+            templateData.bodyAfterButton.replace(/{{expiryDate}}/g, formatDate(expiryDate))
+        );
 
         // Load HTML template
         const templateHtmlPath = path.join(
@@ -80,7 +93,8 @@ export async function requestApplicationForm(applicationForm: ApplicationForm, t
             .replace(/{{title}}/g, processedTitle)
             .replace(/{{greeting}}/g, templateData.greeting)
             .replace(/{{customerName}}/g, applicationForm.customer.name)
-            .replace(/{{body}}/g, processedBody)
+            .replace(/{{bodyBeforeButton}}/g, processedBodyBeforeButton)
+            .replace(/{{bodyAfterButton}}/g, processedBodyAfterButton)
             .replace(/{{expiryDate}}/g, formatDate(expiryDate))
             .replace(/{{uniquelink}}/g, uniqueLink)
             .replace(/{{buttonLabel}}/g, templateData.buttonLabel)

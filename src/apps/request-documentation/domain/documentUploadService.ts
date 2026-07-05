@@ -8,6 +8,17 @@ import { createFile } from '../../../libraries/googledrive/driveapi';
 import streakFiles from '../../../libraries/streak/files';
 import redisClient from '../../../libraries/redis/redis';
 
+type UploadedDocumentEntry = {
+  documentKey: string;
+  slotIndex: number;
+  driveFileId: string;
+  originalName: string;
+  mimeType: string;
+  uploadedAt: string;
+};
+
+type UploadedDocumentsMap = Record<string, UploadedDocumentEntry>;
+
 /**
  * Publish RGPD consent event to Redis pub/sub
  * This function handles errors gracefully and doesn't interrupt the main flow
@@ -51,80 +62,130 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
   consentC?: boolean;
   consentD?: boolean;
 }) {
-
   logger.info("uploading....");
-  if (!token) {
-    logger.error("Request ID is missing");
-    deleteFiles(files); // Ensure files are deleted
-    throw new AppError("U1", "Bad Request", true);
-  }
+  try {
+    if (!token) {
+      logger.error("Request ID is missing");
+      throw new AppError("U1", "Bad Request", true);
+    }
 
-  logger.debug("token: " + token);
+    logger.debug("token: " + token);
 
-  const requestedDocumentation = await RequestedDocumentation.findOne({
-    where: {
-      request_id: token,
-    },
-    //attributes: ["request_id", "lang"], // Explicitly select 'lang'
-  });
+    const requestedDocumentation = await RequestedDocumentation.findOne({
+      where: {
+        request_id: token,
+      },
+    });
 
-  if (requestedDocumentation) {
+    if (!requestedDocumentation) {
+      logger.warn("Requested documentation not found for token");
+      throw new AppError("G3", "Requested documentation not found.", true);
+    }
 
     if (isRequestExpired(requestedDocumentation.dataValues.expiry_date)) {
       await RequestedDocumentation.update(
         { status: "EXPIRED" },
         { where: { request_id: token } }
       );
-      deleteFiles(files); // Ensure files are deleted
       logger.error("Request has expired");
       throw new AppError("U2", "Bad Request", true);
     }
 
-    // Save documents to Google Drive
+    if (
+      requestedDocumentation.dataValues.status === "DONE" ||
+      requestedDocumentation.dataValues.status === "EXPIRED"
+    ) {
+      logger.error("Status not available to upload");
+      throw new AppError("G2", "Documentatio Request not available", true);
+    }
+
+    const parsedRequestedDocuments = parseRequestedDocuments(
+      requestedDocumentation.dataValues.requested_documents
+    );
+
+    const uploadedDocuments = normalizeUploadedDocuments(
+      requestedDocumentation.dataValues.uploaded_documents
+    );
+
+    const hasRgpdDocument = parsedRequestedDocuments.some((doc: any) => doc.key === "rgpd");
+    const hasAnyPreviouslyUploadedDocument = Object.keys(uploadedDocuments).length > 0;
+    const hasAnyIncomingFiles = (files || []).length > 0;
+
+    const finalConsentValues = {
+      consentGiven: consentData?.consentGiven ?? requestedDocumentation.dataValues.consentGiven,
+      consentA: consentData?.consentA ?? requestedDocumentation.dataValues.consentA,
+      consentB: consentData?.consentB ?? requestedDocumentation.dataValues.consentB,
+      consentC: consentData?.consentC ?? requestedDocumentation.dataValues.consentC,
+      consentD: consentData?.consentD ?? requestedDocumentation.dataValues.consentD,
+    };
+
+    const hasAllConsentsNow = (
+      finalConsentValues.consentGiven === true &&
+      finalConsentValues.consentA === true &&
+      finalConsentValues.consentB === true &&
+      finalConsentValues.consentC === true &&
+      finalConsentValues.consentD === true
+    );
+
+    // First upload with actual files requires RGPD consent to guarantee no stored file lacks consent.
+    if (hasRgpdDocument && !hasAnyPreviouslyUploadedDocument && hasAnyIncomingFiles && !hasAllConsentsNow) {
+      logger.error("First document upload requires full RGPD consent");
+      throw new AppError("U4", "RGPD consent is mandatory before the first document upload", true);
+    }
+
+    // Save any provided files to Google Drive and merge into persisted progress map.
     const docIds = [];
-    for (const file of files) {
-      logger.info("0000: ");
-      const matches = file.fieldname.match(/documents\[([^\]]+)\]/);
+    for (const file of files || []) {
+      const matches = file.fieldname.match(/documents\[([^\]]+)\](?:\[(\d+)\])?/);
       const documentType = matches ? matches[1] : null;
+      const slotIndex = matches && matches[2] ? Number(matches[2]) : 0;
 
       if (!documentType) {
-        logger.info("0: ");
         logger.error(
           `Document type could not be extracted from fieldname: ${file.fieldname}`
         );
-        continue; // Skip this file
+        continue;
       }
 
+      // Skip already uploaded slots to avoid duplicate uploads for the same document slot.
+      if (uploadedDocuments[buildUploadSlotKey(documentType, slotIndex)]) {
+        logger.info(`Skipping already uploaded slot ${documentType}[${slotIndex}]`);
+        continue;
+      }
 
-      logger.info("1: " + documentType);
-      const customMetadata = { documentType: documentType };
+      const customMetadata = { documentType };
       const fileStream = fs.createReadStream(file.path);
       const driveDoc = await createFile(
         file.filename || file.originalname,
-        requestedDocumentation.dataValues.folder, // Use folder from requestedDocumentation
+        requestedDocumentation.dataValues.folder,
         file.mimetype,
         fileStream,
         customMetadata
       );
-      logger.info("2: " + documentType);
+
       docIds.push({
         driveBoxKey: requestedDocumentation.dataValues.customer_id,
         driveFileId: driveDoc.fileId,
       });
 
-      //console.log("File uploaded to Google Drive: ", requestedDocumentation.dataValues.customer_id);
-
-      logger.info("files to be added in streak: " + JSON.stringify(docIds));
+      uploadedDocuments[buildUploadSlotKey(documentType, slotIndex)] = {
+        documentKey: documentType,
+        slotIndex,
+        driveFileId: driveDoc.fileId,
+        originalName: file.originalname,
+        mimeType: file.mimetype,
+        uploadedAt: new Date().toISOString(),
+      };
     }
 
-    // Add files to Streak if any were uploaded
     if (docIds.length > 0) {
       streakFiles.addFilesToBox(docIds);
     }
 
-    // Build update fields for status and GDPR consent
-    // This runs regardless of whether files were uploaded (handles RGPD-only case)
-    const updateFields: any = { status: "DONE" };
+    const updateFields: any = {
+      uploaded_documents: uploadedDocuments,
+    };
+
     if (consentData) {
       if (consentData.consentGiven !== undefined) updateFields.consentGiven = consentData.consentGiven;
       if (consentData.consentVersion) updateFields.consentVersion = consentData.consentVersion;
@@ -138,37 +199,55 @@ export async function uploadDocuments(token: string, files: Express.Multer.File[
       if (consentData.consentD !== undefined) updateFields.consentD = consentData.consentD;
     }
 
-    // Update the request status and consent data
+    const filesComplete = areAllRequiredFilesUploaded(parsedRequestedDocuments, uploadedDocuments);
+
+    const consentsComplete = !hasRgpdDocument || (
+      finalConsentValues.consentGiven === true &&
+      finalConsentValues.consentA === true &&
+      finalConsentValues.consentB === true &&
+      finalConsentValues.consentC === true &&
+      finalConsentValues.consentD === true
+    );
+
+    const requiredDocuments = parsedRequestedDocuments.filter((doc: any) => doc.key !== "rgpd");
+    const totalUploadedFiles = requiredDocuments.reduce(
+      (sum: number, doc: any) => sum + countUploadedSlotsForDocument(uploadedDocuments, doc.key),
+      0
+    );
+
+    const isRequestCompleted = filesComplete && consentsComplete;
+    updateFields.status = isRequestCompleted
+      ? "DONE"
+      : totalUploadedFiles > 0
+        ? "IN_PROGRESS"
+        : "ACTIVE";
+    updateFields.completed_at = isRequestCompleted ? new Date() : null;
+
     await RequestedDocumentation.update(
       updateFields,
       { where: { request_id: token } }
     );
 
-    // Check if all RGPD consents were given (all A, B, C, D are true)
-    if (
-      consentData &&
-      consentData.consentGiven === true &&
-      consentData.consentA === true &&
-      consentData.consentB === true &&
-      consentData.consentC === true &&
-      consentData.consentD === true
-    ) {
-      logger.info('🛡️ All RGPD consents given - publishing event to Redis');
+    const hadAllConsentsBefore = (
+      requestedDocumentation.dataValues.consentGiven === true &&
+      requestedDocumentation.dataValues.consentA === true &&
+      requestedDocumentation.dataValues.consentB === true &&
+      requestedDocumentation.dataValues.consentC === true &&
+      requestedDocumentation.dataValues.consentD === true
+    );
 
-      // Publish event to Redis pub/sub (non-blocking, errors are logged internally)
+    if (!hadAllConsentsBefore && hasAllConsentsNow) {
+      logger.info('🛡️ All RGPD consents given - publishing event to Redis');
       await publishRgpdConsentEvent({
         customerId: requestedDocumentation.dataValues.customer_id,
         requestId: token,
         allConsentsGiven: true,
       });
     }
-
+  } finally {
+    logger.info("deleting....");
+    deleteFiles(files);
   }
-
-  logger.info("deleting....");
-  deleteFiles(files); // Ensure files are deleted
-
-
 }
 
 export async function getDocumentsToUpload(token: string = "") {
@@ -218,17 +297,35 @@ export async function getDocumentsToUpload(token: string = "") {
       throw new AppError("G2", "Documentatio Request not available", true);
     }
 
-    const parsedDocuments = JSON.parse(requestedDocumentation.dataValues.requested_documents.trim());
+    const parsedDocuments = parseRequestedDocuments(requestedDocumentation.dataValues.requested_documents);
+    const uploadedDocuments = normalizeUploadedDocuments(requestedDocumentation.dataValues.uploaded_documents);
 
     const finalDocuments = parsedDocuments.map((doc: any) => {
       const description = documentTypes.documents.find(d => d.key === doc.key);
+      const requestedQuantity = Number(doc.quantity || 0);
+      const uploadedQuantity = countUploadedSlotsForDocument(uploadedDocuments, doc.key);
+      const uploadedSlots = getUploadedSlotsForDocument(uploadedDocuments, doc.key);
       return {
         key: doc.key,
         value: description ? description.value : "", // Default to empty string if not found
-        quantity: doc.quantity,
+        quantity: requestedQuantity,
+        uploadedQuantity,
+        uploadedSlots,
+        missingQuantity: Math.max(requestedQuantity - uploadedQuantity, 0),
+        completed: uploadedQuantity >= requestedQuantity,
         notes: doc.notes ?? null,
       };
     });
+
+    const requiredDocuments = parsedDocuments.filter((doc: any) => doc.key !== "rgpd");
+    const totalRequiredFiles = requiredDocuments.reduce(
+      (sum: number, doc: any) => sum + Number(doc.quantity || 0),
+      0
+    );
+    const totalUploadedFiles = requiredDocuments.reduce(
+      (sum: number, doc: any) => sum + countUploadedSlotsForDocument(uploadedDocuments, doc.key),
+      0
+    );
 
 
     // Transform the JSON string field into an object
@@ -236,7 +333,12 @@ export async function getDocumentsToUpload(token: string = "") {
 
     const transformedDocumentation = {
       ...rest, // Includes all other fields except requested_documents
-      documents: finalDocuments // Parse and add as "documents"
+      documents: finalDocuments, // Parse and add as "documents"
+      progress: {
+        totalRequiredFiles,
+        totalUploadedFiles,
+        allFilesUploaded: totalUploadedFiles >= totalRequiredFiles,
+      },
     };
 
     //throw new AppError("G12", "Error", true);
@@ -259,7 +361,7 @@ function isRequestExpired(expiry_date: string) {
 }
 
 const deleteFiles = (files: any) => {
-  files.forEach((file: any) => {
+  (files || []).forEach((file: any) => {
     logger.debug(file.path);
     fs.unlink(file.path, (err) => {
       if (err) {
@@ -270,3 +372,64 @@ const deleteFiles = (files: any) => {
     });
   });
 };
+
+function buildUploadSlotKey(documentKey: string, slotIndex: number): string {
+  return `${documentKey}#${slotIndex}`;
+}
+
+function normalizeUploadedDocuments(raw: any): UploadedDocumentsMap {
+  if (!raw) return {};
+  if (typeof raw === "string") {
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return {};
+    }
+  }
+  return raw as UploadedDocumentsMap;
+}
+
+function parseRequestedDocuments(raw: any): any[] {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === "string") {
+    try {
+      return JSON.parse(raw.trim());
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+function countUploadedSlotsForDocument(uploadedDocuments: UploadedDocumentsMap, documentKey: string): number {
+  const slots = new Set<number>();
+  for (const entry of Object.values(uploadedDocuments)) {
+    if (entry.documentKey === documentKey) {
+      slots.add(Number(entry.slotIndex));
+    }
+  }
+  return slots.size;
+}
+
+function getUploadedSlotsForDocument(uploadedDocuments: UploadedDocumentsMap, documentKey: string): number[] {
+  const slots = new Set<number>();
+  for (const entry of Object.values(uploadedDocuments)) {
+    if (entry.documentKey === documentKey) {
+      slots.add(Number(entry.slotIndex));
+    }
+  }
+  return Array.from(slots).sort((a, b) => a - b);
+}
+
+function areAllRequiredFilesUploaded(requestedDocuments: any[], uploadedDocuments: UploadedDocumentsMap): boolean {
+  const requiredDocuments = requestedDocuments.filter((doc: any) => doc.key !== "rgpd");
+  for (const doc of requiredDocuments) {
+    const requiredQuantity = Number(doc.quantity || 0);
+    const uploadedQuantity = countUploadedSlotsForDocument(uploadedDocuments, doc.key);
+    if (uploadedQuantity < requiredQuantity) {
+      return false;
+    }
+  }
+  return true;
+}

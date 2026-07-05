@@ -20,31 +20,36 @@ router.post("/upload", upload.any(), async (req: Request, res: Response) => {
   // Extract uploaded files
   const files: Express.Multer.File[] = req.files as Express.Multer.File[];
 
-  // Extract GDPR consent fields if present
-  const consentGiven = req.body.consentGiven === 'true';
-  const consentVersion = req.body.consentVersion || null;
-  const givenAt = req.body.givenAt ? new Date(req.body.givenAt) : null;
-  const consentTimezone = req.body.consentTimezone || null;
-  const userAgent = req.body.userAgent || null;
-  const browserLanguage = req.body.browserLanguage || null;
-  const consentA = req.body.consentA === 'true';
-  const consentB = req.body.consentB === 'true';
-  const consentC = req.body.consentC === 'true';
-  const consentD = req.body.consentD === 'true';
+  const hasConsentPayload = [
+    'consentGiven',
+    'consentVersion',
+    'givenAt',
+    'consentTimezone',
+    'userAgent',
+    'browserLanguage',
+    'consentA',
+    'consentB',
+    'consentC',
+    'consentD',
+  ].some((key) => req.body[key] !== undefined);
+
+  const consentData = hasConsentPayload
+    ? {
+      consentGiven: req.body.consentGiven === 'true',
+      consentVersion: req.body.consentVersion || null,
+      givenAt: req.body.givenAt ? new Date(req.body.givenAt) : null,
+      consentTimezone: req.body.consentTimezone || null,
+      userAgent: req.body.userAgent || null,
+      browserLanguage: req.body.browserLanguage || null,
+      consentA: req.body.consentA === 'true',
+      consentB: req.body.consentB === 'true',
+      consentC: req.body.consentC === 'true',
+      consentD: req.body.consentD === 'true',
+    }
+    : undefined;
 
   try {
-    await uploadDocuments(token, files, {
-      consentGiven,
-      consentVersion,
-      givenAt,
-      consentTimezone,
-      userAgent,
-      browserLanguage,
-      consentA,
-      consentB,
-      consentC,
-      consentD,
-    });
+    await uploadDocuments(token, files, consentData);
     res.status(200).json({ message: "Your documents have been uploaded successfully" });
   } catch (error: any) {
     res.status(500).json({ message: "Internal server error", error });

@@ -77,6 +77,15 @@ const RequestedDocumentation = dbaccess.define(
       type: DataTypes.STRING(32),
       allowNull: true,
     },
+    uploaded_documents: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      defaultValue: {},
+    },
+    completed_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
     consentA: {
       type: DataTypes.BOOLEAN,
       allowNull: true,

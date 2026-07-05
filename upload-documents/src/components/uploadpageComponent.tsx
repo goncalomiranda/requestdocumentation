@@ -7,6 +7,10 @@ interface Document {
   key: string;
   value: string;
   quantity: number;
+  uploadedQuantity?: number;
+  uploadedSlots?: number[];
+  missingQuantity?: number;
+  completed?: boolean;
   notes?: string | null;
 }
 
@@ -14,6 +18,16 @@ interface Documentation {
   request_id: string;
   documents: Document[];
   customerId?: string; // Add customerId to the Documentation interface
+  consentGiven?: boolean;
+  consentA?: boolean;
+  consentB?: boolean;
+  consentC?: boolean;
+  consentD?: boolean;
+  progress?: {
+    totalRequiredFiles: number;
+    totalUploadedFiles: number;
+    allFilesUploaded: boolean;
+  };
 }
 
 interface UploadPageProps {
@@ -79,6 +93,12 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
         request_id: data.request_id,
         documents: data.documents,
         customerId: data.customer_id, // Extract customerId from response
+        consentGiven: data.consentGiven,
+        consentA: data.consentA,
+        consentB: data.consentB,
+        consentC: data.consentC,
+        consentD: data.consentD,
+        progress: data.progress,
       };
 
       setDocumentation(formattedData);
@@ -108,22 +128,32 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
     }
   }, [documentation]);
 
+  useEffect(() => {
+    if (!documentation) return;
+
+    setConsentChecked(!!documentation.consentGiven);
+    setConsentA(!!documentation.consentA);
+    setConsentB(!!documentation.consentB);
+    setConsentC(!!documentation.consentC);
+    setConsentD(!!documentation.consentD);
+  }, [documentation]);
+
   // Exclude 'rgpd' from the upload list
   const uploadDocuments = useMemo(() => {
     return documentation ? documentation.documents.filter(doc => doc.key !== 'rgpd') : [];
   }, [documentation]);
 
-  // Only count non-rgpd documents for required file count
-  const requiredFileCount = useMemo(() => {
-    return uploadDocuments.reduce((sum, d) => sum + d.quantity, 0);
-  }, [uploadDocuments]);
+  const hasAnyFileSelected = useMemo(() => {
+    return Object.values(selectedFiles).some(Boolean);
+  }, [selectedFiles]);
 
-  const allFilesSelected = useMemo(() => {
-    const filled = Object.values(selectedFiles).filter(Boolean).length;
-    // If no upload documents required (only RGPD), consider files selected as true
-    if (requiredFileCount === 0) return true;
-    return filled === requiredFileCount;
-  }, [selectedFiles, requiredFileCount]);
+  const hasAnyConsentSelected = useMemo(() => {
+    return consentChecked || consentA || consentB || consentC || consentD;
+  }, [consentChecked, consentA, consentB, consentC, consentD]);
+
+  const allConsentsChecked = useMemo(() => {
+    return consentChecked && consentA && consentB && consentC && consentD;
+  }, [consentChecked, consentA, consentB, consentC, consentD]);
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.name;
@@ -140,7 +170,21 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
 
   const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!allFilesSelected || (hasRgpdDocument && !(consentChecked && consentA && consentB && consentC && consentD))) return;
+    if (!hasAnyFileSelected && !hasAnyConsentSelected) {
+      setUploadError(translations.atLeastOneRequired);
+      return;
+    }
+
+    const isFirstUploadWithFiles =
+      !!hasRgpdDocument &&
+      hasAnyFileSelected &&
+      ((documentation?.progress?.totalUploadedFiles ?? 0) === 0);
+
+    if (isFirstUploadWithFiles && !allConsentsChecked) {
+      setUploadError(translations.rgpdRequiredFirstUpload);
+      return;
+    }
+
     setLoading(true);
     setUploadSuccess(null);
     setUploadError(null);
@@ -230,6 +274,13 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
 
   // Check if any document with key 'rgpd' is present
   const hasRgpdDocument = documentation?.documents.some(doc => doc.key === 'rgpd');
+  const isRgpdAlreadySubmitted = !!(
+    documentation?.consentGiven &&
+    documentation?.consentA &&
+    documentation?.consentB &&
+    documentation?.consentC &&
+    documentation?.consentD
+  );
 
   return (
     <div className="bg-gray-200">
@@ -346,7 +397,9 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                                 <i className="material-icons me-3" style={{ color: 'white' }}>description</i>
                                 <div>
                                   <h5 className="mb-0 font-weight-bold" style={{ color: 'white' }}>{doc.value}</h5>
-                                  <small className="opacity-8" style={{ color: 'white' }}>Required: {doc.quantity} file{doc.quantity > 1 ? 's' : ''}</small>
+                                  <small className="opacity-8" style={{ color: 'white' }}>
+                                    Required: {doc.quantity} file{doc.quantity > 1 ? 's' : ''} | {translations.uploadedProgress}: {doc.uploadedQuantity ?? 0}/{doc.quantity}
+                                  </small>
                                   {doc.notes && (
                                     <p className="mb-0 mt-2" style={{ color: 'white', opacity: 0.85 }}>{doc.notes}</p>
                                   )}
@@ -368,6 +421,10 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
 
                               {[...Array(doc.quantity)].map((_, i) => (
                                 <div className="mb-3" key={i}>
+                                    {(() => {
+                                      const isAlreadySubmitted = (doc.uploadedSlots || []).includes(i);
+                                      return (
+                                        <>
                                   <label htmlFor={`upload_${index}_${i}`} className="form-label font-weight-bold text-dark mb-2">
                                     <i className="material-icons text-sm me-1">attach_file</i>
                                     {translations.uploadFile} {i + 1}
@@ -377,12 +434,29 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                                     className="form-control"
                                     id={`upload_${index}_${i}`}
                                     name={`documents[${doc.key}][${i}]`}
-                                    required
+                                      disabled={isAlreadySubmitted}
                                     onChange={handleFileChange}
                                     style={{ borderRadius: '0.5rem', border: '1px solid #d2d6da' }}
                                   />
+                                    {isAlreadySubmitted && (
+                                      <small className="text-success d-block mt-2">
+                                        <i className="material-icons text-sm me-1">check_circle</i>
+                                        {translations.alreadySubmittedForSlot}
+                                      </small>
+                                    )}
+                                        </>
+                                      );
+                                    })()}
                                 </div>
                               ))}
+                                {doc.completed && (
+                                  <div className="alert alert-success border-0 mb-0" style={{ borderRadius: '0.5rem' }}>
+                                    <small>
+                                      <i className="material-icons text-sm me-1">task_alt</i>
+                                      {translations.alreadySubmitted}
+                                    </small>
+                                  </div>
+                                )}
                             </div>
                           </div>
                         </div>
@@ -480,7 +554,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                                       type="checkbox"
                                       className="form-check-input"
                                       id={`consent${letter}`}
-                                      disabled={!hasScrolledToBottom}
+                                      disabled={isRgpdAlreadySubmitted || !hasScrolledToBottom}
                                       checked={letter === 'A' ? consentA : letter === 'B' ? consentB : letter === 'C' ? consentC : consentD}
                                       onChange={e => {
                                         if (letter === 'A') setConsentA(e.target.checked);
@@ -502,7 +576,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                                   type="checkbox"
                                   className="form-check-input"
                                   id="gdprConsent"
-                                  disabled={!hasScrolledToBottom}
+                                  disabled={isRgpdAlreadySubmitted || !hasScrolledToBottom}
                                   checked={consentChecked}
                                   onChange={e => setConsentChecked(e.target.checked)}
                                 />
@@ -511,6 +585,14 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                                   {translations.consents?.RGPD_CONSENT}
                                 </label>
                               </div>
+                              {isRgpdAlreadySubmitted && (
+                                <div className="alert alert-success border-0 mt-3 mb-0" style={{ borderRadius: '0.5rem' }}>
+                                  <small>
+                                    <i className="material-icons text-sm me-1">task_alt</i>
+                                    {translations.alreadySubmitted}
+                                  </small>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -524,7 +606,7 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                           <button
                             type="submit"
                             className="btn bg-gradient-dark btn-lg w-100 mb-3"
-                            disabled={loading || !allFilesSelected || (hasRgpdDocument && !(consentChecked && consentA && consentB && consentC && consentD))}
+                              disabled={loading || (!!hasRgpdDocument && hasAnyFileSelected && ((documentation?.progress?.totalUploadedFiles ?? 0) === 0) && !allConsentsChecked)}
                             style={{ borderRadius: '0.75rem', padding: '15px' }}
                           >
                             {loading ? (
@@ -535,19 +617,25 @@ function UploadPage({ onUploadComplete }: UploadPageProps) {
                             ) : (
                               <>
                                 <i className="material-icons me-2">cloud_upload</i>
-                                {translations.submitDocuments}
+                                {translations.submitSelectedDocuments}
                               </>
                             )}
                           </button>
 
-                          {(!allFilesSelected || (hasRgpdDocument && !consentChecked)) && (
-                            <div className="alert alert-warning border-0 mt-3" style={{ borderRadius: '0.5rem' }}>
-                              <small>
-                                {!allFilesSelected && <div><i className="material-icons text-sm me-1">warning</i> All required files must be selected</div>}
-                                {hasRgpdDocument && !consentChecked && <div><i className="material-icons text-sm me-1">privacy_tip</i> GDPR consent required</div>}
-                              </small>
-                            </div>
-                          )}
+                          <div className="alert alert-info border-0 mt-3 mb-0" style={{ borderRadius: '0.5rem' }}>
+                            <small>
+                              <i className="material-icons text-sm me-1">info</i>
+                                {translations.partialUploadHint}
+                            </small>
+                          </div>
+                            {!!hasRgpdDocument && hasAnyFileSelected && ((documentation?.progress?.totalUploadedFiles ?? 0) === 0) && !allConsentsChecked && (
+                              <div className="alert alert-warning border-0 mt-3 mb-0" style={{ borderRadius: '0.5rem' }}>
+                                <small>
+                                  <i className="material-icons text-sm me-1">warning</i>
+                                  {translations.rgpdRequiredFirstUpload}
+                                </small>
+                              </div>
+                            )}
                         </div>
                       </div>
                     </div>
