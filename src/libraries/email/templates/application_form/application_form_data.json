@@ -1,20 +1,22 @@
 {
   "EN": {
-    "subject": "LVF - Complete Your Credit Application",
-    "title": "Complete Your Credit Application, {{name}}!",
+    "subject": "LVF - SEGUIMENTO DO PROCESSO DE CRÉDITO HABITAÇÃO",
+    "title": "Follow-Up on Your Mortgage Process",
     "greeting": "Dear Customer,",
-    "body": "We're excited to help you with your credit application! To proceed with your request, we need you to complete your application form with detailed information about your financial situation and property details.\n\nAdditionally, you may need to upload some supporting documents to complete your application process.\n\nThis link will expire on {{expiryDate}}. Please ensure you complete the form and any required uploads before this date.",
-    "preheader": "Complete your credit application form and upload any required documents to move forward.",
-    "footer": "You received this email because you initiated a credit application process with LVF.<br />If this was not supposed to happen, please contact us immediately.",
+    "bodyBeforeButton": "Thank you for your availability and for the interest you have shown in our support.\n\nTo allow us to move forward with the process more quickly and efficiently, we kindly ask you to complete a short form with some background information using the link below:",
+    "bodyAfterButton": "This link will remain available until {{expiryDate}}, so we would appreciate it if you could complete it before then, if possible.\n\nAdditionally, you will receive a second email with the list of documents required for the analysis of your application, together with the respective instructions for sending/uploading them.\n\nWe are pleased to support you throughout this process, committed to providing close and personalized guidance, and confident that we can find the solution best suited to your needs.\n\nPlease feel free to contact us if you need any further clarification.",
+    "preheader": "Complete the short form so we can continue your mortgage process efficiently.",
+    "footer": "You received this email because you initiated a mortgage process with LVF.<br />If this was not supposed to happen, please contact us immediately.",
     "buttonLabel": "Complete Application"
   },
   "PT": {
-    "subject": "LVF - Complete a Sua Aplicação de Crédito",
-    "title": "Complete a Sua Aplicação de Crédito, {{name}}!",
-    "greeting": "Caro Cliente,",
-    "body": "Estamos entusiasmados por o ajudar com a sua aplicação de crédito! Para prosseguir com o seu pedido, necessitamos que complete o formulário de aplicação com informações detalhadas sobre a sua situação financeira e detalhes do imóvel.\n\nAdicionalmente, poderá precisar de carregar alguns documentos comprovativos para completar o processo de aplicação.\n\nEste link irá expirar em {{expiryDate}}. Por favor, assegure-se de completar o formulário e carregar os documentos necessários antes desta data.",
-    "preheader": "Complete o formulário de aplicação de crédito e carregue os documentos necessários para prosseguir.",
-    "footer": "Recebeu este email porque iniciou um processo de aplicação de crédito com a LVF.<br />Se não era suposto acontecer, por favor contacte-nos imediatamente.",
+    "subject": "LVF - SEGUIMENTO DO PROCESSO DE CRÉDITO HABITAÇÃO",
+    "title": "Seguimento do Processo de Crédito Habitação",
+    "greeting": "Caro(a) Cliente,",
+    "bodyBeforeButton": "Agradecemos a sua disponibilidade e o interesse demonstrado no nosso apoio.\n\nPara podermos dar seguimento ao processo de forma mais rápida e eficiente, solicitamos o preenchimento de um breve formulário com algumas informações de enquadramento, através do link abaixo:",
+    "bodyAfterButton": "O link estará disponível até {{expiryDate}}, pelo que agradecemos, se possível, o seu preenchimento antes dessa data.\n\nAdicionalmente, irá receber um segundo email com a indicação da documentação necessária para análise do processo, bem como as respetivas instruções para envio/carregamento.\n\nEstamos entusiasmados por acompanhá-lo(a) neste processo, empenhados em prestar um acompanhamento próximo e personalizado, e seguros de conseguir encontrar a solução mais adequada às suas necessidades.\n\nFicamos ao dispor para qualquer esclarecimento adicional.",
+    "preheader": "Preencha o breve formulário para podermos dar seguimento ao seu processo de crédito habitação.",
+    "footer": "Recebeu este email porque iniciou um processo de crédito habitação com a LVF.<br />Se não era suposto acontecer, por favor contacte-nos imediatamente.",
     "buttonLabel": "Completar Aplicação"
   }
 }
